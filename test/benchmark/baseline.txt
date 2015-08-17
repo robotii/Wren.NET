@@ -1,0 +1,8 @@
+binary_trees,1426.44770207
+delta_blue,4032.1161596
+fib,1349.4491918
+for,2865.212259
+method_call,2380.87626244
+map_numeric,1406.3821112
+map_string,4064.75221733
+string_equals,1259.37527023
