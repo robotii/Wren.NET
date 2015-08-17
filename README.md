@@ -87,8 +87,8 @@ class ReservedWords is SyntaxExample {
   imports {
     // `import`
     import "hello"
-    // `import`, `using`
-    import "set" using Set
+    // `import`, `for`
+    import "set" for Set
   }
   // (Remove lines above to make this file compile)
 }
