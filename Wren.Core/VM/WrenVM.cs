@@ -235,7 +235,7 @@ namespace Wren.Core.VM
                     case Instruction.LOAD_LOCAL_6:
                     case Instruction.LOAD_LOCAL_7:
                     case Instruction.LOAD_LOCAL_8:
-                        index = stackStart + (int)instruction; // LOAD_LOCAL_0 has code 0
+                        index = stackStart + instruction - Instruction.LOAD_LOCAL_0;
                         if (fiber.StackTop >= fiber.Capacity)
                             stack = fiber.IncreaseStack();
                         stack[fiber.StackTop++] = stack[index];
@@ -320,7 +320,7 @@ namespace Wren.Core.VM
                     case Instruction.SUPER_15:
                     case Instruction.SUPER_16:
                         {
-                            int numArgs = (int)instruction & 63;
+                            int numArgs = instruction - (instruction >= Instruction.SUPER_0 ? Instruction.SUPER_0: Instruction.CALL_0) + 1;
                             int symbol = (bytecode[ip] << 8) + bytecode[ip + 1];
                             ip += 2;
 
