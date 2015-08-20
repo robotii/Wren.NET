@@ -8,19 +8,10 @@
     // order here.
     internal enum Instruction
     {
-        // Pushes the value in the given local slot.
-        LOAD_LOCAL_0 = 0,
-        LOAD_LOCAL_1 = 1,
-        LOAD_LOCAL_2 = 2,
-        LOAD_LOCAL_3 = 3,
-        LOAD_LOCAL_4 = 4,
-        LOAD_LOCAL_5 = 5,
-        LOAD_LOCAL_6 = 6,
-        LOAD_LOCAL_7 = 7,
-        LOAD_LOCAL_8 = 8,
-
         // Load the constant at index [arg].
         CONSTANT,
+
+        // Push null onto the stack.
         NULL,
 
         // Push false onto the stack.
@@ -28,6 +19,17 @@
 
         // Push true onto the stack.
         TRUE,
+
+        // Pushes the value in the given local slot.
+        LOAD_LOCAL_0,
+        LOAD_LOCAL_1,
+        LOAD_LOCAL_2,
+        LOAD_LOCAL_3,
+        LOAD_LOCAL_4,
+        LOAD_LOCAL_5,
+        LOAD_LOCAL_6,
+        LOAD_LOCAL_7,
+        LOAD_LOCAL_8,
 
         // Note: The compiler assumes the following _STORE instructions always
         // immediately follow their corresponding _LOAD ones.
@@ -76,43 +78,43 @@
 
         // Invoke the method with symbol [arg]. The number indicates the number of
         // arguments (not including the receiver,.
-        CALL_0 = 65,
-        CALL_1 = 66,
-        CALL_2 = 67,
-        CALL_3 = 68,
-        CALL_4 = 69,
-        CALL_5 = 70,
-        CALL_6 = 71,
-        CALL_7 = 72,
-        CALL_8 = 73,
-        CALL_9 = 74,
-        CALL_10 = 75,
-        CALL_11 = 76,
-        CALL_12 = 77,
-        CALL_13 = 78,
-        CALL_14 = 79,
-        CALL_15 = 80,
-        CALL_16 = 81,
+        CALL_0,
+        CALL_1,
+        CALL_2,
+        CALL_3,
+        CALL_4,
+        CALL_5,
+        CALL_6,
+        CALL_7,
+        CALL_8,
+        CALL_9,
+        CALL_10,
+        CALL_11,
+        CALL_12,
+        CALL_13,
+        CALL_14,
+        CALL_15,
+        CALL_16,
 
         // Invoke a superclass method with symbol [arg]. The number indicates the
         // number of arguments (not including the receiver,.
-        SUPER_0 = 129,
-        SUPER_1 = 130,
-        SUPER_2 = 131,
-        SUPER_3 = 132,
-        SUPER_4 = 133,
-        SUPER_5 = 134,
-        SUPER_6 = 135,
-        SUPER_7 = 136,
-        SUPER_8 = 137,
-        SUPER_9 = 138,
-        SUPER_10 = 139,
-        SUPER_11 = 140,
-        SUPER_12 = 141,
-        SUPER_13 = 142,
-        SUPER_14 = 143,
-        SUPER_15 = 144,
-        SUPER_16 = 145,
+        SUPER_0,
+        SUPER_1,
+        SUPER_2,
+        SUPER_3,
+        SUPER_4,
+        SUPER_5,
+        SUPER_6,
+        SUPER_7,
+        SUPER_8,
+        SUPER_9,
+        SUPER_10,
+        SUPER_11,
+        SUPER_12,
+        SUPER_13,
+        SUPER_14,
+        SUPER_15,
+        SUPER_16,
 
         // Jump the instruction pointer [arg] forward.
         JUMP,
@@ -149,10 +151,28 @@
         // Pushes the created closure.
         CLOSURE,
 
+        // Creates a new instance of a class.
+        //
+        // Assumes the class object is in slot zero, and replaces it with the new
+        // uninitialized instance of that class. This opcode is only emitted by the
+        // compiler-generated constructor metaclass methods.
+        CONSTRUCT,
+
+        // Creates a new instance of a foreign class.
+        //
+        // Assumes the class object is in slot zero, and replaces it with the new
+        // uninitialized instance of that class. This opcode is only emitted by the
+        // compiler-generated constructor metaclass methods.
+        FOREIGN_CONSTRUCT,
+
         // Creates a class. Top of stack is the superclass, or `null` if the class
         // inherits Object. Below that is a string for the name of the class. Byte
         // [arg] is the number of fields in the class.
         CLASS,
+
+        // Creates a foreign class. Top of stack is the superclass, or `null` if the
+        // class inherits Object. Below that is a string for the name of the class.
+        FOREIGN_CLASS,
 
         // Define a method for symbol [arg]. The class receiving the method is popped
         // off the stack, then the function defining the body is popped.

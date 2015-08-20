@@ -45,15 +45,15 @@ namespace Wren.Core.Bytecode
 
         TOKEN_BREAK,
         TOKEN_CLASS,
+        TOKEN_CONSTRUCT,
         TOKEN_ELSE,
         TOKEN_FALSE,
         TOKEN_FOR,
-        TOKEN_USING,
+        TOKEN_FOREIGN,
         TOKEN_IF,
         TOKEN_IMPORT,
         TOKEN_IN,
         TOKEN_IS,
-        TOKEN_NEW,
         TOKEN_NULL,
         TOKEN_RETURN,
         TOKEN_STATIC,
@@ -183,20 +183,52 @@ namespace Wren.Core.Bytecode
         public Loop enclosing;
     };
 
+    // The different signature syntaxes for different kinds of methods.
+    public enum SignatureType
+    {
+        // A name followed by a (possibly empty) parenthesized parameter list. Also
+        // used for binary operators.
+        SIG_METHOD,
+
+        // Just a name. Also used for unary operators.
+        SIG_GETTER,
+
+        // A name followed by "=".
+        SIG_SETTER,
+
+        // A square bracketed parameter list.
+        SIG_SUBSCRIPT,
+
+        // A square bracketed parameter list followed by "=".
+        SIG_SUBSCRIPT_SETTER,
+
+        // A constructor initializer function. This has a distinct signature to
+        // prevent it from being invoked directly outside of the constructor on the
+        // metaclass.
+        SIG_INITIALIZER
+    };
+
+    public class Signature
+    {
+        public string Name;
+        public int Length;
+        public SignatureType Type;
+        public int Arity;
+    };
+
     class ClassCompiler
     {
         // Symbol table for the fields of the class.
         public List<string> fields;
 
+        // True if the class being compiled is a foreign class.
+        public bool isForeign;
+
         // True if the current method being compiled is static.
         public bool isStaticMethod;
 
-        // The name of the method being compiled. Note that this is just the bare
-        // method name, and not its full signature.
-        public string methodName;
-
-        // The length of the method name being compiled.
-        public int methodLength;
+        // The signature of the method being compiled.
+        public Signature signature;
     };
 
     public class Compiler
@@ -499,7 +531,6 @@ namespace Wren.Core.Bytecode
         // Finishes lexing a number literal.
         static void ReadNumber(Parser parser)
         {
-            // TODO: scientific, etc.
             while (IsDigit(PeekChar(parser))) NextChar(parser);
 
             // See if it has a floating point. Make sure there is a digit after the "."
@@ -510,7 +541,28 @@ namespace Wren.Core.Bytecode
                 while (IsDigit(PeekChar(parser))) NextChar(parser);
             }
 
+            // See if the number is in scientific notation
+            if (PeekChar(parser) == 'e' || PeekChar(parser) == 'E')
+            {
+                NextChar(parser);
+
+                // if the exponant is negative
+                if (PeekChar(parser) == '-') NextChar(parser);
+
+                if(!IsDigit(PeekChar(parser)))
+                {
+                    LexError(parser, "Unterminated scientific notation.");
+                }
+
+                while (IsDigit(peekchar(parser))) NextChar(parser);
+            }
+
             MakeNumber(parser, false);
+        }
+
+        private static char peekchar(Parser parser)
+        {
+            throw new NotImplementedException();
         }
 
         // Finishes lexing an identifier. Handles reserved words.
@@ -531,6 +583,9 @@ namespace Wren.Core.Bytecode
                 case "class":
                     type = TokenType.TOKEN_CLASS;
                     break;
+                case "construct":
+                    type = TokenType.TOKEN_CONSTRUCT;
+                    break;
                 case "else":
                     type = TokenType.TOKEN_ELSE;
                     break;
@@ -540,8 +595,8 @@ namespace Wren.Core.Bytecode
                 case "for":
                     type = TokenType.TOKEN_FOR;
                     break;
-                case "using":
-                    type = TokenType.TOKEN_USING;
+                case "foreign":
+                    type = TokenType.TOKEN_FOREIGN;
                     break;
                 case "if":
                     type = TokenType.TOKEN_IF;
@@ -554,9 +609,6 @@ namespace Wren.Core.Bytecode
                     break;
                 case "is":
                     type = TokenType.TOKEN_IS;
-                    break;
-                case "new":
-                    type = TokenType.TOKEN_NEW;
                     break;
                 case "null":
                     type = TokenType.TOKEN_NULL;
@@ -1037,18 +1089,17 @@ namespace Wren.Core.Bytecode
             for (int i = numLocals - 1; i >= 0; i--)
             {
                 Local local = locals[i];
-
                 // Once we escape this scope and hit an outer one, we can stop.
                 if (local.depth < scopeDepth) break;
 
                 if (local.length == t.length && parser.source.Substring(t.start, t.length) == local.name)
                 {
-                    Error("Variable is already declared in this scope.");
+                    Error(string.Format("Variable '{0}' is already declared in this scope.", local.name));
                     return i;
                 }
             }
 
-            if (numLocals > MAX_LOCALS)
+            if (numLocals >= MAX_LOCALS)
             {
                 Error(string.Format("Cannot declare more than {0} variables in one scope.", MAX_LOCALS));
                 return -1;
@@ -1330,34 +1381,6 @@ namespace Wren.Core.Bytecode
 
         private delegate void GrammarFn(Compiler c, bool allowAssignment);
 
-        // The different signature syntaxes for different kinds of methods.
-        private enum SignatureType
-        {
-            // A name followed by a (possibly empty) parenthesized parameter list. Also
-            // used for binary operators.
-            SIG_METHOD,
-
-            // Just a name. Also used for unary operators.
-            SIG_GETTER,
-
-            // A name followed by "=".
-            SIG_SETTER,
-
-            // A square bracketed parameter list.
-            SIG_SUBSCRIPT,
-
-            // A square bracketed parameter list followed by "=".
-            SIG_SUBSCRIPT_SETTER
-        };
-
-        private class Signature
-        {
-            public string Name;
-            public int Length;
-            public SignatureType Type;
-            public int Arity;
-        };
-
         private delegate void SignatureFn(Compiler compiler, Signature signature);
 
         private struct GrammarRule
@@ -1537,6 +1560,10 @@ namespace Wren.Core.Bytecode
                     name += '=';
                     name = SignatureParameterList(name, 1, '(', ')');
                     break;
+                case SignatureType.SIG_INITIALIZER:
+                    name = "this" + signature.Name;
+                    name = SignatureParameterList(name, signature.Arity, '(', ')');
+                    break;
             }
             return name;
         }
@@ -1550,11 +1577,13 @@ namespace Wren.Core.Bytecode
         }
 
         // Initializes [signature] from the last consumed token.
-        private void SignatureFromToken(Signature signature)
+        private Signature SignatureFromToken(SignatureType type)
         {
+            Signature signature = new Signature();
+
             // Get the token for the method name.
             Token token = parser.previous;
-            signature.Type = SignatureType.SIG_GETTER;
+            signature.Type = type;
             signature.Arity = 0;
             signature.Name = parser.source.Substring(token.start, token.length);
             signature.Length = token.length;
@@ -1564,6 +1593,8 @@ namespace Wren.Core.Bytecode
                 Error(string.Format("Method names cannot be longer than {0} characters.", MAX_METHOD_NAME));
                 signature.Length = MAX_METHOD_NAME;
             }
+
+            return signature;
         }
 
         // Parses a comma-separated list of arguments. Modifies [signature] to include
@@ -1611,19 +1642,19 @@ namespace Wren.Core.Bytecode
         }
 
         // Compiles an (optional) argument list and then calls it.
-        private void MethodCall(Instruction instruction, string name, int length)
+        private void MethodCall(Instruction instruction, Signature signature)
         {
-            Signature signature = new Signature { Type = SignatureType.SIG_GETTER, Arity = 0, Name = name, Length = length };
+            Signature called = new Signature { Type = SignatureType.SIG_GETTER, Arity = 0, Name = signature.Name, Length = signature.Length };
 
             // Parse the argument list, if any.
             if (Match(TokenType.TOKEN_LEFT_PAREN))
             {
-                signature.Type = SignatureType.SIG_METHOD;
+                called.Type = SignatureType.SIG_METHOD;
 
                 // Allow empty an argument list.
                 if (Peek() != TokenType.TOKEN_RIGHT_PAREN)
                 {
-                    FinishArgumentList(signature);
+                    FinishArgumentList(called);
                 }
                 Consume(TokenType.TOKEN_RIGHT_PAREN, "Expect ')' after arguments.");
             }
@@ -1632,8 +1663,8 @@ namespace Wren.Core.Bytecode
             if (Match(TokenType.TOKEN_LEFT_BRACE))
             {
                 // Include the block argument in the arity.
-                signature.Type = SignatureType.SIG_METHOD;
-                signature.Arity++;
+                called.Type = SignatureType.SIG_METHOD;
+                called.Arity++;
 
                 Compiler fnCompiler = new Compiler(parser, this, true);
 
@@ -1651,12 +1682,25 @@ namespace Wren.Core.Bytecode
 
                 fnCompiler.FinishBody(false);
 
-                // TODO: Use the name of the method the block is being provided to.
-                fnCompiler.EndCompiler("(fn)");
+                String blockName = SignatureToString(called) + " block argument";
+                fnCompiler.EndCompiler(blockName);
             }
 
             // TODO: Allow Grace-style mixfix methods?
-            CallSignature(instruction, signature);
+
+            // If this is a super() call for an initializer, make sure we got an actual
+            // argument list.
+            if (signature.Type == SignatureType.SIG_INITIALIZER)
+            {
+                if (called.Type != SignatureType.SIG_METHOD)
+                {
+                    Error("A superclass constructor must have an argument list.");
+                }
+
+                called.Type = SignatureType.SIG_INITIALIZER;
+            }
+
+            CallSignature(instruction, called);
         }
 
         // Compiles a call whose name is the previously consumed token. This includes
@@ -1665,7 +1709,7 @@ namespace Wren.Core.Bytecode
         {
             // Get the token for the method name.
             Signature signature = new Signature();
-            SignatureFromToken(signature);
+            SignatureFromToken(SignatureType.SIG_GETTER);
 
             if (Match(TokenType.TOKEN_EQ))
             {
@@ -1683,7 +1727,7 @@ namespace Wren.Core.Bytecode
             }
             else
             {
-                MethodCall(instruction, signature.Name, signature.Length);
+                MethodCall(instruction, signature);
             }
         }
 
@@ -2081,7 +2125,7 @@ namespace Wren.Core.Bytecode
                 // No explicit name, so use the name of the enclosing method. Make sure we
                 // check that enclosingClass isn't null first. We've already reported the
                 // error, but we don't want to crash here.
-                c.MethodCall(Instruction.SUPER_0, enclosingClass.methodName, enclosingClass.methodLength);
+                c.MethodCall(Instruction.SUPER_0, enclosingClass.signature);
             }
         }
 
@@ -2124,23 +2168,6 @@ namespace Wren.Core.Bytecode
             c.IgnoreNewlines();
             c.Consume(TokenType.TOKEN_NAME, "Expect method name after '.'.");
             c.NamedCall(allowAssignment, Instruction.CALL_0);
-        }
-
-        private static void new_(Compiler c, bool allowAssignment)
-        {
-            // Allow a dotted name after 'new'.
-            c.Consume(TokenType.TOKEN_NAME, "Expect name after 'new'.");
-            Name(c, false);
-            while (c.Match(TokenType.TOKEN_DOT))
-            {
-                Call(c, false);
-            }
-
-            // The angle brackets in the name are to ensure users can't call it directly.
-            c.CallMethod(0, "<instantiate>");
-
-            // Invoke the constructor on the new instance.
-            c.MethodCall(Instruction.CALL_0, "new", 3);
         }
 
         private static void and_(Compiler c, bool allowAssignment)
@@ -2314,10 +2341,26 @@ namespace Wren.Core.Bytecode
         // Compiles a method signature for a constructor.
         private static void ConstructorSignature(Compiler c, Signature signature)
         {
-            signature.Type = SignatureType.SIG_GETTER;
+            c.Consume(TokenType.TOKEN_NAME, "Expect constructor name after 'construct'.");
 
-            // Add the parameters, if there are any.
-            c.ParameterList(signature);
+            // Capture the name.
+            signature = c.SignatureFromToken(SignatureType.SIG_INITIALIZER);
+
+            if (c.Match(TokenType.TOKEN_EQ))
+            {
+                c.Error("A constructor cannot be a setter.");
+            }
+
+            if (!c.Match(TokenType.TOKEN_LEFT_PAREN))
+            {
+                c.Error("A constructor cannot be a getter.");
+                return;
+            }
+
+            if (c.Match(TokenType.TOKEN_RIGHT_PAREN)) return;
+
+            c.FinishParameterList(signature);
+            c.Consume(TokenType.TOKEN_RIGHT_PAREN, "Expect ')' after parameters.");
         }
 
         // This table defines all of the parsing rules for the prefix and infix
@@ -2369,6 +2412,7 @@ namespace Wren.Core.Bytecode
   /* TOKEN_BANGEQ        */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.PREC_EQUALITY, "!="),
   /* TOKEN_BREAK         */ new GrammarRule(null, null, null, Precedence.PREC_NONE, null),
   /* TOKEN_CLASS         */ new GrammarRule(null, null, null, Precedence.PREC_NONE, null),
+  /* TOKEN_CONSTRUCT     */ new GrammarRule(null, null, ConstructorSignature, Precedence.PREC_NONE, null),
   /* TOKEN_ELSE          */ new GrammarRule(null, null, null, Precedence.PREC_NONE, null),
   /* TOKEN_FALSE         */ new GrammarRule(Boolean, null, null, Precedence.PREC_NONE, null),
   /* TOKEN_FOR           */ new GrammarRule(null, null, null, Precedence.PREC_NONE, null),
@@ -2377,7 +2421,6 @@ namespace Wren.Core.Bytecode
   /* TOKEN_IMPORT        */ new GrammarRule(null, null, null, Precedence.PREC_NONE, null),
   /* TOKEN_IN            */ new GrammarRule(null, null, null, Precedence.PREC_NONE, null),
   /* TOKEN_IS            */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.PREC_IS, "is"),
-  /* TOKEN_NEW           */ new GrammarRule(new_, null, ConstructorSignature, Precedence.PREC_NONE, null),
   /* TOKEN_NULL          */ new GrammarRule(null_, null, null, Precedence.PREC_NONE, null),
   /* TOKEN_RETURN        */ new GrammarRule(null, null, null, Precedence.PREC_NONE, null),
   /* TOKEN_STATIC        */ new GrammarRule(null, null, null, Precedence.PREC_NONE, null),
@@ -2477,6 +2520,9 @@ namespace Wren.Core.Bytecode
                 case Instruction.LOAD_LOCAL_6:
                 case Instruction.LOAD_LOCAL_7:
                 case Instruction.LOAD_LOCAL_8:
+                case Instruction.CONSTRUCT:
+                case Instruction.FOREIGN_CONSTRUCT:
+                case Instruction.FOREIGN_CLASS:
                     return 0;
 
                 case Instruction.LOAD_LOCAL:
@@ -2817,38 +2863,111 @@ namespace Wren.Core.Bytecode
 
         // Compiles a method definition inside a class body. Returns the symbol in the
         // method table for the new method.
-        private int Method(ClassCompiler classCompiler, bool isConstructor, SignatureFn signatureFn)
+        private bool Method(ClassCompiler classCompiler, int classSlot, out bool hasConstructor)
         {
-            // Build the method signature.
-            Signature signature = new Signature();
-            SignatureFromToken(signature);
+            hasConstructor = false;
 
-            classCompiler.methodName = signature.Name;
-            classCompiler.methodLength = signature.Length;
+            bool isForeign = Match(TokenType.TOKEN_FOREIGN);
+            classCompiler.isStaticMethod = Match(TokenType.TOKEN_STATIC);
+
+            SignatureFn signatureFn = GetRule(parser.current.type).method;
+            NextToken();
+
+            if (signatureFn == null)
+            {
+                Error("Expect method definition.");
+                return false;
+            }
+
+            // Build the method signature.
+            Signature signature = SignatureFromToken(SignatureType.SIG_GETTER);
+            classCompiler.signature = signature;
 
             Compiler methodCompiler = new Compiler(parser, this, false);
-
-            // Compile the method signature.
             signatureFn(methodCompiler, signature);
 
-            // Include the full signature in debug messages in stack traces.
-            string fullSignature = SignatureToString(signature);
+            if (classCompiler.isStaticMethod && signature.Type == SignatureType.SIG_INITIALIZER)
+            {
+                Error("A constructor cannot be static.");
+            }
 
-            Consume(TokenType.TOKEN_LEFT_BRACE, "Expect '{' to begin method body.");
-            methodCompiler.FinishBody(isConstructor);
+            String fullSignature = SignatureToString(signature);
 
-            methodCompiler.EndCompiler(fullSignature);
+            if (isForeign)
+            {
+                int constant = AddConstant(new Value(fullSignature));
 
-            return SignatureSymbol(signature);
+                EmitShortArg(Instruction.CONSTANT, constant);
+            }
+            else
+            {
+                Consume(TokenType.TOKEN_LEFT_BRACE, "Expect '{' to begin method body.");
+                methodCompiler.FinishBody(signature.Type == SignatureType.SIG_INITIALIZER);
+                methodCompiler.EndCompiler(fullSignature);
+            }
+
+            // Define the method. For a constructor, this defines the instance
+            // initializer method.
+            int methodSymbol = SignatureSymbol(signature);
+            DefineMethod(classSlot, classCompiler.isStaticMethod, methodSymbol);
+
+            if (signature.Type == SignatureType.SIG_INITIALIZER)
+            {
+                signature.Type = SignatureType.SIG_METHOD;
+                int constructorSymbol = SignatureSymbol(signature);
+                CreateConstructor(signature, methodSymbol);
+                DefineMethod(classSlot, true, constructorSymbol);
+
+                hasConstructor = true;
+            }
+
+            return true;
+        }
+
+        private void CreateConstructor(Signature signature, int initializerSymbol)
+        {
+            Compiler methodCompiler = new Compiler(parser, this, false);
+
+            methodCompiler.Emit(enclosingClass.isForeign ? Instruction.FOREIGN_CONSTRUCT : Instruction.CONSTRUCT);
+            methodCompiler.EmitShortArg(Instruction.CALL_0 + signature.Arity, initializerSymbol);
+            methodCompiler.Emit(Instruction.RETURN);
+
+            methodCompiler.EndCompiler("");
+        }
+
+        private void DefineMethod(int classSlot, bool isStaticMethod, int methodSymbol)
+        {
+            if (scopeDepth == 0)
+            {
+                EmitShortArg(Instruction.LOAD_MODULE_VAR, classSlot);
+            }
+            else
+            {
+                LoadLocal(classSlot);
+            }
+
+            Instruction inst = isStaticMethod ? Instruction.METHOD_STATIC : Instruction.METHOD_INSTANCE;
+            EmitShortArg(inst, methodSymbol);
+        }
+
+        private void CreateDefaultConstructor(int classSlot)
+        {
+            Signature signature = new Signature { Type = SignatureType.SIG_INITIALIZER, Arity = 0, Name = "new", Length = 3 };
+            int initializerSymbol = SignatureSymbol(signature);
+
+            signature.Type = SignatureType.SIG_METHOD;
+            int constructorSymbol = SignatureSymbol(signature);
+
+            CreateConstructor(signature, initializerSymbol);
+            DefineMethod(classSlot, true, constructorSymbol);
         }
 
         // Compiles a class definition. Assumes the "class" token has already been
         // consumed.
-        private void ClassDefinition()
+        private void ClassDefinition(bool isForeign)
         {
             // Create a variable to store the class in.
             int slot = DeclareNamedVariable();
-            bool isModule = scopeDepth == -1;
 
             // Make a string constant for the name.
             int nameConstant = AddConstant(new Value(parser.source.Substring(parser.previous.start, parser.previous.length)));
@@ -2869,7 +2988,15 @@ namespace Wren.Core.Bytecode
             // Store a placeholder for the number of fields argument. We don't know
             // the value until we've compiled all the methods to see which fields are
             // used.
-            int numFieldsInstruction = EmitByteArg(Instruction.CLASS, 255);
+            int numFieldsInstruction = -1;
+            if (isForeign)
+            {
+                Emit(Instruction.FOREIGN_CLASS);
+            }
+            else
+            {
+                numFieldsInstruction = EmitByteArg(Instruction.CLASS, 255);
+            }
 
             // Store it in its name.
             DefineVariable(slot);
@@ -2888,6 +3015,7 @@ namespace Wren.Core.Bytecode
             List<string> fields = new List<string>();
 
             classCompiler.fields = fields;
+            classCompiler.isForeign = isForeign;
 
             enclosingClass = classCompiler;
 
@@ -2895,51 +3023,11 @@ namespace Wren.Core.Bytecode
             Consume(TokenType.TOKEN_LEFT_BRACE, "Expect '{' after class declaration.");
             MatchLine();
 
+            bool hasConstructor = false;
+
             while (!Match(TokenType.TOKEN_RIGHT_BRACE))
             {
-                Instruction instruction = Instruction.METHOD_INSTANCE;
-                bool isConstructor = false;
-
-                classCompiler.isStaticMethod = false;
-
-                if (Match(TokenType.TOKEN_STATIC))
-                {
-                    instruction = Instruction.METHOD_STATIC;
-                    classCompiler.isStaticMethod = true;
-                }
-                else if (Peek() == TokenType.TOKEN_NEW)
-                {
-                    // If the method name is "new", it's a constructor.
-                    isConstructor = true;
-                }
-
-                SignatureFn signature = rules[(int)parser.current.type].method;
-                NextToken();
-
-                if (signature == null)
-                {
-                    Error("Expect method definition.");
-                    break;
-                }
-
-                int methodSymbol = Method(classCompiler, isConstructor, signature);
-
-                // Load the class. We have to do this for each method because we can't
-                // keep the class on top of the stack. If there are static fields, they
-                // will be locals above the initial variable slot for the class on the
-                // stack. To skip past those, we just load the class each time right before
-                // defining a method.
-                if (isModule)
-                {
-                    EmitShortArg(Instruction.LOAD_MODULE_VAR, slot);
-                }
-                else
-                {
-                    LoadLocal(slot);
-                }
-
-                // Define the method.
-                EmitShortArg(instruction, methodSymbol);
+                if (!Method(classCompiler, slot, out hasConstructor)) break;
 
                 // Don't require a newline after the last definition.
                 if (Match(TokenType.TOKEN_RIGHT_BRACE)) break;
@@ -2947,8 +3035,16 @@ namespace Wren.Core.Bytecode
                 ConsumeLine("Expect newline after definition in class.");
             }
 
-            // Update the class with the number of fields.
-            bytecode[numFieldsInstruction] = (byte)fields.Count;
+            if (!hasConstructor)
+            {
+                CreateDefaultConstructor(slot);
+            }
+
+            if (!isForeign)
+            {
+                // Update the class with the number of fields.
+                bytecode[numFieldsInstruction] = (byte)fields.Count;
+            }
 
             enclosingClass = null;
 
@@ -3017,7 +3113,7 @@ namespace Wren.Core.Bytecode
         {
             if (Match(TokenType.TOKEN_CLASS))
             {
-                ClassDefinition();
+                ClassDefinition(false);
                 return;
             }
 
