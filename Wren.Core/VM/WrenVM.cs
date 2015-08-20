@@ -193,7 +193,7 @@ namespace Wren.Core.VM
             // Make sure the superclass is a class.
             if (!(superclassContainer.Obj is ObjClass))
             {
-                return new Value("Must inherit from a class.");
+                return new Value(string.Format("Class '{0}' cannot inherit from a non-class object.", name.Obj));
             }
 
             // Make sure it doesn't inherit from a sealed built-in type. Primitive methods
@@ -201,7 +201,7 @@ namespace Wren.Core.VM
             // will fail horribly if it's actually an ObjInstance.
             ObjClass superclass = superclassContainer.Obj as ObjClass;
 
-            return superclass.IsSealed ? new Value(string.Format("{0} cannot inherit from {1}.", name.Obj as ObjString, (superclass.Name))) : null;
+            return superclass.IsSealed ? new Value(string.Format("Class '{0}' cannot inherit from built-in class '{1}'.", name.Obj as ObjString, (superclass.Name))) : null;
         }
 
         // The main bytecode interpreter loop. This is where the magic happens. It is
