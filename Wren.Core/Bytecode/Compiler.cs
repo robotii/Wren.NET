@@ -1563,7 +1563,7 @@ namespace Wren.Core.Bytecode
                     name = SignatureParameterList(name, 1, '(', ')');
                     break;
                 case SignatureType.SIG_INITIALIZER:
-                    name = "this" + signature.Name;
+                    name = "this " + signature.Name;
                     name = SignatureParameterList(name, signature.Arity, '(', ')');
                     break;
             }
@@ -1762,7 +1762,7 @@ namespace Wren.Core.Bytecode
             c.EmitShortArg(Instruction.LOAD_MODULE_VAR, listClassSymbol);
 
             // Instantiate a new list.
-            c.CallMethod(0, "<instantiate>");
+            c.CallMethod(0, "new()");
 
             // Compile the list elements. Each one compiles to a ".add()" call.
             if (c.Peek() != TokenType.TOKEN_RIGHT_BRACKET)
@@ -1796,7 +1796,7 @@ namespace Wren.Core.Bytecode
             c.EmitShortArg(Instruction.LOAD_MODULE_VAR, mapClassSymbol);
 
             // Instantiate a new map.
-            c.CallMethod(0, "<instantiate>");
+            c.CallMethod(0, "new()");
 
             // Compile the map elements. Each one is compiled to just invoke the
             // subscript setter on the map.

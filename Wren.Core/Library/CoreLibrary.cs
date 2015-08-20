@@ -2000,7 +2000,7 @@ namespace Wren.Core.Library
             vm.Primitive(WrenVM.ObjectClass, "!", prim_object_not);
             vm.Primitive(WrenVM.ObjectClass, "==(_)", prim_object_eqeq);
             vm.Primitive(WrenVM.ObjectClass, "!=(_)", prim_object_bangeq);
-            vm.Primitive(WrenVM.ObjectClass, "new", prim_object_new);
+            vm.Primitive(WrenVM.ObjectClass, "this new()", prim_object_new);
             vm.Primitive(WrenVM.ObjectClass, "is(_)", prim_object_is);
             vm.Primitive(WrenVM.ObjectClass, "toString", prim_object_toString);
             vm.Primitive(WrenVM.ObjectClass, "type", prim_object_type);
@@ -2163,7 +2163,7 @@ namespace Wren.Core.Library
             vm.Primitive(WrenVM.StringClass, "toString", prim_string_toString);
 
             WrenVM.ListClass = (ObjClass)vm.FindVariable("List").Obj;
-            vm.Primitive(WrenVM.ListClass.ClassObj, "<instantiate>", prim_list_instantiate);
+            vm.Primitive(WrenVM.ListClass.ClassObj, "new()", prim_list_instantiate);
             vm.Primitive(WrenVM.ListClass, "[_]", prim_list_subscript);
             vm.Primitive(WrenVM.ListClass, "[_]=(_)", prim_list_subscriptSetter);
             vm.Primitive(WrenVM.ListClass, "add(_)", prim_list_add);
@@ -2175,7 +2175,7 @@ namespace Wren.Core.Library
             vm.Primitive(WrenVM.ListClass, "removeAt(_)", prim_list_removeAt);
 
             WrenVM.MapClass = (ObjClass)vm.FindVariable("Map").Obj;
-            vm.Primitive(WrenVM.MapClass.ClassObj, "<instantiate>", prim_map_instantiate);
+            vm.Primitive(WrenVM.MapClass.ClassObj, "new()", prim_map_instantiate);
             vm.Primitive(WrenVM.MapClass, "[_]", prim_map_subscript);
             vm.Primitive(WrenVM.MapClass, "[_]=(_)", prim_map_subscriptSetter);
             vm.Primitive(WrenVM.MapClass, "clear()", prim_map_clear);
