@@ -1084,6 +1084,8 @@ namespace Wren.Core.Bytecode
                 return symbol;
             }
 
+            string tokenName = parser.source.Substring(t.start, t.length);
+
             // See if there is already a variable with this name declared in the current
             // scope. (Outer scopes are OK: those get shadowed.)
             for (int i = numLocals - 1; i >= 0; i--)
@@ -1092,20 +1094,20 @@ namespace Wren.Core.Bytecode
                 // Once we escape this scope and hit an outer one, we can stop.
                 if (local.depth < scopeDepth) break;
 
-                if (local.length == t.length && parser.source.Substring(t.start, t.length) == local.name)
+                if (local.length == t.length && tokenName == local.name)
                 {
                     Error(string.Format("Variable '{0}' is already declared in this scope.", local.name));
                     return i;
                 }
             }
 
-            if (numLocals >= MAX_LOCALS)
+            if (numLocals > MAX_LOCALS)
             {
                 Error(string.Format("Cannot declare more than {0} variables in one scope.", MAX_LOCALS));
                 return -1;
             }
 
-            return DefineLocal(parser.source.Substring(t.start, t.length), t.length);
+            return DefineLocal(tokenName, t.length);
         }
 
         // Parses a name token and declares a variable in the current scope with that
