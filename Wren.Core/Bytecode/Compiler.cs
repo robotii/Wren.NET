@@ -549,7 +549,7 @@ namespace Wren.Core.Bytecode
                 // if the exponant is negative
                 if (PeekChar(parser) == '-') NextChar(parser);
 
-                if(!IsDigit(PeekChar(parser)))
+                if (!IsDigit(PeekChar(parser)))
                 {
                     LexError(parser, "Unterminated scientific notation.");
                 }
@@ -1461,7 +1461,7 @@ namespace Wren.Core.Bytecode
             if (isConstructor)
             {
                 // If the constructor body evaluates to a value, discard it.
-                if (isExpressionBody) 
+                if (isExpressionBody)
                     Emit(Instruction.POP);
 
                 // The receiver is always stored in the first local slot.
@@ -1577,10 +1577,8 @@ namespace Wren.Core.Bytecode
         }
 
         // Initializes [signature] from the last consumed token.
-        private Signature SignatureFromToken(SignatureType type)
+        private Signature SignatureFromToken(Signature signature, SignatureType type)
         {
-            Signature signature = new Signature();
-
             // Get the token for the method name.
             Token token = parser.previous;
             signature.Type = type;
@@ -1708,8 +1706,7 @@ namespace Wren.Core.Bytecode
         private void NamedCall(bool allowAssignment, Instruction instruction)
         {
             // Get the token for the method name.
-            Signature signature = new Signature();
-            SignatureFromToken(SignatureType.SIG_GETTER);
+            Signature signature = SignatureFromToken(new Signature(), SignatureType.SIG_GETTER);
 
             if (Match(TokenType.TOKEN_EQ))
             {
@@ -2344,7 +2341,7 @@ namespace Wren.Core.Bytecode
             c.Consume(TokenType.TOKEN_NAME, "Expect constructor name after 'construct'.");
 
             // Capture the name.
-            signature = c.SignatureFromToken(SignatureType.SIG_INITIALIZER);
+            signature = c.SignatureFromToken(signature, SignatureType.SIG_INITIALIZER);
 
             if (c.Match(TokenType.TOKEN_EQ))
             {
@@ -2880,7 +2877,7 @@ namespace Wren.Core.Bytecode
             }
 
             // Build the method signature.
-            Signature signature = SignatureFromToken(SignatureType.SIG_GETTER);
+            Signature signature = SignatureFromToken(new Signature(), SignatureType.SIG_GETTER);
             classCompiler.signature = signature;
 
             Compiler methodCompiler = new Compiler(parser, this, false);

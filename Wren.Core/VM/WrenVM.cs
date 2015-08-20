@@ -43,7 +43,7 @@ namespace Wren.Core.VM
             ObjModule coreModule = new ObjModule(name);
 
             modules = new ObjMap();
-            modules.Set(new Value (ValueType.Null), new Value(coreModule));
+            modules.Set(new Value(ValueType.Null), new Value(coreModule));
 
             CoreLibrary core = new CoreLibrary(this);
             core.InitializeCore();
@@ -75,7 +75,7 @@ namespace Wren.Core.VM
 
             //classObj.Methods[symbol] = method;
             classObj.BindMethod(symbol, method);
-            return new Value (ValueType.Null);
+            return new Value(ValueType.Null);
         }
 
         // Creates a string containing an appropriate method not found error for a
@@ -96,7 +96,7 @@ namespace Wren.Core.VM
         // Looks up the core module in the module map.
         private ObjModule GetCoreModule()
         {
-            return GetModule(new Value (ValueType.Null));
+            return GetModule(new Value(ValueType.Null));
         }
 
         private ObjFiber LoadModule(Value name, string source)
@@ -137,7 +137,7 @@ namespace Wren.Core.VM
         private Value ImportModule(Value name)
         {
             // If the module is already loaded, we don't need to do anything.
-            if (modules.Get(name).Type != ValueType.Undefined) return new Value (ValueType.Null);
+            if (modules.Get(name).Type != ValueType.Undefined) return new Value(ValueType.Null);
 
             // Load the module's source code from the embedder.
             string source = LoadModuleFn(name.Obj.ToString());
@@ -320,7 +320,7 @@ namespace Wren.Core.VM
                     case Instruction.SUPER_15:
                     case Instruction.SUPER_16:
                         {
-                            int numArgs = instruction - (instruction >= Instruction.SUPER_0 ? Instruction.SUPER_0: Instruction.CALL_0) + 1;
+                            int numArgs = instruction - (instruction >= Instruction.SUPER_0 ? Instruction.SUPER_0 : Instruction.CALL_0) + 1;
                             int symbol = (bytecode[ip] << 8) + bytecode[ip + 1];
                             ip += 2;
 
@@ -842,6 +842,36 @@ namespace Wren.Core.VM
                             }
                             break;
                         }
+
+                    case Instruction.CONSTRUCT:
+                        {
+                            int stackPosition = fiber.StackTop - 1 + (Instruction.CALL_0 - (Instruction)bytecode[ip]);
+                            ObjClass v = stack[stackPosition].Obj as ObjClass;
+                            if (v == null)
+                            {
+                                RUNTIME_ERROR(fiber, new Value("'this' should be a class."));
+                                if (fiber == null)
+                                    return false;
+                                /* Load Frame */
+                                frame = fiber.Frames[fiber.NumFrames - 1];
+                                ip = frame.ip;
+                                stackStart = frame.StackStart;
+                                stack = fiber.Stack;
+                                fn = (frame.fn as ObjFn) ?? (frame.fn as ObjClosure).Function;
+                                bytecode = fn.Bytecode;
+                                break;
+                            }
+                            stack[stackPosition] = new Value(new ObjInstance(v));
+                        }
+                        break;
+
+                    case Instruction.FOREIGN_CLASS:
+                        // Not yet implemented
+                        break;
+
+                    case Instruction.FOREIGN_CONSTRUCT:
+                        // Not yet implemented
+                        break;
 
                     case Instruction.END:
                         // A CODE_END should always be preceded by a CODE_RETURN. If we get here,
