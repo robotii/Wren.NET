@@ -6,7 +6,7 @@ IO.print(4042322160 & 1010580540) // expect: 808464432
 IO.print(4294967295 & 4294967295) // expect: 4294967295
 
 // Past max u32 value.
-IO.print(4294967296 & 4294967296) // expect: 4294967296
+IO.print(4294967296 & 4294967296) // expect: 0
 
 // TODO: Negative numbers.
 // TODO: Floating-point numbers.

@@ -11,10 +11,10 @@ IO.print("abcdabcdabcd".indexOf("dab")) // expect: 3
 IO.print("abcdabcdabcdabcd".indexOf("dabcdabc")) // expect: 3
 IO.print("abcdefg".indexOf("abcdef!")) // expect: -1
 
-// Non-ASCII.
+// Non-ASCII. Note that it returns byte indices, not code points.
 IO.print("søméஃthîng".indexOf("e")) // expect: -1
-IO.print("søméஃthîng".indexOf("m")) // expect: 2
-IO.print("søméஃthîng".indexOf("thî")) // expect: 5
+IO.print("søméஃthîng".indexOf("m")) // expect: 3
+IO.print("søméஃthîng".indexOf("thî")) // expect: 9
 
 // 8-bit clean.
 IO.print("a\0b\0c".indexOf("\0")) // expect: 1

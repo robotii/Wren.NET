@@ -1,6 +1,6 @@
 IO.print(Num.fromString("123") == 123) // expect: true
 IO.print(Num.fromString("-123") == -123) // expect: true
-IO.print(Num.fromString("-0") == 0) // expect: true
+IO.print(Num.fromString("-0") == -0) // expect: true
 IO.print(Num.fromString("12.34") == 12.34) // expect: true
 IO.print(Num.fromString("-0.0001") == -0.0001) // expect: true
 IO.print(Num.fromString(" 12 ") == 12) // expect: true

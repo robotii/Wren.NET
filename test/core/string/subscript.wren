@@ -13,14 +13,26 @@ IO.print("abcd"[-1]) // expect: d
 // Regression: Make sure the string's internal buffer size is correct.
 IO.print("abcd"[1] == "b") // expect: true
 
-IO.print("something"[0]) // expect: s
-IO.print("something"[1]) // expect: o
-IO.print("something"[3]) // expect: e
-IO.print("something"[6]) // expect: i
-IO.print("something T"[10]) // expect: T
-IO.print("something"[-1]) // expect: g
-IO.print("something"[-2]) // expect: n
-IO.print("something"[-4]) // expect: h
+// Indexes by byte, not code point.
+//
+// Bytes:           11111
+//        012345678901234
+// Chars: sø mé ஃ  thî ng
+IO.print("søméஃthîng"[0]) // expect: s
+IO.print("søméஃthîng"[1]) // expect: ø
+IO.print("søméஃthîng"[3]) // expect: m
+IO.print("søméஃthîng"[6]) // expect: ஃ
+IO.print("søméஃthîng"[10]) // expect: h
+IO.print("søméஃthîng"[-1]) // expect: g
+IO.print("søméஃthîng"[-2]) // expect: n
+IO.print("søméஃthîng"[-4]) // expect: î
+
+// If the subscript is in the middle of a UTF-8 sequence, yield an empty string.
+IO.print("søméஃthîng"[2] == "") // expect: true
+IO.print("søméஃthîng"[7] == "") // expect: true
+IO.print("søméஃthîng"[8] == "") // expect: true
+IO.print("søméஃ"[-1] == "") // expect: true
+IO.print("søméஃ"[-2] == "") // expect: true
 
 // 8-bit clean.
 IO.print("a\0b\0c"[0] == "a") // expect: true

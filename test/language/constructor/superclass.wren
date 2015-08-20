@@ -1,5 +1,5 @@
 class A {
-  new(arg) {
+  construct new(arg) {
     IO.print("new A ", arg)
     _field = arg
   }
@@ -8,7 +8,7 @@ class A {
 }
 
 class B is A {
-  new(arg1, arg2) {
+  construct new(arg1, arg2) {
     super(arg2)
     IO.print("new B ", arg1)
     _field = arg1
@@ -18,7 +18,7 @@ class B is A {
 }
 
 class C is B {
-  new {
+  construct new() {
     super("one", "two")
     IO.print("new C")
     _field = "c"
@@ -27,7 +27,7 @@ class C is B {
   cField { _field }
 }
 
-var c = new C
+var c = C.new()
 // expect: new A two
 // expect: new B one
 // expect: new C

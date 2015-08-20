@@ -12,7 +12,7 @@ class Bar is Foo {
   override { IO.print("bar") }
 }
 
-var bar = new Bar
+var bar = Bar.new()
 bar.methodOnFoo // expect: foo
 bar.methodOnBar // expect: bar
 
@@ -22,5 +22,3 @@ bar.method(1, 2) // expect: bar
 bar.method(1, 2, 3) // expect: foo
 bar.method(1, 2, 3, 4) // expect: bar
 bar.override // expect: bar
-
-// TODO: Prevent extending built-in types.
