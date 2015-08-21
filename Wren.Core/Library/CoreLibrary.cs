@@ -2000,7 +2000,7 @@ namespace Wren.Core.Library
             vm.Primitive(WrenVM.ObjectClass, "!", prim_object_not);
             vm.Primitive(WrenVM.ObjectClass, "==(_)", prim_object_eqeq);
             vm.Primitive(WrenVM.ObjectClass, "!=(_)", prim_object_bangeq);
-            vm.Primitive(WrenVM.ObjectClass, "this new()", prim_object_new);
+            vm.Primitive(WrenVM.ObjectClass, "init new()", prim_object_new);
             vm.Primitive(WrenVM.ObjectClass, "is(_)", prim_object_is);
             vm.Primitive(WrenVM.ObjectClass, "toString", prim_object_toString);
             vm.Primitive(WrenVM.ObjectClass, "type", prim_object_type);

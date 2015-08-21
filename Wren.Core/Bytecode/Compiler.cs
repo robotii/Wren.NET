@@ -1563,7 +1563,7 @@ namespace Wren.Core.Bytecode
                     name = SignatureParameterList(name, 1, '(', ')');
                     break;
                 case SignatureType.SIG_INITIALIZER:
-                    name = "this " + signature.Name;
+                    name = "init " + signature.Name;
                     name = SignatureParameterList(name, signature.Arity, '(', ')');
                     break;
             }
