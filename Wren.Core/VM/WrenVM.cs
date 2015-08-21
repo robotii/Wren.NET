@@ -49,7 +49,8 @@ namespace Wren.Core.VM
             core.InitializeCore();
 
             // Load in System functions
-            Library.IO.LoadIOLibrary(this);
+            IO.LoadIOLibrary(this);
+            Meta.LoadMetaLibrary(this);
         }
 
         public List<string> MethodNames;
