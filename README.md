@@ -3,24 +3,35 @@
 The following example shows the syntax accepted 
 
 ```dart
+// This file provides examples of syntactic constructs in wren, which is mainly
+// interesting for testing syntax highlighters.
+
 // This is a comment.
 /* This is /* a nested */ comment. */
 
 // Class definition with a toplevel name.
 class SyntaxExample {
   // Constructor
-  new {
-    // toplevel name `IO`
+  construct new() {
+    // Top-level name `IO`
     IO.print("I am a constructor!")
-    // method calls
+
+    // Method calls
     variables
     fields()
-    // static method call
+
+    // Block arguments
+    fields { block }
+    fields {|a, b| block }
+    fields(argument) { block }
+    fields(argument) {|a, b| block }
+
+    // Static method call
     SyntaxExample.fields(1)
   }
 
   // Constructor with arguments
-  new(a, b) {
+  construct constructor(a, b) {
     print(a, b)
     field = a
   }
@@ -48,23 +59,39 @@ class SyntaxExample {
     __a = a
   }
 
-  // setter
+  // Setter
   field=(value) { _field = value }
 
   // Method with arguments
   print(a, b) { IO.print(a + b) }
+
+  // Operators
+  +(other) { "infix + " + other }
+  -(other) { "infix - " + other }
+  *(other) { "infix * " + other }
+  /(other) { "infix / " + other }
+  %(other) { "infix % " + other }
+  <(other) { "infix < " + other }
+  >(other) { "infix > " + other }
+  <=(other) { "infix <= " + other }
+  >=(other) { "infix >= " + other }
+  ==(other) { "infix == " + other }
+  !=(other) { "infix != " + other }
+  &(other) { "infix & " + other }
+  |(other) { "infix | " + other }
+
+  ! { "prefix !" }
+  ~ { "prefix ~" }
+  - { "prefix -" }
 }
 
 // `class`, `is`
 class ReservedWords is SyntaxExample {
-  // `new`
-  new {
+  reserved {
     // `super`, `true`, `false`
     super(true, false)
     // `this`
     this.foo
-    // `new`
-    new SyntaxExample
   }
 
   foo {
@@ -90,11 +117,16 @@ class ReservedWords is SyntaxExample {
     // `import`, `for`
     import "set" for Set
   }
+
+  // `foreign`, `static`
+  // foreign static bar
+  // foreign baz(string)
   // (Remove lines above to make this file compile)
 }
 
 class Literals is SyntaxExample {
   booleans { true || false }
+
   numbers {
     0
     1234
@@ -105,6 +137,7 @@ class Literals is SyntaxExample {
     0xdeadbeef
     0x1234567890ABCDEF
   }
+
   strings {
     "hi there"
     // Escapes:
@@ -119,14 +152,16 @@ class Literals is SyntaxExample {
     "\t" // Tab.
     "\v" // Vertical tab.
     // Unicode code points
-    IO.print("\u0041\u0b83\u00DE") // "AஃÞ"
+    IO.print("\u0041fgdg\u0b83\u00DE") // "AஃÞ"
     // Unencoded bytes
     IO.print("\x48\x69\x2e") // "Hi."
   }
+
   ranges {
     3..8  // inclusive
     4...6 // half-inclusive
   }
+
   nothing { null }
 
   lists {
@@ -134,6 +169,7 @@ class Literals is SyntaxExample {
     list[0] = 5
     list[1..2]
   }
+
   maps {
     var stringMap = {
       "George": "Harrison",
@@ -154,7 +190,6 @@ class Literals is SyntaxExample {
     }
   }
 }
-
 ```
 
 To get started, just clone the repository and build. There are no external dependencies.
