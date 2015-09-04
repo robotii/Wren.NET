@@ -225,7 +225,8 @@ namespace Wren.Core.VM
 
             while (true)
             {
-                switch (instruction = (Instruction)bytecode[ip++])
+                instruction = (Instruction)bytecode[ip++];
+                switch (instruction)
                 {
                     case Instruction.LOAD_LOCAL_0:
                     case Instruction.LOAD_LOCAL_1:
@@ -236,18 +237,22 @@ namespace Wren.Core.VM
                     case Instruction.LOAD_LOCAL_6:
                     case Instruction.LOAD_LOCAL_7:
                     case Instruction.LOAD_LOCAL_8:
-                        index = stackStart + instruction - Instruction.LOAD_LOCAL_0;
-                        if (fiber.StackTop >= fiber.Capacity)
-                            stack = fiber.IncreaseStack();
-                        stack[fiber.StackTop++] = stack[index];
-                        break;
+                        {
+                            index = stackStart + instruction - Instruction.LOAD_LOCAL_0;
+                            if (fiber.StackTop >= fiber.Capacity)
+                                stack = fiber.IncreaseStack();
+                            stack[fiber.StackTop++] = stack[index];
+                            break;
+                        }
 
                     case Instruction.LOAD_LOCAL:
-                        index = stackStart + bytecode[ip++];
-                        if (fiber.StackTop >= fiber.Capacity)
-                            stack = fiber.IncreaseStack();
-                        stack[fiber.StackTop++] = stack[index];
-                        break;
+                        {
+                            index = stackStart + bytecode[ip++];
+                            if (fiber.StackTop >= fiber.Capacity)
+                                stack = fiber.IncreaseStack();
+                            stack[fiber.StackTop++] = stack[index];
+                            break;
+                        }
 
                     case Instruction.LOAD_FIELD_THIS:
                         {
@@ -261,29 +266,43 @@ namespace Wren.Core.VM
                         }
 
                     case Instruction.POP:
-                        fiber.StackTop--;
-                        break;
+                        {
+                            fiber.StackTop--;
+                            break;
+                        }
+
                     case Instruction.DUP:
-                        if (fiber.StackTop >= fiber.Capacity)
-                            stack = fiber.IncreaseStack();
-                        stack[fiber.StackTop] = stack[fiber.StackTop - 1];
-                        fiber.StackTop++;
-                        break;
+                        {
+                            if (fiber.StackTop >= fiber.Capacity)
+                                stack = fiber.IncreaseStack();
+                            stack[fiber.StackTop] = stack[fiber.StackTop - 1];
+                            fiber.StackTop++;
+                            break;
+                        }
+
                     case Instruction.NULL:
-                        if (fiber.StackTop >= fiber.Capacity)
-                            stack = fiber.IncreaseStack();
-                        stack[fiber.StackTop++] = new Value(ValueType.Null);
-                        break;
+                        {
+                            if (fiber.StackTop >= fiber.Capacity)
+                                stack = fiber.IncreaseStack();
+                            stack[fiber.StackTop++] = new Value(ValueType.Null);
+                            break;
+                        }
+
                     case Instruction.FALSE:
-                        if (fiber.StackTop >= fiber.Capacity)
-                            stack = fiber.IncreaseStack();
-                        stack[fiber.StackTop++] = new Value(ValueType.False);
-                        break;
+                        {
+                            if (fiber.StackTop >= fiber.Capacity)
+                                stack = fiber.IncreaseStack();
+                            stack[fiber.StackTop++] = new Value(ValueType.False);
+                            break;
+                        }
+
                     case Instruction.TRUE:
-                        if (fiber.StackTop >= fiber.Capacity)
-                            stack = fiber.IncreaseStack();
-                        stack[fiber.StackTop++] = new Value(ValueType.True);
-                        break;
+                        {
+                            if (fiber.StackTop >= fiber.Capacity)
+                                stack = fiber.IncreaseStack();
+                            stack[fiber.StackTop++] = new Value(ValueType.True);
+                            break;
+                        }
 
                     case Instruction.CALL_0:
                     case Instruction.CALL_1:
@@ -463,16 +482,20 @@ namespace Wren.Core.VM
                         break;
 
                     case Instruction.STORE_LOCAL:
-                        index = stackStart + bytecode[ip++];
-                        stack[index] = stack[fiber.StackTop - 1];
-                        break;
+                        {
+                            index = stackStart + bytecode[ip++];
+                            stack[index] = stack[fiber.StackTop - 1];
+                            break;
+                        }
 
                     case Instruction.CONSTANT:
-                        if (fiber.StackTop >= fiber.Capacity)
-                            stack = fiber.IncreaseStack();
-                        stack[fiber.StackTop++] = fn.Constants[(bytecode[ip] << 8) + bytecode[ip + 1]];
-                        ip += 2;
-                        break;
+                        {
+                            if (fiber.StackTop >= fiber.Capacity)
+                                stack = fiber.IncreaseStack();
+                            stack[fiber.StackTop++] = fn.Constants[(bytecode[ip] << 8) + bytecode[ip + 1]];
+                            ip += 2;
+                            break;
+                        }
 
                     case Instruction.LOAD_UPVALUE:
                         {
@@ -490,16 +513,20 @@ namespace Wren.Core.VM
                         }
 
                     case Instruction.LOAD_MODULE_VAR:
-                        if (fiber.StackTop >= fiber.Capacity)
-                            stack = fiber.IncreaseStack();
-                        stack[fiber.StackTop++] = fn.Module.Variables[(bytecode[ip] << 8) + bytecode[ip + 1]].Container;
-                        ip += 2;
-                        break;
+                        {
+                            if (fiber.StackTop >= fiber.Capacity)
+                                stack = fiber.IncreaseStack();
+                            stack[fiber.StackTop++] = fn.Module.Variables[(bytecode[ip] << 8) + bytecode[ip + 1]].Container;
+                            ip += 2;
+                            break;
+                        }
 
                     case Instruction.STORE_MODULE_VAR:
-                        fn.Module.Variables[(bytecode[ip] << 8) + bytecode[ip + 1]].Container = stack[fiber.StackTop - 1];
-                        ip += 2;
-                        break;
+                        {
+                            fn.Module.Variables[(bytecode[ip] << 8) + bytecode[ip + 1]].Container = stack[fiber.StackTop - 1];
+                            ip += 2;
+                            break;
+                        }
 
                     case Instruction.STORE_FIELD_THIS:
                         {
@@ -595,9 +622,11 @@ namespace Wren.Core.VM
                         }
 
                     case Instruction.CLOSE_UPVALUE:
-                        fiber.CloseUpvalue();
-                        fiber.StackTop--;
-                        break;
+                        {
+                            fiber.CloseUpvalue();
+                            fiber.StackTop--;
+                            break;
+                        }
 
                     case Instruction.RETURN:
                         {
