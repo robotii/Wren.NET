@@ -1684,16 +1684,34 @@ namespace Wren.Core.Library
 
         static PrimitiveResult prim_string_byteAt(WrenVM vm, ObjFiber fiber, Value[] args)
         {
-            ObjString s = args[0].Obj as ObjString;
+            Byte[] s = ((ObjString)args[0].Obj).GetBytes();
 
             if (s == null)
             {
                 return PrimitiveResult.Error;
             }
 
-            int index = (int)(args[0].Type == ValueType.Num ? args[0].Num : 0);
+            if (args[1].Type != ValueType.Num)
+            {
+                args[0] = new Value("Index must be a number.");
+                return PrimitiveResult.Error;
+            }
 
-            args[0] = new Value(s.ToString()[index]);
+            int index = (int)args[1].Num;
+
+            if (index != args[1].Num)
+            {
+                args[0] = new Value("Index must be an integer.");
+                return PrimitiveResult.Error;
+            }
+
+            if (index < 0 || index >= s.Length)
+            {
+                args[0] = new Value("Index out of bounds.");
+                return PrimitiveResult.Error;
+            }
+
+            args[0] = new Value(s[index]);
             return PrimitiveResult.Value;
         }
 
@@ -1831,12 +1849,12 @@ namespace Wren.Core.Library
 
         static PrimitiveResult prim_string_iterateByte(WrenVM vm, ObjFiber fiber, Value[] args)
         {
-            ObjString s = (ObjString)args[0].Obj;
+            Byte[] s = ((ObjString)args[0].Obj).GetBytes();
 
             // If we're starting the iteration, return the first index.
             if (args[1].Type == ValueType.Null)
             {
-                if (s.Value.Length == 0)
+                if (s.Length == 0)
                 {
                     args[0] = new Value(false);
                     return PrimitiveResult.Value;
@@ -1856,7 +1874,7 @@ namespace Wren.Core.Library
 
             // Advance to the next byte.
             index++;
-            if (index >= s.Value.Length)
+            if (index >= s.Length)
             {
                 args[0] = new Value(false);
                 return PrimitiveResult.Value;

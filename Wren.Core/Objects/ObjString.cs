@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using Wren.Core.VM;
 
 namespace Wren.Core.Objects
@@ -54,6 +55,11 @@ namespace Wren.Core.Objects
         public Value CodePointAt(int index)
         {
             return index > Value.Length ? new Value() : new Value(Value[index]);
+        }
+
+        public byte[] GetBytes()
+        {
+            return Encoding.UTF8.GetBytes(Value);
         }
     }
 }

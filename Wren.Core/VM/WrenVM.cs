@@ -999,7 +999,6 @@ namespace Wren.Core.VM
             int symbol = MethodNames.IndexOf(s);
 
             Method m = new Method { primitive = func, mType = MethodType.Primitive };
-            //objClass.BindMethod(symbol, m);
             objClass.BindMethod(symbol, m);
         }
 
