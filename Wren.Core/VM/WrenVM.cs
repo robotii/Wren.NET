@@ -255,7 +255,7 @@ namespace Wren.Core.VM
                             Value receiver = stack[stackStart];
                             ObjInstance instance = receiver.Obj as ObjInstance;
                             if (fiber.StackTop >= fiber.Capacity)
-                                fiber.IncreaseStack();
+                                stack = fiber.IncreaseStack();
                             stack[fiber.StackTop++] = instance.Fields[field];
                             break;
                         }
