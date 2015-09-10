@@ -648,37 +648,31 @@ namespace Wren.Core.Library
 
         static PrimitiveResult prim_list_insert(WrenVM vm, ObjFiber fiber, Value[] args)
         {
-            ObjList list = args[0].Obj as ObjList;
-            if (list != null)
+            ObjList list = (ObjList)args[0].Obj;
+
+            if (args[1].Type == ValueType.Num)
             {
-                if (args[1].Type == ValueType.Num)
+                int index = (int)args[1].Num;
+                if (args[1].Num == index)
                 {
-                    if (args[1].Num == (int)args[1].Num)
+                    if (index < 0)
+                        index += list.Count() + 1;
+                    if (index >= 0 && index <= list.Count())
                     {
-                        int index = (int)args[1].Num;
-
-                        if (index < 0)
-                            index += list.Count() + 1;
-                        if (index >= 0 && index <= list.Count())
-                        {
-                            list.Insert(args[2], index);
-                            args[0] = args[2];
-                            return PrimitiveResult.Value;
-                        }
-                        args[0] = new Value("Index out of bounds.");
-                        return PrimitiveResult.Error;
+                        list.Insert(args[2], index);
+                        args[0] = args[2];
+                        return PrimitiveResult.Value;
                     }
-
-                    // count + 1 here so you can "insert" at the very end.
-                    args[0] = new Value("Index must be an integer.");
+                    args[0] = new Value("Index out of bounds.");
                     return PrimitiveResult.Error;
                 }
 
-                args[0] = new Value("Index must be a number.");
+                // count + 1 here so you can "insert" at the very end.
+                args[0] = new Value("Index must be an integer.");
                 return PrimitiveResult.Error;
             }
 
-            args[0] = new Value("List cannot be null");
+            args[0] = new Value("Index must be a number.");
             return PrimitiveResult.Error;
         }
 
@@ -701,9 +695,9 @@ namespace Wren.Core.Library
 
             if (args[1].Type == ValueType.Num)
             {
-                if (args[1].Num == ((int)args[1].Num))
+                int index = (int)args[1].Num;
+                if (args[1].Num == index)
                 {
-                    double index = args[1].Num;
                     if (!(index < 0) && !(index >= list.Count() - 1))
                     {
                         args[0] = new Value(index + 1);
@@ -730,10 +724,9 @@ namespace Wren.Core.Library
 
             if (args[1].Type == ValueType.Num)
             {
-                if (args[1].Num == ((int)args[1].Num))
+                int index = (int)args[1].Num;
+                if (args[1].Num == index)
                 {
-                    int index = (int)args[1].Num;
-
                     if (index >= 0 && index < list.Count())
                     {
                         args[0] = list.Get(index);
@@ -754,45 +747,36 @@ namespace Wren.Core.Library
 
         static PrimitiveResult prim_list_removeAt(WrenVM vm, ObjFiber fiber, Value[] args)
         {
-            ObjList list = args[0].Obj as ObjList;
+            ObjList list = (ObjList)args[0].Obj;
 
-            if (list != null)
+            if (args[1].Type == ValueType.Num)
             {
-                if (args[1].Type == ValueType.Num)
+                int index = (int)args[1].Num;
+                if (args[1].Num == index)
                 {
-                    if (args[1].Num == ((int)args[1].Num))
+                    if (index < 0)
+                        index += list.Count();
+                    if (index >= 0 && index < list.Count())
                     {
-                        int index = (int)args[1].Num;
-                        if (index < 0)
-                            index += list.Count();
-                        if (index >= 0 && index < list.Count())
-                        {
-                            args[0] = list.RemoveAt(index);
-                            return PrimitiveResult.Value;
-                        }
-
-                        args[0] = new Value("Index out of bounds.");
-                        return PrimitiveResult.Error;
+                        args[0] = list.RemoveAt(index);
+                        return PrimitiveResult.Value;
                     }
 
-                    args[0] = new Value("Index must be an integer.");
+                    args[0] = new Value("Index out of bounds.");
                     return PrimitiveResult.Error;
                 }
 
-                args[0] = new Value("Index must be a number.");
+                args[0] = new Value("Index must be an integer.");
                 return PrimitiveResult.Error;
             }
 
-            args[0] = new Value("List cannot be null");
+            args[0] = new Value("Index must be a number.");
             return PrimitiveResult.Error;
         }
 
         static PrimitiveResult prim_list_subscript(WrenVM vm, ObjFiber fiber, Value[] args)
         {
-            ObjList list = args[0].Obj as ObjList;
-
-            if (list == null)
-                return PrimitiveResult.Error;
+            ObjList list = (ObjList)args[0].Obj;
 
             if (args[1].Type == ValueType.Num)
             {
@@ -1146,7 +1130,7 @@ namespace Wren.Core.Library
 
         static PrimitiveResult prim_num_pi(WrenVM vm, ObjFiber fiber, Value[] args)
         {
-            args[0] = new Value(3.14159265358979323846);
+            args[0] = new Value(Math.PI);
             return PrimitiveResult.Value;
         }
 
@@ -1650,7 +1634,7 @@ namespace Wren.Core.Library
 
         static PrimitiveResult prim_string_eqeq(WrenVM vm, ObjFiber fiber, Value[] args)
         {
-            ObjString aString = args[0].Obj as ObjString;
+            ObjString aString = (ObjString)args[0].Obj;
             ObjString bString = args[1].Obj as ObjString;
             args[0] = new Value(aString != null && bString != null && aString.Value == bString.Value);
             return PrimitiveResult.Value;
@@ -1658,7 +1642,7 @@ namespace Wren.Core.Library
 
         static PrimitiveResult prim_string_bangeq(WrenVM vm, ObjFiber fiber, Value[] args)
         {
-            ObjString aString = args[0].Obj as ObjString;
+            ObjString aString = (ObjString)args[0].Obj;
             ObjString bString = args[1].Obj as ObjString;
             args[0] = new Value(aString == null || bString == null || aString.Value != bString.Value);
             return PrimitiveResult.Value;
