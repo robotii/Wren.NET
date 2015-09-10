@@ -270,7 +270,7 @@ namespace Wren.Core.Library
         static PrimitiveResult prim_fiber_new(WrenVM vm, ObjFiber fiber, Value[] args)
         {
             Obj o = args[1].Obj;
-            if (o.Type == ObjType.Fn || o.Type == ObjType.Closure)
+            if (o is ObjFn || o is ObjClosure)
             {
                 ObjFiber newFiber = new ObjFiber(o);
 
@@ -290,7 +290,7 @@ namespace Wren.Core.Library
         static PrimitiveResult prim_fiber_abort(WrenVM vm, ObjFiber fiber, Value[] args)
         {
             Obj o = args[1].Obj;
-            args[0] = o != null && o.Type == ObjType.String ? args[1] : new Value("Error message must be a string.");
+            args[0] = o is ObjString ? args[1] : new Value("Error message must be a string.");
             return PrimitiveResult.Error;
         }
 
@@ -533,15 +533,16 @@ namespace Wren.Core.Library
 
         static PrimitiveResult prim_fn_new(WrenVM vm, ObjFiber fiber, Value[] args)
         {
-            if (args[1].Obj == null || args[1].Obj.Type != ObjType.Fn && args[1].Obj.Type != ObjType.Closure)
+            Obj v = args[1].Obj;
+            if (v != null && (v is ObjFn || v is ObjClosure))
             {
-                args[0] = new Value("Argument must be a function.");
-                return PrimitiveResult.Error;
+                args[0] = args[1];
+                return PrimitiveResult.Value;
             }
 
             // The block argument is already a function, so just return it.
-            args[0] = args[1];
-            return PrimitiveResult.Value;
+            args[0] = new Value("Argument must be a function.");
+            return PrimitiveResult.Error;
         }
 
         static PrimitiveResult prim_fn_arity(WrenVM vm, ObjFiber fiber, Value[] args)

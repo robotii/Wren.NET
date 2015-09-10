@@ -98,16 +98,16 @@ namespace Wren.Core.VM
             Obj bObj = b.Obj;
 
             // Must be the same type.
-            if (aObj.Type != bObj.Type) return false;
+            if (aObj.GetType() != bObj.GetType()) return false;
 
-            if (aObj.Type == ObjType.String)
+            if (aObj is ObjString)
             {
                 ObjString aString = (ObjString)aObj;
                 ObjString bString = (ObjString)bObj;
                 return aString.Value.Equals(bString.Value);
             }
 
-            if (aObj.Type == ObjType.Range)
+            if (aObj is ObjRange)
             {
                 ObjRange aRange = (ObjRange)aObj;
                 ObjRange bRange = (ObjRange)bObj;

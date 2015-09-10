@@ -28,7 +28,6 @@ namespace Wren.Core.Objects
             ClassObj = WrenVM.StringClass;
             if (!initCompleted)
                 strings.Add(this);
-            Type = ObjType.String;
         }
 
         public readonly string Value;

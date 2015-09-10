@@ -20,7 +20,6 @@
     public class Obj
     {
         // The object's class.
-        public ObjType Type;
         public ObjClass ClassObj;
     }
 }

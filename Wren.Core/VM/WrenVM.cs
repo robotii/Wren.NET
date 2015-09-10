@@ -985,7 +985,7 @@ namespace Wren.Core.VM
             fiber = null;
 
             // TODO: Fix this so that there is no dependancy on the console
-            if (v == null || v.Obj == null || v.Obj.Type != ObjType.String)
+            if (v == null || v.Obj == null || !(v.Obj is ObjString))
             {
                 v = new Value("Error message must be a string.");
             }

@@ -16,7 +16,6 @@ namespace Wren.Core.Objects
         {
             Function = fn;
             Upvalues = new ObjUpvalue[fn.NumUpvalues];
-            Type = ObjType.Closure;
             ClassObj = WrenVM.FnClass;
         }
 

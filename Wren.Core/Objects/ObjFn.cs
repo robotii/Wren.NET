@@ -31,7 +31,6 @@ namespace Wren.Core.Objects
             NumUpvalues = numUpvalues;
             NumConstants = constants.Length;
             Arity = arity;
-            Type = ObjType.Fn;
 
             /* Debug Information */
             SourcePath = debugSourcePath;

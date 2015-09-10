@@ -18,7 +18,6 @@ namespace Wren.Core.Objects
         {
             Container = c;
             Next = null;
-            Type = ObjType.Upvalue;
         }
 
         public Value Container;

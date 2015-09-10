@@ -17,7 +17,6 @@ namespace Wren.Core.Objects
             To = to;
             IsInclusive = isInclusive;
             ClassObj = WrenVM.RangeClass;
-            Type = ObjType.Range;
         }
 
         public readonly double From;
