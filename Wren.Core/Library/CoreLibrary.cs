@@ -251,7 +251,7 @@ namespace Wren.Core.Library
             // Object has no superclass.
             if (classObj.Superclass == null)
             {
-                args[0] = new Value (ValueType.Null);
+                args[0] = new Value(ValueType.Null);
             }
             else
             {
@@ -304,18 +304,18 @@ namespace Wren.Core.Library
                 {
                     if (runFiber.Caller == null)
                     {
+                        // Remember who ran it.
                         runFiber.Caller = fiber;
 
                         // If the fiber was yielded, make the yield call return null.
                         if (runFiber.StackTop > 0)
                         {
-                            runFiber.StoreValue(-1, new Value (ValueType.Null));
+                            runFiber.StoreValue(-1, new Value(ValueType.Null));
                         }
 
                         return PrimitiveResult.RunFiber;
                     }
 
-                    // Remember who ran it.
                     args[0] = new Value("Fiber has already been called.");
                     return PrimitiveResult.Error;
                 }
@@ -376,7 +376,7 @@ namespace Wren.Core.Library
         static PrimitiveResult prim_fiber_error(WrenVM vm, ObjFiber fiber, Value[] args)
         {
             ObjFiber runFiber = (ObjFiber)args[0].Obj;
-            args[0] = runFiber.Error == null ? new Value (ValueType.Null) : new Value(runFiber.Error);
+            args[0] = runFiber.Error == null ? new Value(ValueType.Null) : new Value(runFiber.Error);
             return PrimitiveResult.Value;
         }
 
@@ -395,7 +395,7 @@ namespace Wren.Core.Library
             {
                 if (runFiber.Caller == null && runFiber.StackTop > 0)
                 {
-                    runFiber.StoreValue(-1, new Value (ValueType.Null));
+                    runFiber.StoreValue(-1, new Value(ValueType.Null));
                 }
 
                 // Unlike run, this does not remember the calling fiber. Instead, it
@@ -454,7 +454,7 @@ namespace Wren.Core.Library
                     // If the fiber was yielded, make the yield call return null.
                     if (runFiber.StackTop > 0)
                     {
-                        runFiber.StoreValue(-1, new Value (ValueType.Null));
+                        runFiber.StoreValue(-1, new Value(ValueType.Null));
                     }
 
                     return PrimitiveResult.RunFiber;
@@ -479,12 +479,12 @@ namespace Wren.Core.Library
             // interpreter.
             if (caller == null)
             {
-                args[0] = new Value (ValueType.Null);
+                args[0] = new Value(ValueType.Null);
             }
             else
             {
                 // Make the caller's run method return null.
-                caller.StoreValue(-1, new Value (ValueType.Null));
+                caller.StoreValue(-1, new Value(ValueType.Null));
 
                 // Return the fiber to resume.
                 args[0] = new Value(caller);
@@ -504,7 +504,7 @@ namespace Wren.Core.Library
             // interpreter.
             if (caller == null)
             {
-                args[0] = new Value (ValueType.Null);
+                args[0] = new Value(ValueType.Null);
             }
             else
             {
@@ -628,7 +628,7 @@ namespace Wren.Core.Library
             }
             list.Clear();
 
-            args[0] = new Value (ValueType.Null);
+            args[0] = new Value(ValueType.Null);
             return PrimitiveResult.Value;
         }
 
@@ -928,12 +928,12 @@ namespace Wren.Core.Library
                     args[0] = map.Get(args[1]);
                     if (args[0].Type == ValueType.Undefined)
                     {
-                        args[0] = new Value (ValueType.Null);
+                        args[0] = new Value(ValueType.Null);
                     }
                 }
                 else
                 {
-                    args[0] = new Value (ValueType.Null);
+                    args[0] = new Value(ValueType.Null);
                 }
                 return PrimitiveResult.Value;
             }
@@ -965,7 +965,7 @@ namespace Wren.Core.Library
             ObjMap m = args[0].Obj as ObjMap;
             if (m != null)
                 m.Clear();
-            args[0] = new Value (ValueType.Null);
+            args[0] = new Value(ValueType.Null);
             return PrimitiveResult.Value;
         }
 
@@ -1039,7 +1039,7 @@ namespace Wren.Core.Library
 
             if (ValidateKey(args[1]))
             {
-                args[0] = map != null ? map.Remove(args[1]) : new Value (ValueType.Null);
+                args[0] = map != null ? map.Remove(args[1]) : new Value(ValueType.Null);
                 return PrimitiveResult.Value;
             }
 
@@ -1130,11 +1130,11 @@ namespace Wren.Core.Library
                         return PrimitiveResult.Value;
                     }
 
-                    args[0] = new Value (ValueType.Null);
+                    args[0] = new Value(ValueType.Null);
                     return PrimitiveResult.Value;
                 }
 
-                args[0] = new Value (ValueType.Null);
+                args[0] = new Value(ValueType.Null);
                 return PrimitiveResult.Value;
             }
 
@@ -1389,29 +1389,25 @@ namespace Wren.Core.Library
 
         static PrimitiveResult prim_num_dotDot(WrenVM vm, ObjFiber fiber, Value[] args)
         {
-            if (args[1].Type == ValueType.Num)
-            {
-                double from = args[0].Num;
-                double to = args[1].Num;
-                args[0] = new Value(new ObjRange(@from, to, true));
-                return PrimitiveResult.Value;
-            }
-
-            args[0] = new Value("Right hand side of range must be a number.");
-            return PrimitiveResult.Error;
+            return range_from_numbers(args[0], args[1], true, out args[0]);
         }
 
         static PrimitiveResult prim_num_dotDotDot(WrenVM vm, ObjFiber fiber, Value[] args)
         {
-            if (args[1].Type == ValueType.Num)
+            return range_from_numbers(args[0], args[1], false, out args[0]);
+        }
+
+        static PrimitiveResult range_from_numbers(Value start, Value end, bool inclusive, out Value range)
+        {
+            if (end.Type == ValueType.Num)
             {
-                double from = args[0].Num;
-                double to = args[1].Num;
-                args[0] = new Value(new ObjRange(from, to, false));
+                double from = start.Num;
+                double to = end.Num;
+                range = new Value(new ObjRange(from, to, inclusive));
                 return PrimitiveResult.Value;
             }
 
-            args[0] = new Value("Right hand side of range must be a number.");
+            range = new Value("Right hand side of range must be a number.");
             return PrimitiveResult.Error;
         }
 
@@ -1648,6 +1644,22 @@ namespace Wren.Core.Library
 
             if (range != null)
                 args[0] = new Value(string.Format("{0}{1}{2}", range.From, range.IsInclusive ? ".." : "...", range.To));
+            return PrimitiveResult.Value;
+        }
+
+        static PrimitiveResult prim_string_eqeq(WrenVM vm, ObjFiber fiber, Value[] args)
+        {
+            ObjString aString = args[0].Obj as ObjString;
+            ObjString bString = args[1].Obj as ObjString;
+            args[0] = new Value(aString != null && bString != null && aString.Value == bString.Value);
+            return PrimitiveResult.Value;
+        }
+
+        static PrimitiveResult prim_string_bangeq(WrenVM vm, ObjFiber fiber, Value[] args)
+        {
+            ObjString aString = args[0].Obj as ObjString;
+            ObjString bString = args[1].Obj as ObjString;
+            args[0] = new Value(aString == null || bString == null || aString.Value != bString.Value);
             return PrimitiveResult.Value;
         }
 
@@ -2166,6 +2178,8 @@ namespace Wren.Core.Library
             WrenVM.StringClass = (ObjClass)vm.FindVariable("String").Obj;
             vm.Primitive(WrenVM.StringClass.ClassObj, "fromCodePoint(_)", prim_string_fromCodePoint);
             vm.Primitive(WrenVM.StringClass.ClassObj, "<instantiate>", prim_string_instantiate);
+            vm.Primitive(WrenVM.StringClass, "==(_)", prim_string_eqeq);
+            vm.Primitive(WrenVM.StringClass, "!=(_)", prim_string_bangeq);
             vm.Primitive(WrenVM.StringClass, "+(_)", prim_string_plus);
             vm.Primitive(WrenVM.StringClass, "[_]", prim_string_subscript);
             vm.Primitive(WrenVM.StringClass, "byteAt(_)", prim_string_byteAt);

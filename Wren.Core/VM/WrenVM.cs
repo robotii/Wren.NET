@@ -395,8 +395,8 @@ namespace Wren.Core.VM
                                         {
                                             fiber.StackTop = argStart + 1;
                                             stack[argStart] = args[0];
-                                            Instruction next = (Instruction)bytecode[ip];
-                                            if (next == Instruction.STORE_LOCAL)
+                                            instruction = (Instruction)bytecode[ip];
+                                            if (instruction == Instruction.STORE_LOCAL)
                                             {
                                                 index = stackStart + bytecode[ip + 1];
                                                 stack[index] = args[0];
@@ -449,8 +449,7 @@ namespace Wren.Core.VM
                                         }
                                         break;
                                     }
-
-                                    if (method.mType == MethodType.Block)
+                                    else if (method.mType == MethodType.Block)
                                     {
                                         Obj mObj = method.obj;
                                         frame.ip = ip;
@@ -584,40 +583,16 @@ namespace Wren.Core.VM
                         }
 
                     case Instruction.AND:
-                        {
-                            int offset = (bytecode[ip] << 8) + bytecode[ip + 1];
-                            ip += 2;
-                            ValueType condition = stack[fiber.StackTop - 1].Type;
-
-                            switch (condition)
-                            {
-                                case ValueType.Null:
-                                case ValueType.False:
-                                    ip += offset;
-                                    break;
-                                default:
-                                    fiber.StackTop--;
-                                    break;
-                            }
-                            break;
-                        }
-
                     case Instruction.OR:
                         {
                             int offset = (bytecode[ip] << 8) + bytecode[ip + 1];
                             ip += 2;
-                            Value condition = stack[fiber.StackTop - 1];
-
-                            switch (condition.Type)
-                            {
-                                case ValueType.Null:
-                                case ValueType.False:
-                                    fiber.StackTop--;
-                                    break;
-                                default:
-                                    ip += offset;
-                                    break;
-                            }
+                            ValueType condition = stack[fiber.StackTop - 1].Type;
+                            
+                            if ((condition == ValueType.Null || condition == ValueType.False) ^ instruction == Instruction.OR)
+                                ip += offset;
+                            else
+                                fiber.StackTop--;
                             break;
                         }
 
@@ -636,8 +611,7 @@ namespace Wren.Core.VM
                             if (fiber.StackTop > stackStart)
                             {
                                 Value first = stack[stackStart];
-                                while (fiber.OpenUpvalues != null &&
-                                       fiber.OpenUpvalues.Container != first)
+                                while (fiber.OpenUpvalues != null && fiber.OpenUpvalues.Container != first)
                                 {
                                     fiber.CloseUpvalue();
                                 }
@@ -648,7 +622,8 @@ namespace Wren.Core.VM
                             if (fiber.NumFrames == 0)
                             {
                                 // If this is the main fiber, we're done.
-                                if (fiber.Caller == null) return true;
+                                if (fiber.Caller == null) 
+                                    return true;
 
                                 // We have a calling fiber to resume.
                                 fiber = fiber.Caller;
@@ -663,7 +638,7 @@ namespace Wren.Core.VM
 
                                 // Store the result of the block in the first slot, which is where the
                                 // caller expects it.
-                                stack[fiber.StackTop - 1] = result;
+                                stack[stackStart] = result;
                             }
 
                             /* Load Frame */

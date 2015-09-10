@@ -3262,7 +3262,7 @@ namespace Wren.Core.Bytecode
             while (ip < bytecode.Length)
             {
                 Instruction instruction = (Instruction)bytecode[ip++];
-                s += (instruction + " ");
+                s += instruction + " ";
                 switch (instruction)
                 {
                     case Instruction.NULL:
