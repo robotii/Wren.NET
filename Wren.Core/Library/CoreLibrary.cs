@@ -1976,8 +1976,62 @@ namespace Wren.Core.Library
 
             if (args[1].Obj as ObjRange != null)
             {
-                args[0] = new Value("Subscript ranges for strings are not implemented yet.");
-                return PrimitiveResult.Error;
+                ObjRange r = args[1].Obj as ObjRange;
+
+                // TODO: This is seriously broken and needs a rewrite
+                int from = (int)r.From;
+                if (from != r.From)
+                {
+                    args[0] = new Value("Range start must be an integer.");
+                    return PrimitiveResult.Error;
+                }
+                int to = (int)r.To;
+                if (to != r.To)
+                {
+                    args[0] = new Value("Range end must be an integer.");
+                    return PrimitiveResult.Error;
+                }
+
+                if (from < 0)
+                    from += s.Length;
+                if (to < 0)
+                    to += s.Length;
+
+                int step = to < from ? -1 : 1;
+
+                if (step > 0 && r.IsInclusive)
+                    to += 1;
+                if (step < 0 && !r.IsInclusive)
+                    to += 1;
+
+                // Handle copying an empty string
+                if (s.Length == 0 && to == (r.IsInclusive ? -1 : 0))
+                {
+                    to = 0;
+                    step = 1;
+                }
+
+                int count = (to - from) * step + (step < 0 ? 1 : 0);
+
+                if (to < 0 || from + (count * step) > s.Length)
+                {
+                    args[0] = new Value("Range end out of bounds.");
+                    return PrimitiveResult.Error;
+                }
+                if (from < 0 || (from >= s.Length && from > 0))
+                {
+                    args[0] = new Value("Range start out of bounds.");
+                    return PrimitiveResult.Error;
+                }
+
+                string result = "";
+                for (int i = 0; i < count; i++)
+                {
+                    result += s[from + (i * step)];
+                }
+
+                args[0] = new Value(result);
+                return PrimitiveResult.Value;
             }
 
             args[0] = new Value("Subscript must be a number or a range.");
