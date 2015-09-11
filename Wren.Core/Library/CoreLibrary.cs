@@ -151,9 +151,11 @@ namespace Wren.Core.Library
         + "   _string = string\n"
         + "   }\n"
         + "\n"
-        + "  [index] { _string.byteAt(index) }\n"
+        + "  [index] { _string.byteAt_(index) }\n"
         + "  iterate(iterator) { _string.iterateByte_(iterator) }\n"
-        + "  iteratorValue(iterator) { _string.byteAt(iterator) }\n"
+        + "  iteratorValue(iterator) { _string.byteAt_(iterator) }\n"
+        + "\n"
+        + "  count { _string.byteCount_ }\n"
         + "}\n"
         + "\n"
         + "class List is Sequence {\n"
@@ -1683,32 +1685,34 @@ namespace Wren.Core.Library
         {
             Byte[] s = ((ObjString)args[0].Obj).GetBytes();
 
-            if (s == null)
+            if (args[1].Type == ValueType.Num)
             {
-                return PrimitiveResult.Error;
-            }
+                int index = (int)args[1].Num;
 
-            if (args[1].Type != ValueType.Num)
-            {
-                args[0] = new Value("Index must be a number.");
-                return PrimitiveResult.Error;
-            }
+                if (index == args[1].Num)
+                {
+                    if (index >= 0 && index < s.Length)
+                    {
+                        args[0] = new Value(s[index]);
+                        return PrimitiveResult.Value;
+                    }
 
-            int index = (int)args[1].Num;
+                    args[0] = new Value("Index out of bounds.");
+                    return PrimitiveResult.Error;
+                }
 
-            if (index != args[1].Num)
-            {
                 args[0] = new Value("Index must be an integer.");
                 return PrimitiveResult.Error;
             }
 
-            if (index < 0 || index >= s.Length)
-            {
-                args[0] = new Value("Index out of bounds.");
-                return PrimitiveResult.Error;
-            }
+            args[0] = new Value("Index must be a number.");
+            return PrimitiveResult.Error;
+        }
 
-            args[0] = new Value(s[index]);
+        private static PrimitiveResult prim_string_byteCount(WrenVM vm, ObjFiber fiber, Value[] args)
+        {
+            Byte[] s = ((ObjString)args[0].Obj).GetBytes();
+            args[0] = new Value(s.Length);
             return PrimitiveResult.Value;
         }
 
@@ -2167,7 +2171,8 @@ namespace Wren.Core.Library
             vm.Primitive(WrenVM.StringClass, "!=(_)", prim_string_bangeq);
             vm.Primitive(WrenVM.StringClass, "+(_)", prim_string_plus);
             vm.Primitive(WrenVM.StringClass, "[_]", prim_string_subscript);
-            vm.Primitive(WrenVM.StringClass, "byteAt(_)", prim_string_byteAt);
+            vm.Primitive(WrenVM.StringClass, "byteAt_(_)", prim_string_byteAt);
+            vm.Primitive(WrenVM.StringClass, "byteCount_", prim_string_byteCount);
             vm.Primitive(WrenVM.StringClass, "codePointAt(_)", prim_string_codePointAt);
             vm.Primitive(WrenVM.StringClass, "contains(_)", prim_string_contains);
             vm.Primitive(WrenVM.StringClass, "count", prim_string_count);
