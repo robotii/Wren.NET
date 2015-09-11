@@ -234,12 +234,6 @@ namespace Wren.Core.Library
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_class_instantiate(WrenVM vm, ObjFiber fiber, Value[] args)
-        {
-            args[0] = new Value(new ObjInstance(args[0].Obj as ObjClass));
-            return PrimitiveResult.Value;
-        }
-
         static PrimitiveResult prim_class_name(WrenVM vm, ObjFiber fiber, Value[] args)
         {
             args[0] = new Value(((ObjClass)args[0].Obj).Name);
@@ -259,13 +253,6 @@ namespace Wren.Core.Library
             {
                 args[0] = new Value(classObj.Superclass);
             }
-            return PrimitiveResult.Value;
-        }
-
-        static PrimitiveResult prim_fiber_instantiate(WrenVM vm, ObjFiber fiber, Value[] args)
-        {
-            // Return the Fiber class itself. When we then call "new" on it, it will
-            // create the fiber.
             return PrimitiveResult.Value;
         }
 
@@ -524,13 +511,6 @@ namespace Wren.Core.Library
             }
 
             return PrimitiveResult.RunFiber;
-        }
-
-        static PrimitiveResult prim_fn_instantiate(WrenVM vm, ObjFiber fiber, Value[] args)
-        {
-            // Return the Fn class itself. When we then call "new" on it, it will return
-            // the block.
-            return PrimitiveResult.Value;
         }
 
         static PrimitiveResult prim_fn_new(WrenVM vm, ObjFiber fiber, Value[] args)
@@ -1519,18 +1499,6 @@ namespace Wren.Core.Library
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_object_instantiate(WrenVM vm, ObjFiber fiber, Value[] args)
-        {
-            args[0] = new Value("Must provide a class to 'new' to construct.");
-            return PrimitiveResult.Error;
-        }
-
-        static PrimitiveResult prim_string_instantiate(WrenVM vm, ObjFiber fiber, Value[] args)
-        {
-            args[0] = new Value("");
-            return PrimitiveResult.Value;
-        }
-
         static PrimitiveResult prim_range_from(WrenVM vm, ObjFiber fiber, Value[] args)
         {
             args[0] = new Value(((ObjRange)args[0].Obj).From);
@@ -2077,7 +2045,6 @@ namespace Wren.Core.Library
             vm.Primitive(WrenVM.ObjectClass, "is(_)", prim_object_is);
             vm.Primitive(WrenVM.ObjectClass, "toString", prim_object_toString);
             vm.Primitive(WrenVM.ObjectClass, "type", prim_object_type);
-            vm.Primitive(WrenVM.ObjectClass, "<instantiate>", prim_object_instantiate);
 
             // Now we can define Class, which is a subclass of Object.
             WrenVM.ClassClass = DefineClass(vm, "Class");
@@ -2085,7 +2052,6 @@ namespace Wren.Core.Library
             // Store a copy of the class in ObjClass
             ObjClass.ClassClass = WrenVM.ClassClass;
             // Define the primitives
-            vm.Primitive(WrenVM.ClassClass, "<instantiate>", prim_class_instantiate);
             vm.Primitive(WrenVM.ClassClass, "name", prim_class_name);
             vm.Primitive(WrenVM.ClassClass, "supertype", prim_class_supertype);
 
@@ -2133,7 +2099,6 @@ namespace Wren.Core.Library
             vm.Primitive(WrenVM.BoolClass, "!", prim_bool_not);
 
             WrenVM.FiberClass = (ObjClass)vm.FindVariable("Fiber").Obj;
-            vm.Primitive(WrenVM.FiberClass.ClassObj, "<instantiate>", prim_fiber_instantiate);
             vm.Primitive(WrenVM.FiberClass.ClassObj, "new(_)", prim_fiber_new);
             vm.Primitive(WrenVM.FiberClass.ClassObj, "abort(_)", prim_fiber_abort);
             vm.Primitive(WrenVM.FiberClass.ClassObj, "current", prim_fiber_current);
@@ -2148,7 +2113,6 @@ namespace Wren.Core.Library
             vm.Primitive(WrenVM.FiberClass, "try()", prim_fiber_try);
 
             WrenVM.FnClass = (ObjClass)vm.FindVariable("Fn").Obj;
-            vm.Primitive(WrenVM.FnClass.ClassObj, "<instantiate>", prim_fn_instantiate);
             vm.Primitive(WrenVM.FnClass.ClassObj, "new(_)", prim_fn_new);
 
             vm.Primitive(WrenVM.FnClass, "arity", prim_fn_arity);
@@ -2220,7 +2184,6 @@ namespace Wren.Core.Library
 
             WrenVM.StringClass = (ObjClass)vm.FindVariable("String").Obj;
             vm.Primitive(WrenVM.StringClass.ClassObj, "fromCodePoint(_)", prim_string_fromCodePoint);
-            vm.Primitive(WrenVM.StringClass.ClassObj, "<instantiate>", prim_string_instantiate);
             vm.Primitive(WrenVM.StringClass, "==(_)", prim_string_eqeq);
             vm.Primitive(WrenVM.StringClass, "!=(_)", prim_string_bangeq);
             vm.Primitive(WrenVM.StringClass, "+(_)", prim_string_plus);
