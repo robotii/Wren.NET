@@ -143,7 +143,8 @@ namespace Wren.Core.Library
         + "}\n"
         + "\n"
         + "class String is Sequence {\n"
-        + "  bytes { StringByteSequence.new(this) }"
+        + "  bytes { StringByteSequence.new(this) }\n"
+        + "  codePoints { StringCodePointSequence.new(this) }\n"
         + "}\n"
         + "\n"
         + "class StringByteSequence is Sequence {\n"
@@ -156,6 +157,18 @@ namespace Wren.Core.Library
         + "  iteratorValue(iterator) { _string.byteAt_(iterator) }\n"
         + "\n"
         + "  count { _string.byteCount_ }\n"
+        + "}\n"
+        + "\n"
+        + "class StringCodePointSequence is Sequence {\n"
+        + "  construct new(string) {\n"
+        + "    _string = string\n"
+        + "  }\n"
+        + "\n"
+        + "  [index] { _string.codePointAt_(index) }\n"
+        + "  iterate(iterator) { _string.iterate(iterator) }\n"
+        + "  iteratorValue(iterator) { _string.codePointAt_(iterator) }\n"
+        + "\n"
+        + "  count { _string.count }\n"
         + "}\n"
         + "\n"
         + "class List is Sequence {\n"
@@ -2190,7 +2203,7 @@ namespace Wren.Core.Library
             vm.Primitive(WrenVM.StringClass, "[_]", prim_string_subscript);
             vm.Primitive(WrenVM.StringClass, "byteAt_(_)", prim_string_byteAt);
             vm.Primitive(WrenVM.StringClass, "byteCount_", prim_string_byteCount);
-            vm.Primitive(WrenVM.StringClass, "codePointAt(_)", prim_string_codePointAt);
+            vm.Primitive(WrenVM.StringClass, "codePointAt_(_)", prim_string_codePointAt);
             vm.Primitive(WrenVM.StringClass, "contains(_)", prim_string_contains);
             vm.Primitive(WrenVM.StringClass, "count", prim_string_count);
             vm.Primitive(WrenVM.StringClass, "endsWith(_)", prim_string_endsWith);
