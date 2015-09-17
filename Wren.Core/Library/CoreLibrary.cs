@@ -92,7 +92,7 @@ namespace Wren.Core.Library
         + "    return result\n"
         + "  }\n"
         + "\n"
-        + "  join { join(\"\") }\n"
+        + "  join() { join(\"\") }\n"
         + "\n"
         + "  join(sep) {\n"
         + "    var first = true\n"

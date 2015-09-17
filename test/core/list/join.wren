@@ -5,7 +5,7 @@ IO.print([].join(",") == "") // expect: true
 IO.print([1, 2, 3].join("")) // expect: 123
 
 // Handle a simple list with no separator.
-IO.print([1, 2, 3].join) // expect: 123
+IO.print([1, 2, 3].join()) // expect: 123
 
 // Does not quote strings.
 IO.print([1, "2", true].join(",")) // expect: 1,2,true
