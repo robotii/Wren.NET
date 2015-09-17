@@ -181,7 +181,7 @@ class Literals is SyntaxExample {
       (1..5): 10,
       a: 2,
       _a: 3,
-      __a: 4
+      __a: 4,
     }
   }
 }
