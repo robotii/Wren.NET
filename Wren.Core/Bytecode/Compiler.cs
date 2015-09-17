@@ -1812,6 +1812,9 @@ namespace Wren.Core.Bytecode
                 {
                     c.IgnoreNewlines();
 
+                    if (c.Peek() == TokenType.TOKEN_RIGHT_BRACE)
+                        break;
+
                     // Push a copy of the map since the subscript call will consume it.
                     c.Emit(Instruction.DUP);
 
