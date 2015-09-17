@@ -1775,6 +1775,9 @@ namespace Wren.Core.Bytecode
                 {
                     c.IgnoreNewlines();
 
+                    if (c.Peek() == TokenType.TOKEN_RIGHT_BRACKET)
+                        break;
+
                     // Push a copy of the list since the add() call will consume it.
                     c.Emit(Instruction.DUP);
 
