@@ -1746,6 +1746,12 @@ namespace Wren.Core.Bytecode
             }
         }
 
+        private void LoadCoreVariable(string name)
+        {
+            int symbol = parser.module.Variables.FindIndex(v => v.Name == name);
+            EmitShortArg(Instruction.LOAD_MODULE_VAR, symbol);
+        }
+
         // A parenthesized expression.
         private static void Grouping(Compiler c, bool allowAssignment)
         {
@@ -1757,9 +1763,7 @@ namespace Wren.Core.Bytecode
         private static void List(Compiler c, bool allowAssignment)
         {
             // Load the List class.
-            int listClassSymbol = c.parser.module.Variables.FindIndex(v => v.Name == "List");
-            //ASSERT(listClassSymbol != -1, "Should have already defined 'List' variable.");
-            c.EmitShortArg(Instruction.LOAD_MODULE_VAR, listClassSymbol);
+            c.LoadCoreVariable("List");
 
             // Instantiate a new list.
             c.CallMethod(0, "new()");
@@ -1792,8 +1796,7 @@ namespace Wren.Core.Bytecode
         private static void Map(Compiler c, bool allowAssignment)
         {
             // Load the Map class.
-            int mapClassSymbol = c.parser.module.Variables.FindIndex(v => v.Name == "Map");
-            c.EmitShortArg(Instruction.LOAD_MODULE_VAR, mapClassSymbol);
+            c.LoadCoreVariable("Map");
 
             // Instantiate a new map.
             c.CallMethod(0, "new()");
@@ -2980,8 +2983,8 @@ namespace Wren.Core.Bytecode
             }
             else
             {
-                // Create the empty class.
-                Emit(Instruction.NULL);
+                // Implicitly inherit from Object.
+                LoadCoreVariable("Object");
             }
 
             // Store a placeholder for the number of fields argument. We don't know

@@ -588,7 +588,7 @@ namespace Wren.Core.VM
                             int offset = (bytecode[ip] << 8) + bytecode[ip + 1];
                             ip += 2;
                             ValueType condition = stack[fiber.StackTop - 1].Type;
-                            
+
                             if ((condition == ValueType.Null || condition == ValueType.False) ^ instruction == Instruction.OR)
                                 ip += offset;
                             else
@@ -622,7 +622,7 @@ namespace Wren.Core.VM
                             if (fiber.NumFrames == 0)
                             {
                                 // If this is the main fiber, we're done.
-                                if (fiber.Caller == null) 
+                                if (fiber.Caller == null)
                                     return true;
 
                                 // We have a calling fiber to resume.
@@ -685,28 +685,23 @@ namespace Wren.Core.VM
                     case Instruction.CLASS:
                         {
                             Value name = stack[fiber.StackTop - 2];
-                            ObjClass superclass = ObjectClass;
+                            ObjClass superclass = stack[fiber.StackTop - 1].Obj as ObjClass;
 
-                            // Use implicit Object superclass if none given.
-                            if (stack[fiber.StackTop - 1].Type != ValueType.Null)
+                            Value error = ValidateSuperclass(name, stack[fiber.StackTop - 1]);
+                            if (error != null)
                             {
-                                Value error = ValidateSuperclass(name, stack[fiber.StackTop - 1]);
-                                if (error != null)
-                                {
-                                    frame.ip = ip;
-                                    RUNTIME_ERROR(fiber, error);
-                                    if (fiber == null)
-                                        return false;
-                                    /* Load Frame */
-                                    frame = fiber.Frames[fiber.NumFrames - 1];
-                                    ip = frame.ip;
-                                    stackStart = frame.StackStart;
-                                    stack = fiber.Stack;
-                                    fn = (frame.fn as ObjFn) ?? (frame.fn as ObjClosure).Function;
-                                    bytecode = fn.Bytecode;
-                                    break;
-                                }
-                                superclass = stack[fiber.StackTop - 1].Obj as ObjClass;
+                                frame.ip = ip;
+                                RUNTIME_ERROR(fiber, error);
+                                if (fiber == null)
+                                    return false;
+                                /* Load Frame */
+                                frame = fiber.Frames[fiber.NumFrames - 1];
+                                ip = frame.ip;
+                                stackStart = frame.StackStart;
+                                stack = fiber.Stack;
+                                fn = (frame.fn as ObjFn) ?? (frame.fn as ObjClosure).Function;
+                                bytecode = fn.Bytecode;
+                                break;
                             }
 
                             int numFields = bytecode[ip++];
