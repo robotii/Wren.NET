@@ -1,10 +1,10 @@
 class Foo {
   method {
-    IO.print(Global)
+    System.print(Global)
   }
 
   static classMethod {
-    IO.print(Global)
+    System.print(Global)
   }
 }
 

@@ -49,7 +49,6 @@ namespace Wren.Core.VM
             core.InitializeCore();
 
             // Load in System functions
-            IO.LoadIOLibrary(this);
             Meta.LoadMetaLibrary(this);
         }
 
@@ -64,17 +63,16 @@ namespace Wren.Core.VM
         {
             ObjFn methodFn = methodContainer.Obj as ObjFn ?? ((ObjClosure)methodContainer.Obj).Function;
 
-            // Methods are always bound against the class, and not the metaclass, even
-            // for static methods, because static methods don't have instance fields
-            // anyway.
-            Compiler.BindMethodCode(classObj, methodFn);
-
             Method method = new Method { mType = MethodType.Block, obj = methodContainer.Obj };
 
             if (methodType == MethodType.Static)
                 classObj = classObj.ClassObj;
 
-            //classObj.Methods[symbol] = method;
+            // Methods are always bound against the class, and not the metaclass, even
+            // for static methods, because static methods don't have instance fields
+            // anyway.
+            Compiler.BindMethodCode(classObj, methodFn);
+
             classObj.BindMethod(symbol, method);
             return new Value(ValueType.Null);
         }

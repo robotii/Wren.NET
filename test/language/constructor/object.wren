@@ -4,7 +4,7 @@
 class Foo {
   construct new() {
     super() // Should not cause a no method error.
-    IO.print("ok")
+    System.print("ok")
   }
 }
 

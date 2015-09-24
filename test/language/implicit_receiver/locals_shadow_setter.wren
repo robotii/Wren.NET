@@ -1,6 +1,6 @@
 class Foo {
   bar=(value) {
-    IO.print("setter")
+    System.print("setter")
     return value
   }
 

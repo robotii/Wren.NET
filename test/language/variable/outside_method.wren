@@ -4,13 +4,13 @@ class Foo {
   foo { "method" }
 
   method {
-    IO.print(foo)
+    System.print(foo)
   }
 
   static foo { "class method" }
 
   static classMethod {
-    IO.print(foo)
+    System.print(foo)
   }
 }
 

@@ -3,7 +3,7 @@
   var local = "local"
   class Foo {
     method {
-      IO.print(local)
+      System.print(local)
     }
   }
 

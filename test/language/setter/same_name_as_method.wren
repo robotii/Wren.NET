@@ -1,6 +1,6 @@
 class Foo {
-  bar=(value) { IO.print("set") }
-  bar { IO.print("get") }
+  bar=(value) { System.print("set") }
+  bar { System.print("get") }
 }
 
 var foo = Foo.new()

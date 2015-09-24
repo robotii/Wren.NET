@@ -1,5 +1,5 @@
 var a = Fiber.new {
-  IO.print("before") // expect: before
+  System.print("before") // expect: before
   Fiber.yield()
 }
 
@@ -8,4 +8,4 @@ var a = Fiber.new {
 var b = Fiber.new { a.run() }
 var c = Fiber.new { b.run() }
 c.run()
-IO.print("not reached")
+System.print("not reached")

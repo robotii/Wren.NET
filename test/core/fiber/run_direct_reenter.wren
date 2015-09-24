@@ -1,10 +1,10 @@
 var fiber
 
 fiber = Fiber.new {
-  IO.print(1) // expect: 1
+  System.print(1) // expect: 1
   fiber.run()
-  IO.print(2) // expect: 2
+  System.print(2) // expect: 2
 }
 
 fiber.call()
-IO.print(3) // expect: 3
+System.print(3) // expect: 3

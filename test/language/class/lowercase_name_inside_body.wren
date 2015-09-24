@@ -1,10 +1,10 @@
 class foo {
   static callFoo {
-    IO.print(foo)
+    System.print(foo)
   }
 
   callFoo {
-    IO.print(foo)
+    System.print(foo)
   }
 
   foo { "instance foo method" }

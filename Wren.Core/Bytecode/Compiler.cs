@@ -2112,11 +2112,7 @@ namespace Wren.Core.Bytecode
             {
                 c.Error("Cannot use 'super' outside of a method.");
             }
-            else if (enclosingClass.isStaticMethod)
-            {
-                c.Error("Cannot use 'super' in a static method.");
-            }
-
+            
             c.LoadThis();
 
             // TODO: Super operator calls.

@@ -1,12 +1,12 @@
 var fiber = Fiber.new {
-  IO.print("fiber")
+  System.print("fiber")
   var result = Fiber.yield()
-  IO.print(result)
+  System.print(result)
 }
 
 fiber.call() // expect: fiber
-IO.print("main") // expect: main
+System.print("main") // expect: main
 fiber.run("run") // expect: run
 
 // This does not get run since we exit when the run fiber completes.
-IO.print("nope")
+System.print("nope")

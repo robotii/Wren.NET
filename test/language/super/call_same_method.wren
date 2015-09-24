@@ -1,12 +1,12 @@
 class Base {
   foo {
-    IO.print("Base.foo")
+    System.print("Base.foo")
   }
 }
 
 class Derived is Base {
   foo {
-    IO.print("Derived.foo")
+    System.print("Derived.foo")
     super.foo
   }
 }

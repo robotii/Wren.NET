@@ -1,6 +1,6 @@
 class Foo {
   construct new() {
-    IO.print("Foo.new()")
+    System.print("Foo.new()")
   }
 }
 

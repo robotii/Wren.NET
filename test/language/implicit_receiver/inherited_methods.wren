@@ -1,14 +1,14 @@
 class Foo {
   getter {
-    IO.print("getter")
+    System.print("getter")
   }
 
   setter=(value) {
-    IO.print("setter")
+    System.print("setter")
   }
 
   method(a) {
-    IO.print("method")
+    System.print("method")
   }
 }
 

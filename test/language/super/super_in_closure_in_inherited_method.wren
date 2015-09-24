@@ -8,4 +8,4 @@ class A {
 
 class B is A {}
 
-IO.print(B.new().callSuperToString) // expect: instance of B
+System.print(B.new().callSuperToString) // expect: instance of B
