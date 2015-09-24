@@ -1,4 +1,5 @@
 class Foo {
+  construct new() {}
   bar=(value) { System.print("set") }
   bar { System.print("get") }
 }

@@ -1,6 +1,7 @@
 var F = null
 
 class Foo {
+  construct new() {}
   method(param) {
     F = Fn.new {
       System.print(param)

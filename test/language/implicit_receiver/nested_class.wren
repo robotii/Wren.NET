@@ -1,4 +1,5 @@
 class Outer {
+  construct new() {}
   getter {
     System.print("outer getter")
   }
@@ -17,6 +18,7 @@ class Outer {
     method("arg")     // expect: outer method
 
     class Inner {
+      construct new() {}
       getter {
         System.print("inner getter")
       }

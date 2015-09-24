@@ -1,4 +1,5 @@
 class Foo {
+  construct new() {}
   +(other) { "Foo " + other }
 }
 

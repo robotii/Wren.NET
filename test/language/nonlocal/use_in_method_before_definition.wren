@@ -1,4 +1,5 @@
 class Foo {
+  construct new() {}
   method {
     System.print(Global)
   }

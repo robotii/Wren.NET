@@ -1,4 +1,5 @@
 class Foo {
+  construct new() {}
   methodOnFoo { System.print("foo") }
   method(a) { System.print("foo") }
   method(a, b, c) { System.print("foo") }
@@ -6,6 +7,7 @@ class Foo {
 }
 
 class Bar is Foo {
+  construct new() {}
   methodOnBar { System.print("bar") }
   method(a, b) { System.print("bar") }
   method(a, b, c, d) { System.print("bar") }

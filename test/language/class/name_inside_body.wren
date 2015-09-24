@@ -1,4 +1,6 @@
 class Foo {
+  construct new() {}
+
   static sayName {
     System.print(Foo)
   }

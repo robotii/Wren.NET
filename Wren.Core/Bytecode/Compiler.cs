@@ -2867,9 +2867,8 @@ namespace Wren.Core.Bytecode
 
         // Compiles a method definition inside a class body. Returns the symbol in the
         // method table for the new method.
-        private bool Method(ClassCompiler classCompiler, int classSlot, out bool hasConstructor)
+        private bool Method(ClassCompiler classCompiler, int classSlot)
         {
-            hasConstructor = false;
 
             bool isForeign = Match(TokenType.TOKEN_FOREIGN);
             classCompiler.isStaticMethod = Match(TokenType.TOKEN_STATIC);
@@ -2921,8 +2920,6 @@ namespace Wren.Core.Bytecode
                 int constructorSymbol = SignatureSymbol(signature);
                 CreateConstructor(signature, methodSymbol);
                 DefineMethod(classSlot, true, constructorSymbol);
-
-                hasConstructor = true;
             }
 
             return true;
@@ -2952,18 +2949,6 @@ namespace Wren.Core.Bytecode
 
             Instruction inst = isStaticMethod ? Instruction.METHOD_STATIC : Instruction.METHOD_INSTANCE;
             EmitShortArg(inst, methodSymbol);
-        }
-
-        private void CreateDefaultConstructor(int classSlot)
-        {
-            Signature signature = new Signature { Type = SignatureType.SIG_INITIALIZER, Arity = 0, Name = "new", Length = 3 };
-            int initializerSymbol = SignatureSymbol(signature);
-
-            signature.Type = SignatureType.SIG_METHOD;
-            int constructorSymbol = SignatureSymbol(signature);
-
-            CreateConstructor(signature, initializerSymbol);
-            DefineMethod(classSlot, true, constructorSymbol);
         }
 
         // Compiles a class definition. Assumes the "class" token has already been
@@ -3027,21 +3012,14 @@ namespace Wren.Core.Bytecode
             Consume(TokenType.TOKEN_LEFT_BRACE, "Expect '{' after class declaration.");
             MatchLine();
 
-            bool hasConstructor = false;
-
             while (!Match(TokenType.TOKEN_RIGHT_BRACE))
             {
-                if (!Method(classCompiler, slot, out hasConstructor)) break;
+                if (!Method(classCompiler, slot)) break;
 
                 // Don't require a newline after the last definition.
                 if (Match(TokenType.TOKEN_RIGHT_BRACE)) break;
 
                 ConsumeLine("Expect newline after definition in class.");
-            }
-
-            if (!hasConstructor)
-            {
-                CreateDefaultConstructor(slot);
             }
 
             if (!isForeign)

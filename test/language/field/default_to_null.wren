@@ -1,4 +1,5 @@
 class Foo {
+  construct new() {}
   write { System.print(_field) }
 }
 

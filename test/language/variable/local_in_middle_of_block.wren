@@ -1,4 +1,5 @@
 class Foo {
+  construct new() {}
   bar {
     var a = "a"
     System.print(a) // expect: a

@@ -1,4 +1,5 @@
 class Foo {
+  construct new() {}
   getter {
     System.print("getter")
   }
