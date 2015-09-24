@@ -173,7 +173,6 @@ namespace Wren.Core.VM
 
             ObjFiber moduleFiber = new ObjFiber(fn);
 
-
             // Return the fiber that executes the module.
             return moduleFiber;
         }

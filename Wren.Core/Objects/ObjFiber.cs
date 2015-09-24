@@ -16,19 +16,24 @@ namespace Wren.Core.Objects
         // Pointer to the first node in the linked list of open upvalues that are
         // pointing to values still on the stack. The head of the list will be the
         // upvalue closest to the top of the stack, and then the list works downwards.
+        public ObjUpvalue OpenUpvalues;
 
         // The fiber that ran this one. If this fiber is yielded, control will resume
-        // to this one. May be `NULL`.
+        // to this one. May be null.
+        public ObjFiber Caller;
+
+        public int NumFrames;
 
         // If the fiber failed because of a runtime error, this will contain the
-        // error message. Otherwise, it will be NULL.
-
-        // A unique-ish numeric ID for the fiber. Lets fibers be used as map keys.
-        // Unique-ish since IDs may overflow and wrap around.
+        // error message. Otherwise, it will be null.
+        public ObjString Error;
 
         // This will be true if the caller that called this fiber did so using "try".
         // In that case, if this fiber fails with an error, the error will be given
         // to the caller.
+        public bool CallerIsTrying;
+
+        public int StackTop;
 
         // Creates a new fiber object that will invoke [fn], which can be a function or
         // closure.
@@ -37,18 +42,6 @@ namespace Wren.Core.Objects
             ResetFiber(fn);
             ClassObj = WrenVM.FiberClass;
         }
-
-        public ObjUpvalue OpenUpvalues;
-
-        public ObjFiber Caller;
-
-        public int NumFrames;
-
-        public ObjString Error;
-
-        public bool CallerIsTrying;
-
-        public int StackTop;
 
         public CallFrame GetFrame()
         {
@@ -156,8 +149,6 @@ namespace Wren.Core.Objects
 
         public ObjFiber RuntimeError(Value error)
         {
-            //ASSERT(fiber->error == NULL, "Can only fail once.");
-
             // Store the error in the fiber so it can be accessed later.
             Error = error.Obj as ObjString;
 
