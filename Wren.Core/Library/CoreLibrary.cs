@@ -9,7 +9,7 @@ namespace Wren.Core.Library
 {
     class CoreLibrary
     {
-        private readonly WrenVM vm;
+        private readonly WrenVM _vm;
 
         // This string literal is generated automatically from core. Do not edit.
         private const string CoreLibSource =
@@ -2100,33 +2100,33 @@ namespace Wren.Core.Library
 
         public CoreLibrary(WrenVM v)
         {
-            vm = v;
+            _vm = v;
         }
 
         public void InitializeCore()
         {
             // Define the root Object class. This has to be done a little specially
             // because it has no superclass.
-            WrenVM.ObjectClass = DefineClass(vm, "Object");
-            vm.Primitive(WrenVM.ObjectClass, "!", prim_object_not);
-            vm.Primitive(WrenVM.ObjectClass, "==(_)", prim_object_eqeq);
-            vm.Primitive(WrenVM.ObjectClass, "!=(_)", prim_object_bangeq);
-            vm.Primitive(WrenVM.ObjectClass, "init new()", prim_object_new);
-            vm.Primitive(WrenVM.ObjectClass, "is(_)", prim_object_is);
-            vm.Primitive(WrenVM.ObjectClass, "toString", prim_object_toString);
-            vm.Primitive(WrenVM.ObjectClass, "type", prim_object_type);
+            WrenVM.ObjectClass = DefineClass(_vm, "Object");
+            _vm.Primitive(WrenVM.ObjectClass, "!", prim_object_not);
+            _vm.Primitive(WrenVM.ObjectClass, "==(_)", prim_object_eqeq);
+            _vm.Primitive(WrenVM.ObjectClass, "!=(_)", prim_object_bangeq);
+            _vm.Primitive(WrenVM.ObjectClass, "init new()", prim_object_new);
+            _vm.Primitive(WrenVM.ObjectClass, "is(_)", prim_object_is);
+            _vm.Primitive(WrenVM.ObjectClass, "toString", prim_object_toString);
+            _vm.Primitive(WrenVM.ObjectClass, "type", prim_object_type);
 
             // Now we can define Class, which is a subclass of Object.
-            WrenVM.ClassClass = DefineClass(vm, "Class");
+            WrenVM.ClassClass = DefineClass(_vm, "Class");
             WrenVM.ClassClass.BindSuperclass(WrenVM.ObjectClass);
             // Store a copy of the class in ObjClass
             ObjClass.ClassClass = WrenVM.ClassClass;
             // Define the primitives
-            vm.Primitive(WrenVM.ClassClass, "name", prim_class_name);
-            vm.Primitive(WrenVM.ClassClass, "supertype", prim_class_supertype);
+            _vm.Primitive(WrenVM.ClassClass, "name", prim_class_name);
+            _vm.Primitive(WrenVM.ClassClass, "supertype", prim_class_supertype);
 
             // Finally, we can define Object's metaclass which is a subclass of Class.
-            ObjClass objectMetaclass = DefineClass(vm, "Object metaclass");
+            ObjClass objectMetaclass = DefineClass(_vm, "Object metaclass");
 
             // Wire up the metaclass relationships now that all three classes are built.
             WrenVM.ObjectClass.ClassObj = objectMetaclass;
@@ -2137,7 +2137,7 @@ namespace Wren.Core.Library
             // collected.
             objectMetaclass.BindSuperclass(WrenVM.ClassClass);
 
-            vm.Primitive(objectMetaclass, "same(_,_)", prim_object_same);
+            _vm.Primitive(objectMetaclass, "same(_,_)", prim_object_same);
 
             // The core class diagram ends up looking like this, where single lines point
             // to a class's superclass, and double lines point to its metaclass:
@@ -2162,152 +2162,152 @@ namespace Wren.Core.Library
             //   '---------'   '-------------------'            -'
 
             // The rest of the classes can now be defined normally.
-            vm.Interpret("", CoreLibSource);
+            _vm.Interpret("", CoreLibSource);
 
-            WrenVM.BoolClass = (ObjClass)vm.FindVariable("Bool").Obj;
-            vm.Primitive(WrenVM.BoolClass, "toString", prim_bool_toString);
-            vm.Primitive(WrenVM.BoolClass, "!", prim_bool_not);
+            WrenVM.BoolClass = (ObjClass)_vm.FindVariable("Bool").Obj;
+            _vm.Primitive(WrenVM.BoolClass, "toString", prim_bool_toString);
+            _vm.Primitive(WrenVM.BoolClass, "!", prim_bool_not);
 
-            WrenVM.FiberClass = (ObjClass)vm.FindVariable("Fiber").Obj;
-            vm.Primitive(WrenVM.FiberClass.ClassObj, "new(_)", prim_fiber_new);
-            vm.Primitive(WrenVM.FiberClass.ClassObj, "abort(_)", prim_fiber_abort);
-            vm.Primitive(WrenVM.FiberClass.ClassObj, "current", prim_fiber_current);
-            vm.Primitive(WrenVM.FiberClass.ClassObj, "yield()", prim_fiber_yield);
-            vm.Primitive(WrenVM.FiberClass.ClassObj, "yield(_)", prim_fiber_yield1);
-            vm.Primitive(WrenVM.FiberClass, "call()", prim_fiber_call);
-            vm.Primitive(WrenVM.FiberClass, "call(_)", prim_fiber_call1);
-            vm.Primitive(WrenVM.FiberClass, "error", prim_fiber_error);
-            vm.Primitive(WrenVM.FiberClass, "isDone", prim_fiber_isDone);
-            vm.Primitive(WrenVM.FiberClass, "run()", prim_fiber_run);
-            vm.Primitive(WrenVM.FiberClass, "run(_)", prim_fiber_run1);
-            vm.Primitive(WrenVM.FiberClass, "try()", prim_fiber_try);
+            WrenVM.FiberClass = (ObjClass)_vm.FindVariable("Fiber").Obj;
+            _vm.Primitive(WrenVM.FiberClass.ClassObj, "new(_)", prim_fiber_new);
+            _vm.Primitive(WrenVM.FiberClass.ClassObj, "abort(_)", prim_fiber_abort);
+            _vm.Primitive(WrenVM.FiberClass.ClassObj, "current", prim_fiber_current);
+            _vm.Primitive(WrenVM.FiberClass.ClassObj, "yield()", prim_fiber_yield);
+            _vm.Primitive(WrenVM.FiberClass.ClassObj, "yield(_)", prim_fiber_yield1);
+            _vm.Primitive(WrenVM.FiberClass, "call()", prim_fiber_call);
+            _vm.Primitive(WrenVM.FiberClass, "call(_)", prim_fiber_call1);
+            _vm.Primitive(WrenVM.FiberClass, "error", prim_fiber_error);
+            _vm.Primitive(WrenVM.FiberClass, "isDone", prim_fiber_isDone);
+            _vm.Primitive(WrenVM.FiberClass, "run()", prim_fiber_run);
+            _vm.Primitive(WrenVM.FiberClass, "run(_)", prim_fiber_run1);
+            _vm.Primitive(WrenVM.FiberClass, "try()", prim_fiber_try);
 
-            WrenVM.FnClass = (ObjClass)vm.FindVariable("Fn").Obj;
-            vm.Primitive(WrenVM.FnClass.ClassObj, "new(_)", prim_fn_new);
+            WrenVM.FnClass = (ObjClass)_vm.FindVariable("Fn").Obj;
+            _vm.Primitive(WrenVM.FnClass.ClassObj, "new(_)", prim_fn_new);
 
-            vm.Primitive(WrenVM.FnClass, "arity", prim_fn_arity);
-            vm.Primitive(WrenVM.FnClass, "call()", prim_fn_call0);
-            vm.Primitive(WrenVM.FnClass, "call(_)", prim_fn_call1);
-            vm.Primitive(WrenVM.FnClass, "call(_,_)", prim_fn_call2);
-            vm.Primitive(WrenVM.FnClass, "call(_,_,_)", prim_fn_call3);
-            vm.Primitive(WrenVM.FnClass, "call(_,_,_,_)", prim_fn_call4);
-            vm.Primitive(WrenVM.FnClass, "call(_,_,_,_,_)", prim_fn_call5);
-            vm.Primitive(WrenVM.FnClass, "call(_,_,_,_,_,_)", prim_fn_call6);
-            vm.Primitive(WrenVM.FnClass, "call(_,_,_,_,_,_,_)", prim_fn_call7);
-            vm.Primitive(WrenVM.FnClass, "call(_,_,_,_,_,_,_,_)", prim_fn_call8);
-            vm.Primitive(WrenVM.FnClass, "call(_,_,_,_,_,_,_,_,_)", prim_fn_call9);
-            vm.Primitive(WrenVM.FnClass, "call(_,_,_,_,_,_,_,_,_,_)", prim_fn_call10);
-            vm.Primitive(WrenVM.FnClass, "call(_,_,_,_,_,_,_,_,_,_,_)", prim_fn_call11);
-            vm.Primitive(WrenVM.FnClass, "call(_,_,_,_,_,_,_,_,_,_,_,_)", prim_fn_call12);
-            vm.Primitive(WrenVM.FnClass, "call(_,_,_,_,_,_,_,_,_,_,_,_,_)", prim_fn_call13);
-            vm.Primitive(WrenVM.FnClass, "call(_,_,_,_,_,_,_,_,_,_,_,_,_,_)", prim_fn_call14);
-            vm.Primitive(WrenVM.FnClass, "call(_,_,_,_,_,_,_,_,_,_,_,_,_,_,_)", prim_fn_call15);
-            vm.Primitive(WrenVM.FnClass, "call(_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_)", prim_fn_call16);
-            vm.Primitive(WrenVM.FnClass, "toString", prim_fn_toString);
+            _vm.Primitive(WrenVM.FnClass, "arity", prim_fn_arity);
+            _vm.Primitive(WrenVM.FnClass, "call()", prim_fn_call0);
+            _vm.Primitive(WrenVM.FnClass, "call(_)", prim_fn_call1);
+            _vm.Primitive(WrenVM.FnClass, "call(_,_)", prim_fn_call2);
+            _vm.Primitive(WrenVM.FnClass, "call(_,_,_)", prim_fn_call3);
+            _vm.Primitive(WrenVM.FnClass, "call(_,_,_,_)", prim_fn_call4);
+            _vm.Primitive(WrenVM.FnClass, "call(_,_,_,_,_)", prim_fn_call5);
+            _vm.Primitive(WrenVM.FnClass, "call(_,_,_,_,_,_)", prim_fn_call6);
+            _vm.Primitive(WrenVM.FnClass, "call(_,_,_,_,_,_,_)", prim_fn_call7);
+            _vm.Primitive(WrenVM.FnClass, "call(_,_,_,_,_,_,_,_)", prim_fn_call8);
+            _vm.Primitive(WrenVM.FnClass, "call(_,_,_,_,_,_,_,_,_)", prim_fn_call9);
+            _vm.Primitive(WrenVM.FnClass, "call(_,_,_,_,_,_,_,_,_,_)", prim_fn_call10);
+            _vm.Primitive(WrenVM.FnClass, "call(_,_,_,_,_,_,_,_,_,_,_)", prim_fn_call11);
+            _vm.Primitive(WrenVM.FnClass, "call(_,_,_,_,_,_,_,_,_,_,_,_)", prim_fn_call12);
+            _vm.Primitive(WrenVM.FnClass, "call(_,_,_,_,_,_,_,_,_,_,_,_,_)", prim_fn_call13);
+            _vm.Primitive(WrenVM.FnClass, "call(_,_,_,_,_,_,_,_,_,_,_,_,_,_)", prim_fn_call14);
+            _vm.Primitive(WrenVM.FnClass, "call(_,_,_,_,_,_,_,_,_,_,_,_,_,_,_)", prim_fn_call15);
+            _vm.Primitive(WrenVM.FnClass, "call(_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_)", prim_fn_call16);
+            _vm.Primitive(WrenVM.FnClass, "toString", prim_fn_toString);
 
-            WrenVM.NullClass = (ObjClass)vm.FindVariable("Null").Obj;
-            vm.Primitive(WrenVM.NullClass, "!", prim_null_not);
-            vm.Primitive(WrenVM.NullClass, "toString", prim_null_toString);
+            WrenVM.NullClass = (ObjClass)_vm.FindVariable("Null").Obj;
+            _vm.Primitive(WrenVM.NullClass, "!", prim_null_not);
+            _vm.Primitive(WrenVM.NullClass, "toString", prim_null_toString);
 
-            WrenVM.NumClass = (ObjClass)vm.FindVariable("Num").Obj;
-            vm.Primitive(WrenVM.NumClass.ClassObj, "fromString(_)", prim_num_fromString);
-            vm.Primitive(WrenVM.NumClass.ClassObj, "pi", prim_num_pi);
-            vm.Primitive(WrenVM.NumClass, "-(_)", prim_num_minus);
-            vm.Primitive(WrenVM.NumClass, "+(_)", prim_num_plus);
-            vm.Primitive(WrenVM.NumClass, "*(_)", prim_num_multiply);
-            vm.Primitive(WrenVM.NumClass, "/(_)", prim_num_divide);
-            vm.Primitive(WrenVM.NumClass, "<(_)", prim_num_lt);
-            vm.Primitive(WrenVM.NumClass, ">(_)", prim_num_gt);
-            vm.Primitive(WrenVM.NumClass, "<=(_)", prim_num_lte);
-            vm.Primitive(WrenVM.NumClass, ">=(_)", prim_num_gte);
-            vm.Primitive(WrenVM.NumClass, "&(_)", prim_num_And);
-            vm.Primitive(WrenVM.NumClass, "|(_)", prim_num_Or);
-            vm.Primitive(WrenVM.NumClass, "^(_)", prim_num_Xor);
-            vm.Primitive(WrenVM.NumClass, "<<(_)", prim_num_LeftShift);
-            vm.Primitive(WrenVM.NumClass, ">>(_)", prim_num_RightShift);
-            vm.Primitive(WrenVM.NumClass, "abs", prim_num_abs);
-            vm.Primitive(WrenVM.NumClass, "acos", prim_num_acos);
-            vm.Primitive(WrenVM.NumClass, "asin", prim_num_asin);
-            vm.Primitive(WrenVM.NumClass, "atan", prim_num_atan);
-            vm.Primitive(WrenVM.NumClass, "ceil", prim_num_ceil);
-            vm.Primitive(WrenVM.NumClass, "cos", prim_num_cos);
-            vm.Primitive(WrenVM.NumClass, "floor", prim_num_floor);
-            vm.Primitive(WrenVM.NumClass, "-", prim_num_negate);
-            vm.Primitive(WrenVM.NumClass, "sin", prim_num_sin);
-            vm.Primitive(WrenVM.NumClass, "sqrt", prim_num_sqrt);
-            vm.Primitive(WrenVM.NumClass, "tan", prim_num_tan);
-            vm.Primitive(WrenVM.NumClass, "%(_)", prim_num_mod);
-            vm.Primitive(WrenVM.NumClass, "~", prim_num_bitwiseNot);
-            vm.Primitive(WrenVM.NumClass, "..(_)", prim_num_dotDot);
-            vm.Primitive(WrenVM.NumClass, "...(_)", prim_num_dotDotDot);
-            vm.Primitive(WrenVM.NumClass, "atan(_)", prim_num_atan2);
-            vm.Primitive(WrenVM.NumClass, "fraction", prim_num_fraction);
-            vm.Primitive(WrenVM.NumClass, "isNan", prim_num_isNan);
-            vm.Primitive(WrenVM.NumClass, "sign", prim_num_sign);
-            vm.Primitive(WrenVM.NumClass, "toString", prim_num_toString);
-            vm.Primitive(WrenVM.NumClass, "truncate", prim_num_truncate);
+            WrenVM.NumClass = (ObjClass)_vm.FindVariable("Num").Obj;
+            _vm.Primitive(WrenVM.NumClass.ClassObj, "fromString(_)", prim_num_fromString);
+            _vm.Primitive(WrenVM.NumClass.ClassObj, "pi", prim_num_pi);
+            _vm.Primitive(WrenVM.NumClass, "-(_)", prim_num_minus);
+            _vm.Primitive(WrenVM.NumClass, "+(_)", prim_num_plus);
+            _vm.Primitive(WrenVM.NumClass, "*(_)", prim_num_multiply);
+            _vm.Primitive(WrenVM.NumClass, "/(_)", prim_num_divide);
+            _vm.Primitive(WrenVM.NumClass, "<(_)", prim_num_lt);
+            _vm.Primitive(WrenVM.NumClass, ">(_)", prim_num_gt);
+            _vm.Primitive(WrenVM.NumClass, "<=(_)", prim_num_lte);
+            _vm.Primitive(WrenVM.NumClass, ">=(_)", prim_num_gte);
+            _vm.Primitive(WrenVM.NumClass, "&(_)", prim_num_And);
+            _vm.Primitive(WrenVM.NumClass, "|(_)", prim_num_Or);
+            _vm.Primitive(WrenVM.NumClass, "^(_)", prim_num_Xor);
+            _vm.Primitive(WrenVM.NumClass, "<<(_)", prim_num_LeftShift);
+            _vm.Primitive(WrenVM.NumClass, ">>(_)", prim_num_RightShift);
+            _vm.Primitive(WrenVM.NumClass, "abs", prim_num_abs);
+            _vm.Primitive(WrenVM.NumClass, "acos", prim_num_acos);
+            _vm.Primitive(WrenVM.NumClass, "asin", prim_num_asin);
+            _vm.Primitive(WrenVM.NumClass, "atan", prim_num_atan);
+            _vm.Primitive(WrenVM.NumClass, "ceil", prim_num_ceil);
+            _vm.Primitive(WrenVM.NumClass, "cos", prim_num_cos);
+            _vm.Primitive(WrenVM.NumClass, "floor", prim_num_floor);
+            _vm.Primitive(WrenVM.NumClass, "-", prim_num_negate);
+            _vm.Primitive(WrenVM.NumClass, "sin", prim_num_sin);
+            _vm.Primitive(WrenVM.NumClass, "sqrt", prim_num_sqrt);
+            _vm.Primitive(WrenVM.NumClass, "tan", prim_num_tan);
+            _vm.Primitive(WrenVM.NumClass, "%(_)", prim_num_mod);
+            _vm.Primitive(WrenVM.NumClass, "~", prim_num_bitwiseNot);
+            _vm.Primitive(WrenVM.NumClass, "..(_)", prim_num_dotDot);
+            _vm.Primitive(WrenVM.NumClass, "...(_)", prim_num_dotDotDot);
+            _vm.Primitive(WrenVM.NumClass, "atan(_)", prim_num_atan2);
+            _vm.Primitive(WrenVM.NumClass, "fraction", prim_num_fraction);
+            _vm.Primitive(WrenVM.NumClass, "isNan", prim_num_isNan);
+            _vm.Primitive(WrenVM.NumClass, "sign", prim_num_sign);
+            _vm.Primitive(WrenVM.NumClass, "toString", prim_num_toString);
+            _vm.Primitive(WrenVM.NumClass, "truncate", prim_num_truncate);
 
             // These are defined just so that 0 and -0 are equal, which is specified by
             // IEEE 754 even though they have different bit representations.
-            vm.Primitive(WrenVM.NumClass, "==(_)", prim_num_eqeq);
-            vm.Primitive(WrenVM.NumClass, "!=(_)", prim_num_bangeq);
+            _vm.Primitive(WrenVM.NumClass, "==(_)", prim_num_eqeq);
+            _vm.Primitive(WrenVM.NumClass, "!=(_)", prim_num_bangeq);
 
-            WrenVM.StringClass = (ObjClass)vm.FindVariable("String").Obj;
-            vm.Primitive(WrenVM.StringClass.ClassObj, "fromCodePoint(_)", prim_string_fromCodePoint);
-            vm.Primitive(WrenVM.StringClass, "==(_)", prim_string_eqeq);
-            vm.Primitive(WrenVM.StringClass, "!=(_)", prim_string_bangeq);
-            vm.Primitive(WrenVM.StringClass, "+(_)", prim_string_plus);
-            vm.Primitive(WrenVM.StringClass, "[_]", prim_string_subscript);
-            vm.Primitive(WrenVM.StringClass, "byteAt_(_)", prim_string_byteAt);
-            vm.Primitive(WrenVM.StringClass, "byteCount_", prim_string_byteCount);
-            vm.Primitive(WrenVM.StringClass, "codePointAt_(_)", prim_string_codePointAt);
-            vm.Primitive(WrenVM.StringClass, "contains(_)", prim_string_contains);
-            vm.Primitive(WrenVM.StringClass, "count", prim_string_count);
-            vm.Primitive(WrenVM.StringClass, "endsWith(_)", prim_string_endsWith);
-            vm.Primitive(WrenVM.StringClass, "indexOf(_)", prim_string_indexOf);
-            vm.Primitive(WrenVM.StringClass, "iterate(_)", prim_string_iterate);
-            vm.Primitive(WrenVM.StringClass, "iterateByte_(_)", prim_string_iterateByte);
-            vm.Primitive(WrenVM.StringClass, "iteratorValue(_)", prim_string_iteratorValue);
-            vm.Primitive(WrenVM.StringClass, "startsWith(_)", prim_string_startsWith);
-            vm.Primitive(WrenVM.StringClass, "toString", prim_string_toString);
+            WrenVM.StringClass = (ObjClass)_vm.FindVariable("String").Obj;
+            _vm.Primitive(WrenVM.StringClass.ClassObj, "fromCodePoint(_)", prim_string_fromCodePoint);
+            _vm.Primitive(WrenVM.StringClass, "==(_)", prim_string_eqeq);
+            _vm.Primitive(WrenVM.StringClass, "!=(_)", prim_string_bangeq);
+            _vm.Primitive(WrenVM.StringClass, "+(_)", prim_string_plus);
+            _vm.Primitive(WrenVM.StringClass, "[_]", prim_string_subscript);
+            _vm.Primitive(WrenVM.StringClass, "byteAt_(_)", prim_string_byteAt);
+            _vm.Primitive(WrenVM.StringClass, "byteCount_", prim_string_byteCount);
+            _vm.Primitive(WrenVM.StringClass, "codePointAt_(_)", prim_string_codePointAt);
+            _vm.Primitive(WrenVM.StringClass, "contains(_)", prim_string_contains);
+            _vm.Primitive(WrenVM.StringClass, "count", prim_string_count);
+            _vm.Primitive(WrenVM.StringClass, "endsWith(_)", prim_string_endsWith);
+            _vm.Primitive(WrenVM.StringClass, "indexOf(_)", prim_string_indexOf);
+            _vm.Primitive(WrenVM.StringClass, "iterate(_)", prim_string_iterate);
+            _vm.Primitive(WrenVM.StringClass, "iterateByte_(_)", prim_string_iterateByte);
+            _vm.Primitive(WrenVM.StringClass, "iteratorValue(_)", prim_string_iteratorValue);
+            _vm.Primitive(WrenVM.StringClass, "startsWith(_)", prim_string_startsWith);
+            _vm.Primitive(WrenVM.StringClass, "toString", prim_string_toString);
 
-            WrenVM.ListClass = (ObjClass)vm.FindVariable("List").Obj;
-            vm.Primitive(WrenVM.ListClass.ClassObj, "new()", prim_list_instantiate);
-            vm.Primitive(WrenVM.ListClass, "[_]", prim_list_subscript);
-            vm.Primitive(WrenVM.ListClass, "[_]=(_)", prim_list_subscriptSetter);
-            vm.Primitive(WrenVM.ListClass, "add(_)", prim_list_add);
-            vm.Primitive(WrenVM.ListClass, "clear()", prim_list_clear);
-            vm.Primitive(WrenVM.ListClass, "count", prim_list_count);
-            vm.Primitive(WrenVM.ListClass, "insert(_,_)", prim_list_insert);
-            vm.Primitive(WrenVM.ListClass, "iterate(_)", prim_list_iterate);
-            vm.Primitive(WrenVM.ListClass, "iteratorValue(_)", prim_list_iteratorValue);
-            vm.Primitive(WrenVM.ListClass, "removeAt(_)", prim_list_removeAt);
+            WrenVM.ListClass = (ObjClass)_vm.FindVariable("List").Obj;
+            _vm.Primitive(WrenVM.ListClass.ClassObj, "new()", prim_list_instantiate);
+            _vm.Primitive(WrenVM.ListClass, "[_]", prim_list_subscript);
+            _vm.Primitive(WrenVM.ListClass, "[_]=(_)", prim_list_subscriptSetter);
+            _vm.Primitive(WrenVM.ListClass, "add(_)", prim_list_add);
+            _vm.Primitive(WrenVM.ListClass, "clear()", prim_list_clear);
+            _vm.Primitive(WrenVM.ListClass, "count", prim_list_count);
+            _vm.Primitive(WrenVM.ListClass, "insert(_,_)", prim_list_insert);
+            _vm.Primitive(WrenVM.ListClass, "iterate(_)", prim_list_iterate);
+            _vm.Primitive(WrenVM.ListClass, "iteratorValue(_)", prim_list_iteratorValue);
+            _vm.Primitive(WrenVM.ListClass, "removeAt(_)", prim_list_removeAt);
 
-            WrenVM.MapClass = (ObjClass)vm.FindVariable("Map").Obj;
-            vm.Primitive(WrenVM.MapClass.ClassObj, "new()", prim_map_instantiate);
-            vm.Primitive(WrenVM.MapClass, "[_]", prim_map_subscript);
-            vm.Primitive(WrenVM.MapClass, "[_]=(_)", prim_map_subscriptSetter);
-            vm.Primitive(WrenVM.MapClass, "clear()", prim_map_clear);
-            vm.Primitive(WrenVM.MapClass, "containsKey(_)", prim_map_containsKey);
-            vm.Primitive(WrenVM.MapClass, "count", prim_map_count);
-            vm.Primitive(WrenVM.MapClass, "remove(_)", prim_map_remove);
-            vm.Primitive(WrenVM.MapClass, "iterate_(_)", prim_map_iterate);
-            vm.Primitive(WrenVM.MapClass, "keyIteratorValue_(_)", prim_map_keyIteratorValue);
-            vm.Primitive(WrenVM.MapClass, "valueIteratorValue_(_)", prim_map_valueIteratorValue);
+            WrenVM.MapClass = (ObjClass)_vm.FindVariable("Map").Obj;
+            _vm.Primitive(WrenVM.MapClass.ClassObj, "new()", prim_map_instantiate);
+            _vm.Primitive(WrenVM.MapClass, "[_]", prim_map_subscript);
+            _vm.Primitive(WrenVM.MapClass, "[_]=(_)", prim_map_subscriptSetter);
+            _vm.Primitive(WrenVM.MapClass, "clear()", prim_map_clear);
+            _vm.Primitive(WrenVM.MapClass, "containsKey(_)", prim_map_containsKey);
+            _vm.Primitive(WrenVM.MapClass, "count", prim_map_count);
+            _vm.Primitive(WrenVM.MapClass, "remove(_)", prim_map_remove);
+            _vm.Primitive(WrenVM.MapClass, "iterate_(_)", prim_map_iterate);
+            _vm.Primitive(WrenVM.MapClass, "keyIteratorValue_(_)", prim_map_keyIteratorValue);
+            _vm.Primitive(WrenVM.MapClass, "valueIteratorValue_(_)", prim_map_valueIteratorValue);
 
-            WrenVM.RangeClass = (ObjClass)vm.FindVariable("Range").Obj;
-            vm.Primitive(WrenVM.RangeClass, "from", prim_range_from);
-            vm.Primitive(WrenVM.RangeClass, "to", prim_range_to);
-            vm.Primitive(WrenVM.RangeClass, "min", prim_range_min);
-            vm.Primitive(WrenVM.RangeClass, "max", prim_range_max);
-            vm.Primitive(WrenVM.RangeClass, "isInclusive", prim_range_isInclusive);
-            vm.Primitive(WrenVM.RangeClass, "iterate(_)", prim_range_iterate);
-            vm.Primitive(WrenVM.RangeClass, "iteratorValue(_)", prim_range_iteratorValue);
-            vm.Primitive(WrenVM.RangeClass, "toString", prim_range_toString);
+            WrenVM.RangeClass = (ObjClass)_vm.FindVariable("Range").Obj;
+            _vm.Primitive(WrenVM.RangeClass, "from", prim_range_from);
+            _vm.Primitive(WrenVM.RangeClass, "to", prim_range_to);
+            _vm.Primitive(WrenVM.RangeClass, "min", prim_range_min);
+            _vm.Primitive(WrenVM.RangeClass, "max", prim_range_max);
+            _vm.Primitive(WrenVM.RangeClass, "isInclusive", prim_range_isInclusive);
+            _vm.Primitive(WrenVM.RangeClass, "iterate(_)", prim_range_iterate);
+            _vm.Primitive(WrenVM.RangeClass, "iteratorValue(_)", prim_range_iteratorValue);
+            _vm.Primitive(WrenVM.RangeClass, "toString", prim_range_toString);
 
-            ObjClass system = (ObjClass)vm.FindVariable("System").Obj;
-            vm.Primitive(system.ClassObj, "writeString_(_)", WriteString);
-            vm.Primitive(system.ClassObj, "clock", Clock);
+            ObjClass system = (ObjClass)_vm.FindVariable("System").Obj;
+            _vm.Primitive(system.ClassObj, "writeString_(_)", WriteString);
+            _vm.Primitive(system.ClassObj, "clock", Clock);
 
             system.ClassObj.IsSealed = true;
 

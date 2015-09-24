@@ -6,7 +6,7 @@ namespace Wren.Core.Library
 {
     class Meta
     {
-        const string metaLibSource = "class Meta {}\n";
+        const string MetaLibSource = "class Meta {}\n";
 
         static PrimitiveResult Eval(WrenVM vm, ObjFiber fiber, Value[] args)
         {
@@ -14,10 +14,10 @@ namespace Wren.Core.Library
             {
 
                 // Eval the code in the module where the calling function was defined.
-                Obj callingFn = fiber.GetFrame().fn;
+                Obj callingFn = fiber.GetFrame().Fn;
                 ObjModule module = (callingFn is ObjFn)
-                    ? (callingFn as ObjFn).Module
-                    : (callingFn as ObjClosure).Function.Module;
+                    ? ((ObjFn)callingFn).Module
+                    : ((ObjClosure)callingFn).Function.Module;
 
                 // Compile it.
                 ObjFn fn = Compiler.Compile(vm, module, "", args[1].Obj.ToString(), false);
@@ -31,7 +31,7 @@ namespace Wren.Core.Library
                 // TODO: Include the compile errors in the runtime error message.
 
                 // Create a fiber to run the code in.
-                ObjFiber evalFiber = new ObjFiber(fn) {Caller = fiber};
+                ObjFiber evalFiber = new ObjFiber(fn) { Caller = fiber };
 
                 // Switch to the fiber.
                 args[0] = new Value(evalFiber);
@@ -45,10 +45,10 @@ namespace Wren.Core.Library
 
         public static void LoadMetaLibrary(WrenVM vm)
         {
-            vm.Interpret("", metaLibSource);
+            vm.Interpret("", MetaLibSource);
 
-            ObjClass Meta = (ObjClass)vm.FindVariable("Meta").Obj;
-            vm.Primitive(Meta.ClassObj, "eval(_)", Eval);
+            ObjClass meta = (ObjClass)vm.FindVariable("Meta").Obj;
+            vm.Primitive(meta.ClassObj, "eval(_)", Eval);
         }
     }
 }

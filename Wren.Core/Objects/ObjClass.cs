@@ -66,10 +66,6 @@ namespace Wren.Core.Objects
             NumFields += sc.NumFields;
 
             // Inherit methods from its superclass.
-            //foreach (KeyValuePair<int, Method> m in sc.Methods)
-            //{
-            //    BindMethod(m.Key, m.Value);
-            //}
             Methods = new Method[sc.Methods.Length];
             sc.Methods.CopyTo(Methods,0);
         }
@@ -129,13 +125,13 @@ namespace Wren.Core.Objects
 
     public class Method : Obj
     {
-        public MethodType mType;
+        public MethodType MType;
 
         // The method function itself. The [type] determines which field of the union
         // is used.
-        public Primitive primitive;
+        public Primitive Primitive;
 
         // May be a [ObjFn] or [ObjClosure].
-        public Obj obj;
+        public Obj Obj;
     } ;
 }

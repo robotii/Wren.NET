@@ -70,7 +70,7 @@ namespace Wren.Core.Objects
             Error = null;
             CallerIsTrying = false;
 
-            CallFrame frame = new CallFrame { fn = fn, StackStart = 0, ip = 0 };
+            CallFrame frame = new CallFrame { Fn = fn, StackStart = 0, Ip = 0 };
             Frames.Add(frame);
         }
 
@@ -180,7 +180,7 @@ namespace Wren.Core.Objects
         // [function] can be an `ObjFn` or `ObjClosure`.
         public void CallFunction(Obj function, int numArgs)
         {
-            CallFrame frame = new CallFrame { fn = function, StackStart = StackTop - numArgs, ip = 0 };
+            CallFrame frame = new CallFrame { Fn = function, StackStart = StackTop - numArgs, Ip = 0 };
             Frames.Add(frame);
             NumFrames++;
         }
@@ -246,10 +246,10 @@ namespace Wren.Core.Objects
     {
         // Pointer to the current (really next-to-be-executed) instruction in the
         // function's bytecode.
-        public int ip;
+        public int Ip;
 
         // The function or closure being executed.
-        public Obj fn;
+        public Obj Fn;
 
         // Pointer to the first stack slot used by this call frame. This will contain
         // the receiver, followed by the function's parameters, then local variables

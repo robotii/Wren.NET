@@ -6,7 +6,7 @@ namespace Wren.Core.Objects
     // A loaded module and the top-level variables it defines.
     public class ObjModule: Obj
     {
-        public const int MAX_MODULE_VARS = 65536;
+        public const int MaxModuleVars = 65536;
 
         // The currently defined top-level variables.
 

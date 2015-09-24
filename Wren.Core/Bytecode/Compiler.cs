@@ -9,84 +9,84 @@ namespace Wren.Core.Bytecode
 {
     public enum TokenType
     {
-        TOKEN_LEFT_PAREN,
-        TOKEN_RIGHT_PAREN,
-        TOKEN_LEFT_BRACKET,
-        TOKEN_RIGHT_BRACKET,
-        TOKEN_LEFT_BRACE,
-        TOKEN_RIGHT_BRACE,
-        TOKEN_COLON,
-        TOKEN_DOT,
-        TOKEN_DOTDOT,
-        TOKEN_DOTDOTDOT,
-        TOKEN_COMMA,
-        TOKEN_STAR,
-        TOKEN_SLASH,
-        TOKEN_PERCENT,
-        TOKEN_PLUS,
-        TOKEN_MINUS,
-        TOKEN_LTLT,
-        TOKEN_GTGT,
-        TOKEN_PIPE,
-        TOKEN_PIPEPIPE,
-        TOKEN_CARET,
-        TOKEN_AMP,
-        TOKEN_AMPAMP,
-        TOKEN_BANG,
-        TOKEN_TILDE,
-        TOKEN_QUESTION,
-        TOKEN_EQ,
-        TOKEN_LT,
-        TOKEN_GT,
-        TOKEN_LTEQ,
-        TOKEN_GTEQ,
-        TOKEN_EQEQ,
-        TOKEN_BANGEQ,
+        LeftParen,
+        RightParen,
+        LeftBracket,
+        RightBracket,
+        LeftBrace,
+        RightBrace,
+        Colon,
+        Dot,
+        DotDot,
+        DotDotDot,
+        Comma,
+        Star,
+        Slash,
+        Percent,
+        Plus,
+        Minus,
+        LtLt,
+        GtGt,
+        Pipe,
+        Pipepipe,
+        Caret,
+        Amp,
+        Ampamp,
+        Bang,
+        Tilde,
+        Question,
+        Eq,
+        Lt,
+        Gt,
+        LtEq,
+        GtEq,
+        EqEq,
+        BangEq,
 
-        TOKEN_BREAK,
-        TOKEN_CLASS,
-        TOKEN_CONSTRUCT,
-        TOKEN_ELSE,
-        TOKEN_FALSE,
-        TOKEN_FOR,
-        TOKEN_FOREIGN,
-        TOKEN_IF,
-        TOKEN_IMPORT,
-        TOKEN_IN,
-        TOKEN_IS,
-        TOKEN_NULL,
-        TOKEN_RETURN,
-        TOKEN_STATIC,
-        TOKEN_SUPER,
-        TOKEN_THIS,
-        TOKEN_TRUE,
-        TOKEN_VAR,
-        TOKEN_WHILE,
+        Break,
+        Class,
+        Construct,
+        Else,
+        False,
+        For,
+        Foreign,
+        If,
+        Import,
+        In,
+        Is,
+        Null,
+        Return,
+        Static,
+        Super,
+        This,
+        True,
+        Var,
+        While,
 
-        TOKEN_FIELD,
-        TOKEN_STATIC_FIELD,
-        TOKEN_NAME,
-        TOKEN_NUMBER,
-        TOKEN_STRING,
+        Field,
+        StaticField,
+        Name,
+        Number,
+        String,
 
-        TOKEN_LINE,
+        Line,
 
-        TOKEN_ERROR,
-        TOKEN_EOF
+        Error,
+        Eof
     };
 
     public struct Token
     {
-        public TokenType type;
+        public TokenType Type;
 
         // The beginning of the token, pointing directly into the source.
-        public int start;
+        public int Start;
 
         // The length of the token in characters.
-        public int length;
+        public int Length;
 
         // The 1-based line where the token appears.
-        public int line;
+        public int Line;
     };
 
     public class Parser
@@ -94,93 +94,93 @@ namespace Wren.Core.Bytecode
         public WrenVM vm;
 
         // The module being parsed.
-        public ObjModule module;
+        public ObjModule Module;
 
         // Heap-allocated string representing the path to the code being parsed. Used
         // for stack traces.
-        public string sourcePath;
+        public string SourcePath;
 
         // The source code being parsed.
-        public string source;
+        public string Source;
 
         // The beginning of the currently-being-lexed token in [source].
-        public int tokenStart;
+        public int TokenStart;
 
         // The current character being lexed in [source].
-        public int currentChar;
+        public int CurrentChar;
 
         // The 1-based line number of [currentChar].
-        public int currentLine;
+        public int CurrentLine;
 
         // The most recently lexed token.
-        public Token current;
+        public Token Current;
 
         // The most recently consumed/advanced token.
-        public Token previous;
+        public Token Previous;
 
         // If subsequent newline tokens should be discarded.
-        public bool skipNewlines;
+        public bool SkipNewlines;
 
         // Whether compile errors should be printed to stderr or discarded.
-        public bool printErrors;
+        public bool PrintErrors;
 
         // If a syntax or compile error has occurred.
-        public bool hasError;
+        public bool HasError;
 
         // A buffer for the unescaped text of the current token if it's a string
         // literal. Unlike the raw token, this will have escape sequences translated
         // to their literal equivalent.
-        public string raw;
+        public string Raw;
 
         // If a number literal is currently being parsed this will hold its value.
-        public double number;
+        public double Number;
     };
 
     struct Local
     {
         // The name of the local variable.
-        public string name;
+        public string Name;
 
         // The length of the local variable's name.
-        public int length;
+        public int Length;
 
         // The depth in the scope chain that this variable was declared at. Zero is
         // the outermost scope--parameters for a method, or the first local block in
         // top level code. One is the scope within that, etc.
-        public int depth;
+        public int Depth;
 
         // If this local variable is being used as an upvalue.
-        public bool isUpvalue;
+        public bool IsUpvalue;
     };
 
     struct CompilerUpvalue
     {
         // True if this upvalue is capturing a local variable from the enclosing
         // function. False if it's capturing an upvalue.
-        public bool isLocal;
+        public bool IsLocal;
 
         // The index of the local or upvalue being captured in the enclosing function.
-        public int index;
+        public int Index;
     };
 
     class Loop
     {
         // Index of the instruction that the loop should jump back to.
-        public int start;
+        public int Start;
 
         // Index of the argument for the Instruction.JUMP_IF instruction used to exit the
         // loop. Stored so we can patch it once we know where the loop ends.
-        public int exitJump;
+        public int ExitJump;
 
         // Index of the first instruction of the body of the loop.
-        public int body;
+        public int Body;
 
         // Depth of the scope(s) that need to be exited if a break is hit inside the
         // loop.
-        public int scopeDepth;
+        public int ScopeDepth;
 
         // The loop enclosing this one, or null if this is the outermost loop.
-        public Loop enclosing;
+        public Loop Enclosing;
     };
 
     // The different signature syntaxes for different kinds of methods.
@@ -188,24 +188,24 @@ namespace Wren.Core.Bytecode
     {
         // A name followed by a (possibly empty) parenthesized parameter list. Also
         // used for binary operators.
-        SIG_METHOD,
+        Method,
 
         // Just a name. Also used for unary operators.
-        SIG_GETTER,
+        Getter,
 
         // A name followed by "=".
-        SIG_SETTER,
+        Setter,
 
         // A square bracketed parameter list.
-        SIG_SUBSCRIPT,
+        Subscript,
 
         // A square bracketed parameter list followed by "=".
-        SIG_SUBSCRIPT_SETTER,
+        SubscriptSetter,
 
         // A constructor initializer function. This has a distinct signature to
         // prevent it from being invoked directly outside of the constructor on the
         // metaclass.
-        SIG_INITIALIZER
+        Initializer
     };
 
     public class Signature
@@ -219,81 +219,81 @@ namespace Wren.Core.Bytecode
     class ClassCompiler
     {
         // Symbol table for the fields of the class.
-        public List<string> fields;
+        public List<string> Fields;
 
         // True if the class being compiled is a foreign class.
-        public bool isForeign;
+        public bool IsForeign;
 
         // True if the current method being compiled is static.
-        public bool isStaticMethod;
+        public bool IsStaticMethod;
 
         // The signature of the method being compiled.
-        public Signature signature;
+        public Signature Signature;
     };
 
     public class Compiler
     {
-        private readonly Parser parser;
-        public const int MAX_LOCALS = 255;
-        public const int MAX_UPVALUES = 255;
-        public const int MAX_CONSTANTS = (1 << 16);
-        public const int MAX_VARIABLE_NAME = 64;
-        public const int MAX_METHOD_SIGNATURE = 128;
-        public const int MAX_METHOD_NAME = 64;
-        public const int MAX_FIELDS = 255;
-        public const int MAX_PARAMETERS = 16;
+        private readonly Parser _parser;
+        public const int MaxLocals = 255;
+        public const int MaxUpvalues = 255;
+        public const int MaxConstants = (1 << 16);
+        public const int MaxVariableName = 64;
+        public const int MaxMethodSignature = 128;
+        public const int MaxMethodName = 64;
+        public const int MaxFields = 255;
+        public const int MaxParameters = 16;
 
-        private readonly Compiler parent;
-        private readonly List<Value> constants = new List<Value>();
-        private readonly Local[] locals = new Local[MAX_LOCALS + 1];
-        private int numLocals;
+        private readonly Compiler _parent;
+        private readonly List<Value> _constants = new List<Value>();
+        private readonly Local[] _locals = new Local[MaxLocals + 1];
+        private int _numLocals;
 
-        private readonly CompilerUpvalue[] upvalues = new CompilerUpvalue[MAX_UPVALUES];
-        private int numUpValues;
+        private readonly CompilerUpvalue[] _upvalues = new CompilerUpvalue[MaxUpvalues];
+        private int _numUpValues;
 
-        private int numParams;
-        private int scopeDepth;
+        private int _numParams;
+        private int _scopeDepth;
 
-        private Loop loop;
-        private ClassCompiler enclosingClass;
+        private Loop _loop;
+        private ClassCompiler _enclosingClass;
 
-        private readonly List<byte> bytecode;
+        private readonly List<byte> _bytecode;
 
-        private readonly int[] debugSourceLines;
+        private readonly int[] _debugSourceLines;
 
         private static void LexError(Parser parser, string format)
         {
-            parser.hasError = true;
-            if (!parser.printErrors) return;
+            parser.HasError = true;
+            if (!parser.PrintErrors) return;
 
-            Console.Error.Write("[{0} line {1}] Error: ", parser.sourcePath, parser.currentLine);
+            Console.Error.Write("[{0} line {1}] Error: ", parser.SourcePath, parser.CurrentLine);
 
             Console.Error.WriteLine(format);
         }
 
         private void Error(string format)
         {
-            parser.hasError = true;
-            if (!parser.printErrors) return;
+            _parser.HasError = true;
+            if (!_parser.PrintErrors) return;
 
-            Token token = parser.previous;
+            Token token = _parser.Previous;
 
             // If the parse error was caused by an error token, the lexer has already
             // reported it.
-            if (token.type == TokenType.TOKEN_ERROR) return;
+            if (token.Type == TokenType.Error) return;
 
-            Console.Error.Write("[{0} line {1}] Error at ", parser.sourcePath, token.line);
+            Console.Error.Write("[{0} line {1}] Error at ", _parser.SourcePath, token.Line);
 
-            switch (token.type)
+            switch (token.Type)
             {
-                case TokenType.TOKEN_LINE:
+                case TokenType.Line:
                     Console.Error.Write("newline: ");
                     break;
-                case TokenType.TOKEN_EOF:
+                case TokenType.Eof:
                     Console.Error.Write("end of file: ");
                     break;
                 default:
-                    Console.Error.Write("'{0}': ", parser.source.Substring(token.start, token.length));
+                    Console.Error.Write("'{0}': ", _parser.Source.Substring(token.Start, token.Length));
                     break;
             }
 
@@ -303,46 +303,43 @@ namespace Wren.Core.Bytecode
         // Adds [constant] to the constant pool and returns its index.
         private int AddConstant(Value constant)
         {
-            // TODO: it is too slow to consolidate constants this way
-            /*int index = constants.FindIndex(b => Container.Equals(b, constant));
-            if (index > -1)
-                return index;*/
+            // TODO: attempt to consolidate constants
 
-            if (constants.Count < MAX_CONSTANTS)
+            if (_constants.Count < MaxConstants)
             {
-                constants.Add(constant);
+                _constants.Add(constant);
             }
             else
             {
-                Error(string.Format("A function may only contain {0} unique constants.", MAX_CONSTANTS));
+                Error(string.Format("A function may only contain {0} unique constants.", MaxConstants));
             }
 
-            return constants.Count - 1;
+            return _constants.Count - 1;
         }
 
         // Initializes [compiler].
         public Compiler(Parser parser, Compiler parent, bool isFunction)
         {
-            this.parser = parser;
-            this.parent = parent;
+            _parser = parser;
+            _parent = parent;
 
             // Initialize this to null before allocating in case a GC gets triggered in
             // the middle of initializing the compiler.
-            constants = new List<Value>();
+            _constants = new List<Value>();
 
-            numUpValues = 0;
-            numParams = 0;
-            loop = null;
-            enclosingClass = null;
+            _numUpValues = 0;
+            _numParams = 0;
+            _loop = null;
+            _enclosingClass = null;
 
             parser.vm.Compiler = this;
 
             if (parent == null)
             {
-                numLocals = 0;
+                _numLocals = 0;
 
                 // Compiling top-level code, so the initial scope is module-level.
-                scopeDepth = -1;
+                _scopeDepth = -1;
             }
             else
             {
@@ -352,26 +349,26 @@ namespace Wren.Core.Bytecode
                 // explicit "this". So we pick a bogus name. That way references to "this"
                 // inside a function will try to walk up the parent chain to find a method
                 // enclosing the function whose "this" we can close over.
-                numLocals = 1;
+                _numLocals = 1;
                 if (isFunction)
                 {
-                    locals[0].name = null;
-                    locals[0].length = 0;
+                    _locals[0].Name = null;
+                    _locals[0].Length = 0;
                 }
                 else
                 {
-                    locals[0].name = "this";
-                    locals[0].length = 4;
+                    _locals[0].Name = "this";
+                    _locals[0].Length = 4;
                 }
-                locals[0].depth = -1;
-                locals[0].isUpvalue = false;
+                _locals[0].Depth = -1;
+                _locals[0].IsUpvalue = false;
 
                 // The initial scope for function or method is a local scope.
-                scopeDepth = 0;
+                _scopeDepth = 0;
             }
 
-            bytecode = new List<byte>();
-            debugSourceLines = new int[16000];
+            _bytecode = new List<byte>();
+            _debugSourceLines = new int[16000];
         }
 
         // Lexing ----------------------------------------------------------------------
@@ -391,22 +388,22 @@ namespace Wren.Core.Bytecode
         // Returns the current character the parser is sitting on.
         static char PeekChar(Parser parser)
         {
-            return parser.currentChar < parser.source.Length ? parser.source[parser.currentChar] : '\0';
+            return parser.CurrentChar < parser.Source.Length ? parser.Source[parser.CurrentChar] : '\0';
         }
 
         // Returns the character after the current character.
         static char PeekNextChar(Parser parser)
         {
             // If we're at the end of the source, don't read past it.
-            return parser.currentChar >= parser.source.Length - 1 ? '\0' : parser.source[parser.currentChar + 1];
+            return parser.CurrentChar >= parser.Source.Length - 1 ? '\0' : parser.Source[parser.CurrentChar + 1];
         }
 
         // Advances the parser forward one character.
         static char NextChar(Parser parser)
         {
             char c = PeekChar(parser);
-            parser.currentChar++;
-            if (c == '\n') parser.currentLine++;
+            parser.CurrentChar++;
+            if (c == '\n') parser.CurrentLine++;
             return c;
         }
 
@@ -414,13 +411,13 @@ namespace Wren.Core.Bytecode
         // range.
         static void MakeToken(Parser parser, TokenType type)
         {
-            parser.current.type = type;
-            parser.current.start = parser.tokenStart;
-            parser.current.length = parser.currentChar - parser.tokenStart;
-            parser.current.line = parser.currentLine;
+            parser.Current.Type = type;
+            parser.Current.Start = parser.TokenStart;
+            parser.Current.Length = parser.CurrentChar - parser.TokenStart;
+            parser.Current.Line = parser.CurrentLine;
 
             // Make line tokens appear on the line containing the "\n".
-            if (type == TokenType.TOKEN_LINE) parser.current.line--;
+            if (type == TokenType.Line) parser.Current.Line--;
         }
 
         // If the current character is [c], then consumes it and makes a token of type
@@ -483,7 +480,7 @@ namespace Wren.Core.Bytecode
 
         static string GetTokenString(Parser parser)
         {
-            return parser.source.Substring(parser.tokenStart, parser.currentChar - parser.tokenStart);
+            return parser.Source.Substring(parser.TokenStart, parser.CurrentChar - parser.TokenStart);
         }
 
         static int ReadHexDigit(Parser parser)
@@ -495,7 +492,7 @@ namespace Wren.Core.Bytecode
 
             // Don't consume it if it isn't expected. Keeps us from reading past the end
             // of an unterminated string.
-            parser.currentChar--;
+            parser.CurrentChar--;
             return -1;
         }
 
@@ -505,13 +502,13 @@ namespace Wren.Core.Bytecode
             string s = GetTokenString(parser);
             try
             {
-                parser.number = isHex ? Convert.ToInt32(s, 16) : Convert.ToDouble(s, CultureInfo.InvariantCulture);
+                parser.Number = isHex ? Convert.ToInt32(s, 16) : Convert.ToDouble(s, CultureInfo.InvariantCulture);
             }
             catch (OverflowException)
             {
                 LexError(parser, "Number too big");
             }
-            MakeToken(parser, TokenType.TOKEN_NUMBER);
+            MakeToken(parser, TokenType.Number);
         }
 
         // Finishes lexing a hexadecimal number literal.
@@ -554,15 +551,10 @@ namespace Wren.Core.Bytecode
                     LexError(parser, "Unterminated scientific notation.");
                 }
 
-                while (IsDigit(peekchar(parser))) NextChar(parser);
+                while (IsDigit(PeekChar(parser))) NextChar(parser);
             }
 
             MakeNumber(parser, false);
-        }
-
-        private static char peekchar(Parser parser)
-        {
-            throw new NotImplementedException();
         }
 
         // Finishes lexing an identifier. Handles reserved words.
@@ -578,61 +570,61 @@ namespace Wren.Core.Bytecode
             switch (tokenName)
             {
                 case "break":
-                    type = TokenType.TOKEN_BREAK;
+                    type = TokenType.Break;
                     break;
                 case "class":
-                    type = TokenType.TOKEN_CLASS;
+                    type = TokenType.Class;
                     break;
                 case "construct":
-                    type = TokenType.TOKEN_CONSTRUCT;
+                    type = TokenType.Construct;
                     break;
                 case "else":
-                    type = TokenType.TOKEN_ELSE;
+                    type = TokenType.Else;
                     break;
                 case "false":
-                    type = TokenType.TOKEN_FALSE;
+                    type = TokenType.False;
                     break;
                 case "for":
-                    type = TokenType.TOKEN_FOR;
+                    type = TokenType.For;
                     break;
                 case "foreign":
-                    type = TokenType.TOKEN_FOREIGN;
+                    type = TokenType.Foreign;
                     break;
                 case "if":
-                    type = TokenType.TOKEN_IF;
+                    type = TokenType.If;
                     break;
                 case "import":
-                    type = TokenType.TOKEN_IMPORT;
+                    type = TokenType.Import;
                     break;
                 case "in":
-                    type = TokenType.TOKEN_IN;
+                    type = TokenType.In;
                     break;
                 case "is":
-                    type = TokenType.TOKEN_IS;
+                    type = TokenType.Is;
                     break;
                 case "null":
-                    type = TokenType.TOKEN_NULL;
+                    type = TokenType.Null;
                     break;
                 case "return":
-                    type = TokenType.TOKEN_RETURN;
+                    type = TokenType.Return;
                     break;
                 case "static":
-                    type = TokenType.TOKEN_STATIC;
+                    type = TokenType.Static;
                     break;
                 case "super":
-                    type = TokenType.TOKEN_SUPER;
+                    type = TokenType.Super;
                     break;
                 case "this":
-                    type = TokenType.TOKEN_THIS;
+                    type = TokenType.This;
                     break;
                 case "true":
-                    type = TokenType.TOKEN_TRUE;
+                    type = TokenType.True;
                     break;
                 case "var":
-                    type = TokenType.TOKEN_VAR;
+                    type = TokenType.Var;
                     break;
                 case "while":
-                    type = TokenType.TOKEN_WHILE;
+                    type = TokenType.While;
                     break;
             }
 
@@ -642,7 +634,7 @@ namespace Wren.Core.Bytecode
         // Adds [c] to the current string literal being tokenized.
         static void AddStringChar(Parser parser, char c)
         {
-            parser.raw += c;
+            parser.Raw += c;
         }
 
         // Reads [digits] hex digits in a string literal and returns their number value.
@@ -651,17 +643,17 @@ namespace Wren.Core.Bytecode
             int value = 0;
             for (int i = 0; i < digits; i++)
             {
-                if (PeekChar(parser) == '"' || PeekChar(parser) == '\0')
+                if (PeekChar(_parser) == '"' || PeekChar(_parser) == '\0')
                 {
                     Error(string.Format("Incomplete {0} escape sequence.", description));
 
                     // Don't consume it if it isn't expected. Keeps us from reading past the
                     // end of an unterminated string.
-                    parser.currentChar--;
+                    _parser.CurrentChar--;
                     break;
                 }
 
-                int digit = ReadHexDigit(parser);
+                int digit = ReadHexDigit(_parser);
                 if (digit == -1)
                 {
                     Error(string.Format("Invalid {0} escape sequence.", description));
@@ -679,7 +671,7 @@ namespace Wren.Core.Bytecode
         {
             // Read the next four characters and parse them into a unicode value (char)
             int i = ReadHexEscape(4, "unicode");
-            AddStringChar(parser, Convert.ToChar(i));
+            AddStringChar(_parser, Convert.ToChar(i));
         }
 
         // Finishes lexing a string literal.
@@ -687,262 +679,262 @@ namespace Wren.Core.Bytecode
         {
             for (; ; )
             {
-                char c = NextChar(parser);
+                char c = NextChar(_parser);
                 if (c == '"') break;
 
                 if (c == '\0')
                 {
-                    LexError(parser, "Unterminated string.");
+                    LexError(_parser, "Unterminated string.");
 
                     // Don't consume it if it isn't expected. Keeps us from reading past the
                     // end of an unterminated string.
-                    parser.currentChar--;
+                    _parser.CurrentChar--;
                     break;
                 }
 
                 if (c == '\\')
                 {
-                    switch (NextChar(parser))
+                    switch (NextChar(_parser))
                     {
-                        case '"': AddStringChar(parser, '"'); break;
-                        case '\\': AddStringChar(parser, '\\'); break;
-                        case '0': AddStringChar(parser, '\0'); break;
-                        case 'a': AddStringChar(parser, '\a'); break;
-                        case 'b': AddStringChar(parser, '\b'); break;
-                        case 'f': AddStringChar(parser, '\f'); break;
-                        case 'n': AddStringChar(parser, '\n'); break;
-                        case 'r': AddStringChar(parser, '\r'); break;
-                        case 't': AddStringChar(parser, '\t'); break;
+                        case '"': AddStringChar(_parser, '"'); break;
+                        case '\\': AddStringChar(_parser, '\\'); break;
+                        case '0': AddStringChar(_parser, '\0'); break;
+                        case 'a': AddStringChar(_parser, '\a'); break;
+                        case 'b': AddStringChar(_parser, '\b'); break;
+                        case 'f': AddStringChar(_parser, '\f'); break;
+                        case 'n': AddStringChar(_parser, '\n'); break;
+                        case 'r': AddStringChar(_parser, '\r'); break;
+                        case 't': AddStringChar(_parser, '\t'); break;
                         case 'u': ReadUnicodeEscape(); break;
                         // TODO: 'U' for 8 octet Unicode escapes.
-                        case 'v': AddStringChar(parser, '\v'); break;
+                        case 'v': AddStringChar(_parser, '\v'); break;
                         case 'x':
-                            AddStringChar(parser, (char)(0xFF & ReadHexEscape(2, "byte")));
+                            AddStringChar(_parser, (char)(0xFF & ReadHexEscape(2, "byte")));
                             break;
 
                         default:
-                            LexError(parser, string.Format("Invalid escape character '{0}'.", parser.source[parser.currentChar - 1]));
+                            LexError(_parser, string.Format("Invalid escape character '{0}'.", _parser.Source[_parser.CurrentChar - 1]));
                             break;
                     }
                 }
                 else
                 {
-                    AddStringChar(parser, c);
+                    AddStringChar(_parser, c);
                 }
             }
 
-            MakeToken(parser, TokenType.TOKEN_STRING);
+            MakeToken(_parser, TokenType.String);
         }
 
         // Lex the next token and store it in [parser.current].
         void NextToken()
         {
-            parser.previous = parser.current;
+            _parser.Previous = _parser.Current;
 
             // If we are out of tokens, don't try to tokenize any more. We *do* still
             // copy the TOKEN_EOF to previous so that code that expects it to be consumed
             // will still work.
-            if (parser.current.type == TokenType.TOKEN_EOF) return;
+            if (_parser.Current.Type == TokenType.Eof) return;
 
-            while (PeekChar(parser) != '\0')
+            while (PeekChar(_parser) != '\0')
             {
-                parser.tokenStart = parser.currentChar;
+                _parser.TokenStart = _parser.CurrentChar;
 
-                char c = NextChar(parser);
+                char c = NextChar(_parser);
                 switch (c)
                 {
                     case '(':
-                        MakeToken(parser, TokenType.TOKEN_LEFT_PAREN);
+                        MakeToken(_parser, TokenType.LeftParen);
                         return;
                     case ')':
-                        MakeToken(parser, TokenType.TOKEN_RIGHT_PAREN);
+                        MakeToken(_parser, TokenType.RightParen);
                         return;
                     case '[':
-                        MakeToken(parser, TokenType.TOKEN_LEFT_BRACKET);
+                        MakeToken(_parser, TokenType.LeftBracket);
                         return;
                     case ']':
-                        MakeToken(parser, TokenType.TOKEN_RIGHT_BRACKET);
+                        MakeToken(_parser, TokenType.RightBracket);
                         return;
                     case '{':
-                        MakeToken(parser, TokenType.TOKEN_LEFT_BRACE);
+                        MakeToken(_parser, TokenType.LeftBrace);
                         return;
                     case '}':
-                        MakeToken(parser, TokenType.TOKEN_RIGHT_BRACE);
+                        MakeToken(_parser, TokenType.RightBrace);
                         return;
                     case ':':
-                        MakeToken(parser, TokenType.TOKEN_COLON);
+                        MakeToken(_parser, TokenType.Colon);
                         return;
                     case '.':
-                        if (PeekChar(parser) == '.')
+                        if (PeekChar(_parser) == '.')
                         {
-                            NextChar(parser);
-                            if (PeekChar(parser) == '.')
+                            NextChar(_parser);
+                            if (PeekChar(_parser) == '.')
                             {
-                                NextChar(parser);
-                                MakeToken(parser, TokenType.TOKEN_DOTDOTDOT);
+                                NextChar(_parser);
+                                MakeToken(_parser, TokenType.DotDotDot);
                                 return;
                             }
 
-                            MakeToken(parser, TokenType.TOKEN_DOTDOT);
+                            MakeToken(_parser, TokenType.DotDot);
                             return;
                         }
 
-                        MakeToken(parser, TokenType.TOKEN_DOT);
+                        MakeToken(_parser, TokenType.Dot);
                         return;
 
                     case ',':
-                        MakeToken(parser, TokenType.TOKEN_COMMA);
+                        MakeToken(_parser, TokenType.Comma);
                         return;
                     case '*':
-                        MakeToken(parser, TokenType.TOKEN_STAR);
+                        MakeToken(_parser, TokenType.Star);
                         return;
                     case '%':
-                        MakeToken(parser, TokenType.TOKEN_PERCENT);
+                        MakeToken(_parser, TokenType.Percent);
                         return;
                     case '+':
-                        MakeToken(parser, TokenType.TOKEN_PLUS);
+                        MakeToken(_parser, TokenType.Plus);
                         return;
                     case '~':
-                        MakeToken(parser, TokenType.TOKEN_TILDE);
+                        MakeToken(_parser, TokenType.Tilde);
                         return;
                     case '?':
-                        MakeToken(parser, TokenType.TOKEN_QUESTION);
+                        MakeToken(_parser, TokenType.Question);
                         return;
                     case '/':
-                        if (PeekChar(parser) == '/')
+                        if (PeekChar(_parser) == '/')
                         {
-                            SkipLineComment(parser);
+                            SkipLineComment(_parser);
                             break;
                         }
 
-                        if (PeekChar(parser) == '*')
+                        if (PeekChar(_parser) == '*')
                         {
-                            SkipBlockComment(parser);
+                            SkipBlockComment(_parser);
                             break;
                         }
 
-                        MakeToken(parser, TokenType.TOKEN_SLASH);
+                        MakeToken(_parser, TokenType.Slash);
                         return;
 
                     case '-':
-                        MakeToken(parser, TokenType.TOKEN_MINUS);
+                        MakeToken(_parser, TokenType.Minus);
                         return;
 
                     case '|':
-                        TwoCharToken(parser, '|', TokenType.TOKEN_PIPEPIPE, TokenType.TOKEN_PIPE);
+                        TwoCharToken(_parser, '|', TokenType.Pipepipe, TokenType.Pipe);
                         return;
 
                     case '&':
-                        TwoCharToken(parser, '&', TokenType.TOKEN_AMPAMP, TokenType.TOKEN_AMP);
+                        TwoCharToken(_parser, '&', TokenType.Ampamp, TokenType.Amp);
                         return;
 
                     case '^':
-                        MakeToken(parser, TokenType.TOKEN_CARET);
+                        MakeToken(_parser, TokenType.Caret);
                         return;
 
                     case '=':
-                        TwoCharToken(parser, '=', TokenType.TOKEN_EQEQ, TokenType.TOKEN_EQ);
+                        TwoCharToken(_parser, '=', TokenType.EqEq, TokenType.Eq);
                         return;
 
                     case '<':
-                        if (PeekChar(parser) == '<')
+                        if (PeekChar(_parser) == '<')
                         {
-                            NextChar(parser);
-                            MakeToken(parser, TokenType.TOKEN_LTLT);
+                            NextChar(_parser);
+                            MakeToken(_parser, TokenType.LtLt);
                             return;
                         }
 
-                        TwoCharToken(parser, '=', TokenType.TOKEN_LTEQ, TokenType.TOKEN_LT);
+                        TwoCharToken(_parser, '=', TokenType.LtEq, TokenType.Lt);
                         return;
 
                     case '>':
-                        if (PeekChar(parser) == '>')
+                        if (PeekChar(_parser) == '>')
                         {
-                            NextChar(parser);
-                            MakeToken(parser, TokenType.TOKEN_GTGT);
+                            NextChar(_parser);
+                            MakeToken(_parser, TokenType.GtGt);
                             return;
                         }
 
-                        TwoCharToken(parser, '=', TokenType.TOKEN_GTEQ, TokenType.TOKEN_GT);
+                        TwoCharToken(_parser, '=', TokenType.GtEq, TokenType.Gt);
                         return;
 
                     case '!':
-                        TwoCharToken(parser, '=', TokenType.TOKEN_BANGEQ, TokenType.TOKEN_BANG);
+                        TwoCharToken(_parser, '=', TokenType.BangEq, TokenType.Bang);
                         return;
 
                     case '\n':
-                        MakeToken(parser, TokenType.TOKEN_LINE);
+                        MakeToken(_parser, TokenType.Line);
                         return;
 
                     case ' ':
                     case '\r':
                     case '\t':
                         // Skip forward until we run out of whitespace.
-                        while (PeekChar(parser) == ' ' ||
-                               PeekChar(parser) == '\r' ||
-                               PeekChar(parser) == '\t')
+                        while (PeekChar(_parser) == ' ' ||
+                               PeekChar(_parser) == '\r' ||
+                               PeekChar(_parser) == '\t')
                         {
-                            NextChar(parser);
+                            NextChar(_parser);
                         }
                         break;
 
                     case '"': ReadString();
                         return;
                     case '_':
-                        ReadName(parser, PeekChar(parser) == '_' ? TokenType.TOKEN_STATIC_FIELD : TokenType.TOKEN_FIELD);
+                        ReadName(_parser, PeekChar(_parser) == '_' ? TokenType.StaticField : TokenType.Field);
                         return;
 
                     case '@':
-                        ReadName(parser, PeekChar(parser) == '@' ? TokenType.TOKEN_STATIC_FIELD : TokenType.TOKEN_FIELD);
+                        ReadName(_parser, PeekChar(_parser) == '@' ? TokenType.StaticField : TokenType.Field);
                         return;
 
                     case '#':
                         // Ignore shebang on the first line.
-                        if (PeekChar(parser) == '!' && parser.currentLine == 1)
+                        if (PeekChar(_parser) == '!' && _parser.CurrentLine == 1)
                         {
-                            SkipLineComment(parser);
+                            SkipLineComment(_parser);
                             break;
                         }
 
-                        LexError(parser, string.Format("Invalid character '{0}'.", c));
+                        LexError(_parser, string.Format("Invalid character '{0}'.", c));
                         return;
 
                     case '0':
-                        if (PeekChar(parser) == 'x')
+                        if (PeekChar(_parser) == 'x')
                         {
-                            ReadHexNumber(parser);
+                            ReadHexNumber(_parser);
                             return;
                         }
 
-                        ReadNumber(parser);
+                        ReadNumber(_parser);
                         return;
 
                     default:
                         if (IsName(c))
                         {
-                            ReadName(parser, TokenType.TOKEN_NAME);
+                            ReadName(_parser, TokenType.Name);
                         }
                         else if (IsDigit(c))
                         {
-                            ReadNumber(parser);
+                            ReadNumber(_parser);
                         }
                         else
                         {
-                            LexError(parser, string.Format("Invalid character '{0}'.", c));
+                            LexError(_parser, string.Format("Invalid character '{0}'.", c));
                         }
                         return;
                 }
             }
 
             // If we get here, we're out of source, so just make EOF tokens.
-            parser.tokenStart = parser.currentChar;
-            MakeToken(parser, TokenType.TOKEN_EOF);
+            _parser.TokenStart = _parser.CurrentChar;
+            MakeToken(_parser, TokenType.Eof);
         }
 
         // Returns the type of the current token.
         private TokenType Peek()
         {
-            return parser.current.type;
+            return _parser.Current.Type;
         }
 
         // Consumes the current token if its type is [expected]. Returns true if a
@@ -959,22 +951,22 @@ namespace Wren.Core.Bytecode
         private void Consume(TokenType expected, string errorMessage)
         {
             NextToken();
-            if (parser.previous.type != expected)
+            if (_parser.Previous.Type != expected)
             {
                 Error(errorMessage);
 
                 // If the next token is the one we want, assume the current one is just a
                 // spurious error and discard it to minimize the number of cascaded errors.
-                if (parser.current.type == expected) NextToken();
+                if (_parser.Current.Type == expected) NextToken();
             }
         }
 
         // Matches one or more newlines. Returns true if at least one was found.
         private bool MatchLine()
         {
-            if (!Match(TokenType.TOKEN_LINE)) return false;
+            if (!Match(TokenType.Line)) return false;
 
-            while (Match(TokenType.TOKEN_LINE))
+            while (Match(TokenType.Line))
             {
             }
             return true;
@@ -992,7 +984,7 @@ namespace Wren.Core.Bytecode
         // discards any duplicate newlines following it.
         private void ConsumeLine(string errorMessage)
         {
-            Consume(TokenType.TOKEN_LINE, errorMessage);
+            Consume(TokenType.Line, errorMessage);
             IgnoreNewlines();
         }
 
@@ -1001,8 +993,8 @@ namespace Wren.Core.Bytecode
 
         private int Emit(int b)
         {
-            bytecode.Add((byte)b);
-            return bytecode.Count - 1;
+            _bytecode.Add((byte)b);
+            return _bytecode.Count - 1;
         }
 
         private void Emit(Instruction b)
@@ -1047,9 +1039,9 @@ namespace Wren.Core.Bytecode
         // and the name is unique.
         private int DefineLocal(string name, int length)
         {
-            Local local = new Local { name = name, length = length, depth = scopeDepth, isUpvalue = false };
-            locals[numLocals] = local;
-            return numLocals++;
+            Local local = new Local { Name = name, Length = length, Depth = _scopeDepth, IsUpvalue = false };
+            _locals[_numLocals] = local;
+            return _numLocals++;
         }
 
         // Declares a variable in the current scope whose name is the given token.
@@ -1057,19 +1049,19 @@ namespace Wren.Core.Bytecode
         // If [token] is `null`, uses the previously consumed token. Returns its symbol.
         private int DeclareVariable(Token? token)
         {
-            if (token == null) token = parser.previous;
+            if (token == null) token = _parser.Previous;
 
             Token t = token.Value;
 
-            if (t.length > MAX_VARIABLE_NAME)
+            if (t.Length > MaxVariableName)
             {
-                Error(string.Format("Variable name cannot be longer than {0} characters.", MAX_VARIABLE_NAME));
+                Error(string.Format("Variable name cannot be longer than {0} characters.", MaxVariableName));
             }
 
             // Top-level module scope.
-            if (scopeDepth == -1)
+            if (_scopeDepth == -1)
             {
-                int symbol = parser.vm.DefineVariable(parser.module, parser.source.Substring(t.start, t.length), new Value(ValueType.Null));
+                int symbol = _parser.vm.DefineVariable(_parser.Module, _parser.Source.Substring(t.Start, t.Length), new Value(ValueType.Null));
 
                 switch (symbol)
                 {
@@ -1084,37 +1076,37 @@ namespace Wren.Core.Bytecode
                 return symbol;
             }
 
-            string tokenName = parser.source.Substring(t.start, t.length);
+            string tokenName = _parser.Source.Substring(t.Start, t.Length);
 
             // See if there is already a variable with this name declared in the current
             // scope. (Outer scopes are OK: those get shadowed.)
-            for (int i = numLocals - 1; i >= 0; i--)
+            for (int i = _numLocals - 1; i >= 0; i--)
             {
-                Local local = locals[i];
+                Local local = _locals[i];
                 // Once we escape this scope and hit an outer one, we can stop.
-                if (local.depth < scopeDepth) break;
+                if (local.Depth < _scopeDepth) break;
 
-                if (local.length == t.length && tokenName == local.name)
+                if (local.Length == t.Length && tokenName == local.Name)
                 {
-                    Error(string.Format("Variable '{0}' is already declared in this scope.", local.name));
+                    Error(string.Format("Variable '{0}' is already declared in this scope.", local.Name));
                     return i;
                 }
             }
 
-            if (numLocals > MAX_LOCALS)
+            if (_numLocals > MaxLocals)
             {
-                Error(string.Format("Cannot declare more than {0} variables in one scope.", MAX_LOCALS));
+                Error(string.Format("Cannot declare more than {0} variables in one scope.", MaxLocals));
                 return -1;
             }
 
-            return DefineLocal(tokenName, t.length);
+            return DefineLocal(tokenName, t.Length);
         }
 
         // Parses a name token and declares a variable in the current scope with that
         // name. Returns its slot.
         private int DeclareNamedVariable()
         {
-            Consume(TokenType.TOKEN_NAME, "Expect variable name.");
+            Consume(TokenType.Name, "Expect variable name.");
             return DeclareVariable(null);
         }
 
@@ -1123,7 +1115,7 @@ namespace Wren.Core.Bytecode
         {
             // Store the variable. If it's a local, the result of the initializer is
             // in the correct slot on the stack already so we're done.
-            if (scopeDepth >= 0) return;
+            if (_scopeDepth >= 0) return;
 
             // It's a module-level variable, so store the value in the module slot and
             // then discard the temporary for the initializer.
@@ -1134,7 +1126,7 @@ namespace Wren.Core.Bytecode
         // Starts a new local block scope.
         private void PushScope()
         {
-            scopeDepth++;
+            _scopeDepth++;
         }
 
         // Generates code to discard local variables at [depth] or greater. Does *not*
@@ -1148,17 +1140,17 @@ namespace Wren.Core.Bytecode
         {
             //ASSERT(compiler.scopeDepth > -1, "Cannot exit top-level scope.");
 
-            int local = numLocals - 1;
-            while (local >= 0 && locals[local].depth >= depth)
+            int local = _numLocals - 1;
+            while (local >= 0 && _locals[local].Depth >= depth)
             {
                 // If the local was closed over, make sure the upvalue gets closed when it
                 // goes out of scope on the stack.
-                Emit(locals[local].isUpvalue ? Instruction.CLOSE_UPVALUE : Instruction.POP);
+                Emit(_locals[local].IsUpvalue ? Instruction.CLOSE_UPVALUE : Instruction.POP);
 
                 local--;
             }
 
-            return numLocals - local - 1;
+            return _numLocals - local - 1;
         }
 
         // Closes the last pushed block scope and discards any local variables declared
@@ -1166,8 +1158,8 @@ namespace Wren.Core.Bytecode
         // temporaries are still on the stack.
         private void PopScope()
         {
-            numLocals -= DiscardLocals(scopeDepth);
-            scopeDepth--;
+            _numLocals -= DiscardLocals(_scopeDepth);
+            _scopeDepth--;
         }
 
         // Attempts to look up the name in the local variables of [compiler]. If found,
@@ -1176,9 +1168,9 @@ namespace Wren.Core.Bytecode
         {
             // Look it up in the local scopes. Look in reverse order so that the most
             // nested variable is found first and shadows outer ones.
-            for (int i = numLocals - 1; i >= 0; i--)
+            for (int i = _numLocals - 1; i >= 0; i--)
             {
-                if (locals[i].length == length && name == locals[i].name)
+                if (_locals[i].Length == length && name == _locals[i].Name)
                 {
                     return i;
                 }
@@ -1193,16 +1185,16 @@ namespace Wren.Core.Bytecode
         private int AddUpvalue(bool isLocal, int index)
         {
             // Look for an existing one.
-            for (int i = 0; i < numUpValues; i++)
+            for (int i = 0; i < _numUpValues; i++)
             {
-                CompilerUpvalue upvalue = upvalues[i];
-                if (upvalue.index == index && upvalue.isLocal == isLocal) return i;
+                CompilerUpvalue upvalue = _upvalues[i];
+                if (upvalue.Index == index && upvalue.IsLocal == isLocal) return i;
             }
 
             // If we got here, it's a new upvalue.
-            upvalues[numUpValues].isLocal = isLocal;
-            upvalues[numUpValues].index = index;
-            return numUpValues++;
+            _upvalues[_numUpValues].IsLocal = isLocal;
+            _upvalues[_numUpValues].Index = index;
+            return _numUpValues++;
         }
 
         // Attempts to look up [name] in the functions enclosing the one being compiled
@@ -1219,15 +1211,15 @@ namespace Wren.Core.Bytecode
         private int FindUpvalue(string name, int length)
         {
             // If we are at a method boundary or the top level, we didn't find it.
-            if (parent == null || enclosingClass != null) return -1;
+            if (_parent == null || _enclosingClass != null) return -1;
 
             // See if it's a local variable in the immediately enclosing function.
-            int local = parent.ResolveLocal(name, length);
+            int local = _parent.ResolveLocal(name, length);
             if (local != -1)
             {
                 // Mark the local as an upvalue so we know to close it when it goes out of
                 // scope.
-                parent.locals[local].isUpvalue = true;
+                _parent._locals[local].IsUpvalue = true;
 
                 return AddUpvalue(true, local);
             }
@@ -1238,7 +1230,7 @@ namespace Wren.Core.Bytecode
             // intermediate functions to get from the function where a local is declared
             // all the way into the possibly deeply nested function that is closing over
             // it.
-            int upvalue = parent.FindUpvalue(name, length);
+            int upvalue = _parent.FindUpvalue(name, length);
             if (upvalue != -1)
             {
                 return AddUpvalue(false, upvalue);
@@ -1281,7 +1273,7 @@ namespace Wren.Core.Bytecode
             if (nonmodule != -1) return nonmodule;
 
             loadInstruction = Instruction.LOAD_MODULE_VAR;
-            return parser.module.Variables.FindIndex(v => v.Name == name);
+            return _parser.Module.Variables.FindIndex(v => v.Name == name);
         }
 
         private void LoadLocal(int slot)
@@ -1302,9 +1294,9 @@ namespace Wren.Core.Bytecode
         {
             // If we hit an error, don't bother creating the function since it's borked
             // anyway.
-            if (parser.hasError)
+            if (_parser.HasError)
             {
-                parser.vm.Compiler = parent;
+                _parser.vm.Compiler = _parent;
                 return null;
             }
 
@@ -1313,44 +1305,44 @@ namespace Wren.Core.Bytecode
             Emit(Instruction.END);
 
             // Create a function object for the code we just compiled.
-            ObjFn fn = new ObjFn(parser.module,
-                                        constants.ToArray(),
-                                        numUpValues,
-                                        numParams,
-                                        bytecode.ToArray(),
-                                        new ObjString(parser.sourcePath),
+            ObjFn fn = new ObjFn(_parser.Module,
+                                        _constants.ToArray(),
+                                        _numUpValues,
+                                        _numParams,
+                                        _bytecode.ToArray(),
+                                        new ObjString(_parser.SourcePath),
                                         debugName,
-                                        debugSourceLines);
+                                        _debugSourceLines);
 
             // In the function that contains this one, load the resulting function object.
-            if (parent != null)
+            if (_parent != null)
             {
-                int constant = parent.AddConstant(new Value(fn));
+                int constant = _parent.AddConstant(new Value(fn));
 
                 // If the function has no upvalues, we don't need to create a closure.
                 // We can just load and run the function directly.
-                if (numUpValues == 0)
+                if (_numUpValues == 0)
                 {
-                    parent.EmitShortArg(Instruction.CONSTANT, constant);
+                    _parent.EmitShortArg(Instruction.CONSTANT, constant);
                 }
                 else
                 {
                     // Capture the upvalues in the new closure object.
-                    parent.EmitShortArg(Instruction.CLOSURE, constant);
+                    _parent.EmitShortArg(Instruction.CLOSURE, constant);
 
                     // Emit arguments for each upvalue to know whether to capture a local or
                     // an upvalue.
                     // TODO: Do something more efficient here?
-                    for (int i = 0; i < numUpValues; i++)
+                    for (int i = 0; i < _numUpValues; i++)
                     {
-                        parent.Emit(upvalues[i].isLocal ? 1 : 0);
-                        parent.Emit(upvalues[i].index);
+                        _parent.Emit(_upvalues[i].IsLocal ? 1 : 0);
+                        _parent.Emit(_upvalues[i].Index);
                     }
                 }
             }
 
             // Pop this compiler off the stack.
-            parser.vm.Compiler = parent;
+            _parser.vm.Compiler = _parent;
 
             return fn;
         }
@@ -1360,25 +1352,25 @@ namespace Wren.Core.Bytecode
 
         private enum Precedence
         {
-            PREC_NONE,
-            PREC_LOWEST,
-            PREC_ASSIGNMENT, // =
-            PREC_TERNARY, // ?:
-            PREC_LOGICAL_OR, // ||
-            PREC_LOGICAL_AND, // &&
-            PREC_EQUALITY, // == !=
-            PREC_IS, // is
-            PREC_COMPARISON, // < > <= >=
-            PREC_BITWISE_OR, // |
-            PREC_BITWISE_XOR, // ^
-            PREC_BITWISE_AND, // &
-            PREC_BITWISE_SHIFT, // << >>
-            PREC_RANGE, // .. ...
-            PREC_TERM, // + -
-            PREC_FACTOR, // * / %
-            PREC_UNARY, // unary - ! ~
-            PREC_CALL, // . () []
-            PREC_PRIMARY
+            None,
+            Lowest,
+            Assignment, // =
+            Ternary, // ?:
+            LogicalOr, // ||
+            LogicalAnd, // &&
+            Equality, // == !=
+            Is, // is
+            Comparison, // < > <= >=
+            BitwiseOr, // |
+            BitwiseXor, // ^
+            BitwiseAnd, // &
+            BitwiseShift, // << >>
+            Range, // .. ...
+            Term, // + -
+            Factor, // * / %
+            Unary, // unary - ! ~
+            Call, // . () []
+            Primary
         };
 
         private delegate void GrammarFn(Compiler c, bool allowAssignment);
@@ -1387,19 +1379,19 @@ namespace Wren.Core.Bytecode
 
         private struct GrammarRule
         {
-            public readonly GrammarFn prefix;
-            public readonly GrammarFn infix;
-            public readonly SignatureFn method;
-            public readonly Precedence precedence;
-            public readonly string name;
+            public readonly GrammarFn Prefix;
+            public readonly GrammarFn Infix;
+            public readonly SignatureFn Method;
+            public readonly Precedence Precedence;
+            public readonly string Name;
 
             public GrammarRule(GrammarFn prefix, GrammarFn infix, SignatureFn method, Precedence precedence, string name)
             {
-                this.prefix = prefix;
-                this.infix = infix;
-                this.method = method;
-                this.precedence = precedence;
-                this.name = name;
+                Prefix = prefix;
+                Infix = infix;
+                Method = method;
+                Precedence = precedence;
+                Name = name;
             }
         };
 
@@ -1408,10 +1400,10 @@ namespace Wren.Core.Bytecode
         private void PatchJump(int offset)
         {
             // -2 to adjust for the bytecode for the jump offset itself.
-            int jump = bytecode.Count - offset - 2;
+            int jump = _bytecode.Count - offset - 2;
             // TODO: Check for overflow.
-            bytecode[offset] = (byte)((jump >> 8) & 0xff);
-            bytecode[offset + 1] = (byte)(jump & 0xff);
+            _bytecode[offset] = (byte)((jump >> 8) & 0xff);
+            _bytecode[offset + 1] = (byte)(jump & 0xff);
         }
 
         // Parses a block body, after the initial "{" has been consumed.
@@ -1422,7 +1414,7 @@ namespace Wren.Core.Bytecode
         private bool FinishBlock()
         {
             // Empty blocks do nothing.
-            if (Match(TokenType.TOKEN_RIGHT_BRACE))
+            if (Match(TokenType.RightBrace))
             {
                 return false;
             }
@@ -1431,12 +1423,12 @@ namespace Wren.Core.Bytecode
             if (!MatchLine())
             {
                 Expression();
-                Consume(TokenType.TOKEN_RIGHT_BRACE, "Expect '}' at end of block.");
+                Consume(TokenType.RightBrace, "Expect '}' at end of block.");
                 return true;
             }
 
             // Empty blocks (with just a newline inside) do nothing.
-            if (Match(TokenType.TOKEN_RIGHT_BRACE))
+            if (Match(TokenType.RightBrace))
             {
                 return false;
             }
@@ -1447,11 +1439,11 @@ namespace Wren.Core.Bytecode
                 Definition();
 
                 // If we got into a weird error state, don't get stuck in a loop.
-                if (Peek() == TokenType.TOKEN_EOF) return true;
+                if (Peek() == TokenType.Eof) return true;
 
                 ConsumeLine("Expect newline after statement.");
             }
-            while (!Match(TokenType.TOKEN_RIGHT_BRACE));
+            while (!Match(TokenType.RightBrace));
             return false;
         }
 
@@ -1482,11 +1474,11 @@ namespace Wren.Core.Bytecode
         // haven't exceeded that and give a usable error.
         private void ValidateNumParameters(int numArgs)
         {
-            if (numArgs == MAX_PARAMETERS + 1)
+            if (numArgs == MaxParameters + 1)
             {
                 // Only show an error at exactly max + 1 so that we can keep parsing the
                 // parameters and minimize cascaded errors.
-                Error(string.Format("Methods cannot have more than {0} parameters.", MAX_PARAMETERS));
+                Error(string.Format("Methods cannot have more than {0} parameters.", MaxParameters));
             }
         }
 
@@ -1502,18 +1494,18 @@ namespace Wren.Core.Bytecode
                 // Define a local variable in the method for the parameter.
                 DeclareNamedVariable();
             }
-            while (Match(TokenType.TOKEN_COMMA));
+            while (Match(TokenType.Comma));
         }
 
         // Gets the symbol for a method [name].
         private int MethodSymbol(string name)
         {
-            if (!parser.vm.MethodNames.Contains(name))
+            if (!_parser.vm.MethodNames.Contains(name))
             {
-                parser.vm.MethodNames.Add(name);
+                _parser.vm.MethodNames.Add(name);
             }
 
-            int method = parser.vm.MethodNames.IndexOf(name);
+            int method = _parser.vm.MethodNames.IndexOf(name);
             return method;
         }
 
@@ -1540,29 +1532,29 @@ namespace Wren.Core.Bytecode
 
             switch (signature.Type)
             {
-                case SignatureType.SIG_METHOD:
+                case SignatureType.Method:
                     name = SignatureParameterList(name, signature.Arity, '(', ')');
                     break;
 
-                case SignatureType.SIG_GETTER:
+                case SignatureType.Getter:
                     // The signature is just the name.
                     break;
 
-                case SignatureType.SIG_SETTER:
+                case SignatureType.Setter:
                     name += '=';
                     name = SignatureParameterList(name, 1, '(', ')');
                     break;
 
-                case SignatureType.SIG_SUBSCRIPT:
+                case SignatureType.Subscript:
                     name = SignatureParameterList(name, signature.Arity, '[', ']');
                     break;
 
-                case SignatureType.SIG_SUBSCRIPT_SETTER:
+                case SignatureType.SubscriptSetter:
                     name = SignatureParameterList(name, signature.Arity - 1, '[', ']');
                     name += '=';
                     name = SignatureParameterList(name, 1, '(', ')');
                     break;
-                case SignatureType.SIG_INITIALIZER:
+                case SignatureType.Initializer:
                     name = "init " + signature.Name;
                     name = SignatureParameterList(name, signature.Arity, '(', ')');
                     break;
@@ -1582,16 +1574,16 @@ namespace Wren.Core.Bytecode
         private Signature SignatureFromToken(Signature signature, SignatureType type)
         {
             // Get the token for the method name.
-            Token token = parser.previous;
+            Token token = _parser.Previous;
             signature.Type = type;
             signature.Arity = 0;
-            signature.Name = parser.source.Substring(token.start, token.length);
-            signature.Length = token.length;
+            signature.Name = _parser.Source.Substring(token.Start, token.Length);
+            signature.Length = token.Length;
 
-            if (signature.Length > MAX_METHOD_NAME)
+            if (signature.Length > MaxMethodName)
             {
-                Error(string.Format("Method names cannot be longer than {0} characters.", MAX_METHOD_NAME));
-                signature.Length = MAX_METHOD_NAME;
+                Error(string.Format("Method names cannot be longer than {0} characters.", MaxMethodName));
+                signature.Length = MaxMethodName;
             }
 
             return signature;
@@ -1607,7 +1599,7 @@ namespace Wren.Core.Bytecode
                 ValidateNumParameters(++signature.Arity);
                 Expression();
             }
-            while (Match(TokenType.TOKEN_COMMA));
+            while (Match(TokenType.Comma));
 
             // Allow a newline before the closing delimiter.
             IgnoreNewlines();
@@ -1644,41 +1636,41 @@ namespace Wren.Core.Bytecode
         // Compiles an (optional) argument list and then calls it.
         private void MethodCall(Instruction instruction, Signature signature)
         {
-            Signature called = new Signature { Type = SignatureType.SIG_GETTER, Arity = 0, Name = signature.Name, Length = signature.Length };
+            Signature called = new Signature { Type = SignatureType.Getter, Arity = 0, Name = signature.Name, Length = signature.Length };
 
             // Parse the argument list, if any.
-            if (Match(TokenType.TOKEN_LEFT_PAREN))
+            if (Match(TokenType.LeftParen))
             {
-                called.Type = SignatureType.SIG_METHOD;
+                called.Type = SignatureType.Method;
 
                 // Allow empty an argument list.
-                if (Peek() != TokenType.TOKEN_RIGHT_PAREN)
+                if (Peek() != TokenType.RightParen)
                 {
                     FinishArgumentList(called);
                 }
-                Consume(TokenType.TOKEN_RIGHT_PAREN, "Expect ')' after arguments.");
+                Consume(TokenType.RightParen, "Expect ')' after arguments.");
             }
 
             // Parse the block argument, if any.
-            if (Match(TokenType.TOKEN_LEFT_BRACE))
+            if (Match(TokenType.LeftBrace))
             {
                 // Include the block argument in the arity.
-                called.Type = SignatureType.SIG_METHOD;
+                called.Type = SignatureType.Method;
                 called.Arity++;
 
-                Compiler fnCompiler = new Compiler(parser, this, true);
+                Compiler fnCompiler = new Compiler(_parser, this, true);
 
                 // Make a dummy signature to track the arity.
                 Signature fnSignature = new Signature { Arity = 0 };
 
                 // Parse the parameter list, if any.
-                if (Match(TokenType.TOKEN_PIPE))
+                if (Match(TokenType.Pipe))
                 {
                     fnCompiler.FinishParameterList(fnSignature);
-                    Consume(TokenType.TOKEN_PIPE, "Expect '|' after function parameters.");
+                    Consume(TokenType.Pipe, "Expect '|' after function parameters.");
                 }
 
-                fnCompiler.numParams = fnSignature.Arity;
+                fnCompiler._numParams = fnSignature.Arity;
 
                 fnCompiler.FinishBody(false);
 
@@ -1690,14 +1682,14 @@ namespace Wren.Core.Bytecode
 
             // If this is a super() call for an initializer, make sure we got an actual
             // argument list.
-            if (signature.Type == SignatureType.SIG_INITIALIZER)
+            if (signature.Type == SignatureType.Initializer)
             {
-                if (called.Type != SignatureType.SIG_METHOD)
+                if (called.Type != SignatureType.Method)
                 {
                     Error("A superclass constructor must have an argument list.");
                 }
 
-                called.Type = SignatureType.SIG_INITIALIZER;
+                called.Type = SignatureType.Initializer;
             }
 
             CallSignature(instruction, called);
@@ -1708,16 +1700,16 @@ namespace Wren.Core.Bytecode
         private void NamedCall(bool allowAssignment, Instruction instruction)
         {
             // Get the token for the method name.
-            Signature signature = SignatureFromToken(new Signature(), SignatureType.SIG_GETTER);
+            Signature signature = SignatureFromToken(new Signature(), SignatureType.Getter);
 
-            if (Match(TokenType.TOKEN_EQ))
+            if (Match(TokenType.Eq))
             {
                 if (!allowAssignment) Error("Invalid assignment.");
 
                 IgnoreNewlines();
 
                 // Build the setter signature.
-                signature.Type = SignatureType.SIG_SETTER;
+                signature.Type = SignatureType.Setter;
                 signature.Arity = 1;
 
                 // Compile the assigned value.
@@ -1748,7 +1740,7 @@ namespace Wren.Core.Bytecode
 
         private void LoadCoreVariable(string name)
         {
-            int symbol = parser.module.Variables.FindIndex(v => v.Name == name);
+            int symbol = _parser.Module.Variables.FindIndex(v => v.Name == name);
             EmitShortArg(Instruction.LOAD_MODULE_VAR, symbol);
         }
 
@@ -1756,7 +1748,7 @@ namespace Wren.Core.Bytecode
         private static void Grouping(Compiler c, bool allowAssignment)
         {
             c.Expression();
-            c.Consume(TokenType.TOKEN_RIGHT_PAREN, "Expect ')' after expression.");
+            c.Consume(TokenType.RightParen, "Expect ')' after expression.");
         }
 
         // A list literal.
@@ -1769,13 +1761,13 @@ namespace Wren.Core.Bytecode
             c.CallMethod(0, "new()");
 
             // Compile the list elements. Each one compiles to a ".add()" call.
-            if (c.Peek() != TokenType.TOKEN_RIGHT_BRACKET)
+            if (c.Peek() != TokenType.RightBracket)
             {
                 do
                 {
                     c.IgnoreNewlines();
 
-                    if (c.Peek() == TokenType.TOKEN_RIGHT_BRACKET)
+                    if (c.Peek() == TokenType.RightBracket)
                         break;
 
                     // Push a copy of the list since the add() call will consume it.
@@ -1787,12 +1779,12 @@ namespace Wren.Core.Bytecode
 
                     // Discard the result of the add() call.
                     c.Emit(Instruction.POP);
-                } while (c.Match(TokenType.TOKEN_COMMA));
+                } while (c.Match(TokenType.Comma));
             }
 
             // Allow newlines before the closing ']'.
             c.IgnoreNewlines();
-            c.Consume(TokenType.TOKEN_RIGHT_BRACKET, "Expect ']' after list elements.");
+            c.Consume(TokenType.RightBracket, "Expect ']' after list elements.");
         }
 
         // A map literal.
@@ -1806,21 +1798,21 @@ namespace Wren.Core.Bytecode
 
             // Compile the map elements. Each one is compiled to just invoke the
             // subscript setter on the map.
-            if (c.Peek() != TokenType.TOKEN_RIGHT_BRACE)
+            if (c.Peek() != TokenType.RightBrace)
             {
                 do
                 {
                     c.IgnoreNewlines();
 
-                    if (c.Peek() == TokenType.TOKEN_RIGHT_BRACE)
+                    if (c.Peek() == TokenType.RightBrace)
                         break;
 
                     // Push a copy of the map since the subscript call will consume it.
                     c.Emit(Instruction.DUP);
 
                     // The key.
-                    c.ParsePrecedence(false, Precedence.PREC_PRIMARY);
-                    c.Consume(TokenType.TOKEN_COLON, "Expect ':' after map key.");
+                    c.ParsePrecedence(false, Precedence.Primary);
+                    c.Consume(TokenType.Colon, "Expect ':' after map key.");
 
                     // The value.
                     c.Expression();
@@ -1829,42 +1821,42 @@ namespace Wren.Core.Bytecode
 
                     // Discard the result of the setter call.
                     c.Emit(Instruction.POP);
-                } while (c.Match(TokenType.TOKEN_COMMA));
+                } while (c.Match(TokenType.Comma));
             }
 
             // Allow newlines before the closing '}'.
             c.IgnoreNewlines();
-            c.Consume(TokenType.TOKEN_RIGHT_BRACE, "Expect '}' after map entries.");
+            c.Consume(TokenType.RightBrace, "Expect '}' after map entries.");
         }
 
         // Unary operators like `-foo`.
         private static void UnaryOp(Compiler c, bool allowAssignment)
         {
-            GrammarRule rule = c.GetRule(c.parser.previous.type);
+            GrammarRule rule = c.GetRule(c._parser.Previous.Type);
 
             c.IgnoreNewlines();
 
             // Compile the argument.
-            c.ParsePrecedence(false, Precedence.PREC_UNARY + 1);
+            c.ParsePrecedence(false, Precedence.Unary + 1);
 
             // Call the operator method on the left-hand side.
-            c.CallMethod(0, rule.name);
+            c.CallMethod(0, rule.Name);
         }
 
         private static void Boolean(Compiler c, bool allowAssignment)
         {
-            c.Emit(c.parser.previous.type == TokenType.TOKEN_FALSE ? Instruction.FALSE : Instruction.TRUE);
+            c.Emit(c._parser.Previous.Type == TokenType.False ? Instruction.FALSE : Instruction.TRUE);
         }
 
         // Walks the compiler chain to find the compiler for the nearest class
         // enclosing this one. Returns null if not currently inside a class definition.
-        private Compiler getEnclosingClassCompiler()
+        private Compiler GetEnclosingClassCompiler()
         {
             Compiler compiler = this;
             while (compiler != null)
             {
-                if (compiler.enclosingClass != null) return compiler;
-                compiler = compiler.parent;
+                if (compiler._enclosingClass != null) return compiler;
+                compiler = compiler._parent;
             }
 
             return null;
@@ -1874,8 +1866,8 @@ namespace Wren.Core.Bytecode
         // Returns null if not currently inside a class definition.
         private ClassCompiler GetEnclosingClass()
         {
-            Compiler compiler = getEnclosingClassCompiler();
-            return compiler == null ? null : compiler.enclosingClass;
+            Compiler compiler = GetEnclosingClassCompiler();
+            return compiler == null ? null : compiler._enclosingClass;
         }
 
         private static void Field(Compiler c, bool allowAssignment)
@@ -1890,30 +1882,30 @@ namespace Wren.Core.Bytecode
             {
                 c.Error("Cannot reference a field outside of a class definition.");
             }
-            else if (enclosingClass.isStaticMethod)
+            else if (enclosingClass.IsStaticMethod)
             {
                 c.Error("Cannot use an instance field in a static method.");
             }
             else
             {
                 // Look up the field, or implicitly define it.
-                string fieldName = c.parser.source.Substring(c.parser.previous.start, c.parser.previous.length);
-                field = enclosingClass.fields.IndexOf(fieldName);
+                string fieldName = c._parser.Source.Substring(c._parser.Previous.Start, c._parser.Previous.Length);
+                field = enclosingClass.Fields.IndexOf(fieldName);
                 if (field < 0)
                 {
-                    enclosingClass.fields.Add(fieldName);
-                    field = enclosingClass.fields.IndexOf(fieldName);
+                    enclosingClass.Fields.Add(fieldName);
+                    field = enclosingClass.Fields.IndexOf(fieldName);
                 }
 
-                if (field >= MAX_FIELDS)
+                if (field >= MaxFields)
                 {
-                    c.Error(string.Format("A class can only have {0} fields.", MAX_FIELDS));
+                    c.Error(string.Format("A class can only have {0} fields.", MaxFields));
                 }
             }
 
             // If there's an "=" after a field name, it's an assignment.
             bool isLoad = true;
-            if (c.Match(TokenType.TOKEN_EQ))
+            if (c.Match(TokenType.Eq))
             {
                 if (!allowAssignment) c.Error("Invalid assignment.");
 
@@ -1923,7 +1915,7 @@ namespace Wren.Core.Bytecode
             }
 
             // If we're directly inside a method, use a more optimal instruction.
-            if (c.parent != null && c.parent.enclosingClass == enclosingClass)
+            if (c._parent != null && c._parent._enclosingClass == enclosingClass)
             {
                 c.EmitByteArg(isLoad ? Instruction.LOAD_FIELD_THIS : Instruction.STORE_FIELD_THIS,
                             field);
@@ -1940,7 +1932,7 @@ namespace Wren.Core.Bytecode
         private void Variable(bool allowAssignment, int index, Instruction loadInstruction)
         {
             // If there's an "=" after a bare name, it's a variable assignment.
-            if (Match(TokenType.TOKEN_EQ))
+            if (Match(TokenType.Eq))
             {
                 if (!allowAssignment) Error("Invalid assignment.");
 
@@ -1980,7 +1972,7 @@ namespace Wren.Core.Bytecode
             Instruction loadInstruction = Instruction.LOAD_LOCAL;
             int index = 255;
 
-            Compiler classCompiler = c.getEnclosingClassCompiler();
+            Compiler classCompiler = c.GetEnclosingClassCompiler();
             if (classCompiler == null)
             {
                 c.Error("Cannot use a static field outside of a class definition.");
@@ -1988,11 +1980,11 @@ namespace Wren.Core.Bytecode
             else
             {
                 // Look up the name in the scope chain.
-                Token token = c.parser.previous;
+                Token token = c._parser.Previous;
 
                 // If this is the first time we've seen this static field, implicitly
                 // define it as a variable in the scope surrounding the class definition.
-                if (classCompiler.ResolveLocal(c.parser.source.Substring(token.start, token.length), token.length) == -1)
+                if (classCompiler.ResolveLocal(c._parser.Source.Substring(token.Start, token.Length), token.Length) == -1)
                 {
                     int symbol = classCompiler.DeclareVariable(null);
 
@@ -2004,7 +1996,7 @@ namespace Wren.Core.Bytecode
                 // It definitely exists now, so resolve it properly. This is different from
                 // the above resolveLocal() call because we may have already closed over it
                 // as an upvalue.
-                index = c.ResolveName(c.parser.source.Substring(token.start, token.length), token.length, out loadInstruction);
+                index = c.ResolveName(c._parser.Source.Substring(token.Start, token.Length), token.Length, out loadInstruction);
             }
 
             c.Variable(allowAssignment, index, loadInstruction);
@@ -2021,11 +2013,11 @@ namespace Wren.Core.Bytecode
         private static void Name(Compiler c, bool allowAssignment)
         {
             // Look for the name in the scope chain up to the nearest enclosing method.
-            Token token = c.parser.previous;
+            Token token = c._parser.Previous;
 
             Instruction loadInstruction;
-            string varName = c.parser.source.Substring(token.start, token.length);
-            int index = c.ResolveNonmodule(varName, token.length, out loadInstruction);
+            string varName = c._parser.Source.Substring(token.Start, token.Length);
+            int index = c.ResolveNonmodule(varName, token.Length, out loadInstruction);
             if (index != -1)
             {
                 c.Variable(allowAssignment, index, loadInstruction);
@@ -2050,7 +2042,7 @@ namespace Wren.Core.Bytecode
             }
 
             // Otherwise, look for a module-level variable with the name.
-            int module = c.parser.module.Variables.FindIndex(v => v.Name == varName);
+            int module = c._parser.Module.Variables.FindIndex(v => v.Name == varName);
             if (module == -1)
             {
                 if (IsLocalName(varName))
@@ -2061,7 +2053,7 @@ namespace Wren.Core.Bytecode
 
                 // If it's a nonlocal name, implicitly define a module-level variable in
                 // the hopes that we get a real definition later.
-                module = c.parser.vm.DeclareVariable(c.parser.module, varName);
+                module = c._parser.vm.DeclareVariable(c._parser.Module, varName);
 
                 if (module == -2)
                 {
@@ -2079,7 +2071,7 @@ namespace Wren.Core.Bytecode
 
         private static void Number(Compiler c, bool allowAssignment)
         {
-            int constant = c.AddConstant(new Value(c.parser.number));
+            int constant = c.AddConstant(new Value(c._parser.Number));
 
             // Compile the code to load the constant.
             c.EmitShortArg(Instruction.CONSTANT, constant);
@@ -2089,9 +2081,9 @@ namespace Wren.Core.Bytecode
         private int StringConstant()
         {
             // Define a constant for the literal.
-            int constant = AddConstant(new Value(parser.raw));
+            int constant = AddConstant(new Value(_parser.Raw));
 
-            parser.raw = "";
+            _parser.Raw = "";
 
             return constant;
         }
@@ -2118,10 +2110,10 @@ namespace Wren.Core.Bytecode
             // TODO: Super operator calls.
 
             // See if it's a named super call, or an unnamed one.
-            if (c.Match(TokenType.TOKEN_DOT))
+            if (c.Match(TokenType.Dot))
             {
                 // Compile the superclass call.
-                c.Consume(TokenType.TOKEN_NAME, "Expect method name after 'super.'.");
+                c.Consume(TokenType.Name, "Expect method name after 'super.'.");
                 c.NamedCall(allowAssignment, Instruction.SUPER_0);
             }
             else if (enclosingClass != null)
@@ -2129,7 +2121,7 @@ namespace Wren.Core.Bytecode
                 // No explicit name, so use the name of the enclosing method. Make sure we
                 // check that enclosingClass isn't null first. We've already reported the
                 // error, but we don't want to crash here.
-                c.MethodCall(Instruction.SUPER_0, enclosingClass.signature);
+                c.MethodCall(Instruction.SUPER_0, enclosingClass.Signature);
             }
         }
 
@@ -2147,17 +2139,17 @@ namespace Wren.Core.Bytecode
         // Subscript or "array indexing" operator like `foo[bar]`.
         private static void Subscript(Compiler c, bool allowAssignment)
         {
-            Signature signature = new Signature { Name = "", Length = 0, Type = SignatureType.SIG_SUBSCRIPT, Arity = 0 };
+            Signature signature = new Signature { Name = "", Length = 0, Type = SignatureType.Subscript, Arity = 0 };
 
             // Parse the argument list.
             c.FinishArgumentList(signature);
-            c.Consume(TokenType.TOKEN_RIGHT_BRACKET, "Expect ']' after arguments.");
+            c.Consume(TokenType.RightBracket, "Expect ']' after arguments.");
 
-            if (c.Match(TokenType.TOKEN_EQ))
+            if (c.Match(TokenType.Eq))
             {
                 if (!allowAssignment) c.Error("Invalid assignment.");
 
-                signature.Type = SignatureType.SIG_SUBSCRIPT_SETTER;
+                signature.Type = SignatureType.SubscriptSetter;
 
                 // Compile the assigned value.
                 c.ValidateNumParameters(++signature.Arity);
@@ -2170,7 +2162,7 @@ namespace Wren.Core.Bytecode
         private static void Call(Compiler c, bool allowAssignment)
         {
             c.IgnoreNewlines();
-            c.Consume(TokenType.TOKEN_NAME, "Expect method name after '.'.");
+            c.Consume(TokenType.Name, "Expect method name after '.'.");
             c.NamedCall(allowAssignment, Instruction.CALL_0);
         }
 
@@ -2180,7 +2172,7 @@ namespace Wren.Core.Bytecode
 
             // Skip the right argument if the left is false.
             int jump = c.EmitJump(Instruction.AND);
-            c.ParsePrecedence(false, Precedence.PREC_LOGICAL_AND);
+            c.ParsePrecedence(false, Precedence.LogicalAnd);
             c.PatchJump(jump);
         }
 
@@ -2190,7 +2182,7 @@ namespace Wren.Core.Bytecode
 
             // Skip the right argument if the left is true.
             int jump = c.EmitJump(Instruction.OR);
-            c.ParsePrecedence(false, Precedence.PREC_LOGICAL_OR);
+            c.ParsePrecedence(false, Precedence.LogicalOr);
             c.PatchJump(jump);
         }
 
@@ -2203,9 +2195,9 @@ namespace Wren.Core.Bytecode
             int ifJump = c.EmitJump(Instruction.JUMP_IF);
 
             // Compile the then branch.
-            c.ParsePrecedence(allowAssignment, Precedence.PREC_TERNARY);
+            c.ParsePrecedence(allowAssignment, Precedence.Ternary);
 
-            c.Consume(TokenType.TOKEN_COLON, "Expect ':' after then branch of conditional operator.");
+            c.Consume(TokenType.Colon, "Expect ':' after then branch of conditional operator.");
             c.IgnoreNewlines();
 
             // Jump over the else branch when the if branch is taken.
@@ -2214,7 +2206,7 @@ namespace Wren.Core.Bytecode
             // Compile the else branch.
             c.PatchJump(ifJump);
 
-            c.ParsePrecedence(allowAssignment, Precedence.PREC_ASSIGNMENT);
+            c.ParsePrecedence(allowAssignment, Precedence.Assignment);
 
             // Patch the jump over the else.
             c.PatchJump(elseJump);
@@ -2222,16 +2214,16 @@ namespace Wren.Core.Bytecode
 
         private static void InfixOp(Compiler c, bool allowAssignment)
         {
-            GrammarRule rule = c.GetRule(c.parser.previous.type);
+            GrammarRule rule = c.GetRule(c._parser.Previous.Type);
 
             // An infix operator cannot end an expression.
             c.IgnoreNewlines();
 
             // Compile the right-hand side.
-            c.ParsePrecedence(false, rule.precedence + 1);
+            c.ParsePrecedence(false, rule.Precedence + 1);
 
             // Call the operator method on the left-hand side.
-            Signature signature = new Signature { Type = SignatureType.SIG_METHOD, Arity = 1, Name = rule.name, Length = rule.name.Length };
+            Signature signature = new Signature { Type = SignatureType.Method, Arity = 1, Name = rule.Name, Length = rule.Name.Length };
             c.CallSignature(Instruction.CALL_0, signature);
         }
 
@@ -2239,38 +2231,38 @@ namespace Wren.Core.Bytecode
         static void InfixSignature(Compiler c, Signature signature)
         {
             // Add the RHS parameter.
-            signature.Type = SignatureType.SIG_METHOD;
+            signature.Type = SignatureType.Method;
             signature.Arity = 1;
 
             // Parse the parameter name.
-            c.Consume(TokenType.TOKEN_LEFT_PAREN, "Expect '(' after operator name.");
+            c.Consume(TokenType.LeftParen, "Expect '(' after operator name.");
             c.DeclareNamedVariable();
-            c.Consume(TokenType.TOKEN_RIGHT_PAREN, "Expect ')' after parameter name.");
+            c.Consume(TokenType.RightParen, "Expect ')' after parameter name.");
         }
 
         // Compiles a method signature for an unary operator (i.e. "!").
         private static void UnarySignature(Compiler c, Signature signature)
         {
             // Do nothing. The name is already complete.
-            signature.Type = SignatureType.SIG_GETTER;
+            signature.Type = SignatureType.Getter;
         }
 
         // Compiles a method signature for an operator that can either be unary or
         // infix (i.e. "-").
         private static void MixedSignature(Compiler c, Signature signature)
         {
-            signature.Type = SignatureType.SIG_GETTER;
+            signature.Type = SignatureType.Getter;
 
             // If there is a parameter, it's an infix operator, otherwise it's unary.
-            if (c.Match(TokenType.TOKEN_LEFT_PAREN))
+            if (c.Match(TokenType.LeftParen))
             {
                 // Add the RHS parameter.
-                signature.Type = SignatureType.SIG_METHOD;
+                signature.Type = SignatureType.Method;
                 signature.Arity = 1;
 
                 // Parse the parameter name.
                 c.DeclareNamedVariable();
-                c.Consume(TokenType.TOKEN_RIGHT_PAREN, "Expect ')' after parameter name.");
+                c.Consume(TokenType.RightParen, "Expect ')' after parameter name.");
             }
         }
 
@@ -2280,17 +2272,17 @@ namespace Wren.Core.Bytecode
         private bool MaybeSetter(Signature signature)
         {
             // See if it's a setter.
-            if (!Match(TokenType.TOKEN_EQ)) return false;
+            if (!Match(TokenType.Eq)) return false;
 
             // It's a setter.
-            signature.Type = signature.Type == SignatureType.SIG_SUBSCRIPT
-                ? SignatureType.SIG_SUBSCRIPT_SETTER
-                : SignatureType.SIG_SETTER;
+            signature.Type = signature.Type == SignatureType.Subscript
+                ? SignatureType.SubscriptSetter
+                : SignatureType.Setter;
 
             // Parse the value parameter.
-            Consume(TokenType.TOKEN_LEFT_PAREN, "Expect '(' after '='.");
+            Consume(TokenType.LeftParen, "Expect '(' after '='.");
             DeclareNamedVariable();
-            Consume(TokenType.TOKEN_RIGHT_PAREN, "Expect ')' after parameter name.");
+            Consume(TokenType.RightParen, "Expect ')' after parameter name.");
 
             signature.Arity++;
 
@@ -2300,7 +2292,7 @@ namespace Wren.Core.Bytecode
         // Compiles a method signature for a subscript operator.
         private static void SubscriptSignature(Compiler c, Signature signature)
         {
-            signature.Type = SignatureType.SIG_SUBSCRIPT;
+            signature.Type = SignatureType.Subscript;
 
             // The signature currently has "[" as its name since that was the token that
             // matched it. Clear that out.
@@ -2309,7 +2301,7 @@ namespace Wren.Core.Bytecode
 
             // Parse the parameters inside the subscript.
             c.FinishParameterList(signature);
-            c.Consume(TokenType.TOKEN_RIGHT_BRACKET, "Expect ']' after parameters.");
+            c.Consume(TokenType.RightBracket, "Expect ']' after parameters.");
 
             c.MaybeSetter(signature);
         }
@@ -2319,21 +2311,21 @@ namespace Wren.Core.Bytecode
         private void ParameterList(Signature signature)
         {
             // The parameter list is optional.
-            if (!Match(TokenType.TOKEN_LEFT_PAREN)) return;
+            if (!Match(TokenType.LeftParen)) return;
 
-            signature.Type = SignatureType.SIG_METHOD;
+            signature.Type = SignatureType.Method;
 
             // Allow an empty parameter list.
-            if (Match(TokenType.TOKEN_RIGHT_PAREN)) return;
+            if (Match(TokenType.RightParen)) return;
 
             FinishParameterList(signature);
-            Consume(TokenType.TOKEN_RIGHT_PAREN, "Expect ')' after parameters.");
+            Consume(TokenType.RightParen, "Expect ')' after parameters.");
         }
 
         // Compiles a method signature for a named method or setter.
         private static void NamedSignature(Compiler c, Signature signature)
         {
-            signature.Type = SignatureType.SIG_GETTER;
+            signature.Type = SignatureType.Getter;
 
             // If it's a setter, it can't also have a parameter list.
             if (c.MaybeSetter(signature)) return;
@@ -2345,26 +2337,26 @@ namespace Wren.Core.Bytecode
         // Compiles a method signature for a constructor.
         private static void ConstructorSignature(Compiler c, Signature signature)
         {
-            c.Consume(TokenType.TOKEN_NAME, "Expect constructor name after 'construct'.");
+            c.Consume(TokenType.Name, "Expect constructor name after 'construct'.");
 
             // Capture the name.
-            signature = c.SignatureFromToken(signature, SignatureType.SIG_INITIALIZER);
+            signature = c.SignatureFromToken(signature, SignatureType.Initializer);
 
-            if (c.Match(TokenType.TOKEN_EQ))
+            if (c.Match(TokenType.Eq))
             {
                 c.Error("A constructor cannot be a setter.");
             }
 
-            if (!c.Match(TokenType.TOKEN_LEFT_PAREN))
+            if (!c.Match(TokenType.LeftParen))
             {
                 c.Error("A constructor cannot be a getter.");
                 return;
             }
 
-            if (c.Match(TokenType.TOKEN_RIGHT_PAREN)) return;
+            if (c.Match(TokenType.RightParen)) return;
 
             c.FinishParameterList(signature);
-            c.Consume(TokenType.TOKEN_RIGHT_PAREN, "Expect ')' after parameters.");
+            c.Consume(TokenType.RightParen, "Expect ')' after parameters.");
         }
 
         // This table defines all of the parsing rules for the prefix and infix
@@ -2379,81 +2371,81 @@ namespace Wren.Core.Bytecode
         #define PREFIX_OPERATOR(name)      { unaryOp, null, unarySignature, PREC_NONE, name }
         #define OPERATOR(name)             { unaryOp, infixOp, mixedSignature, PREC_TERM, name }
         */
-        private readonly GrammarRule[] rules = 
+        private readonly GrammarRule[] _rules = 
 {
-  /* TOKEN_LEFT_PAREN    */ new GrammarRule(Grouping, null, null, Precedence.PREC_NONE, null),
-  /* TOKEN_RIGHT_PAREN   */ new GrammarRule(null, null, null, Precedence.PREC_NONE, null),
-  /* TOKEN_LEFT_BRACKET  */ new GrammarRule(List, Subscript, SubscriptSignature, Precedence.PREC_CALL, null),
-  /* TOKEN_RIGHT_BRACKET */ new GrammarRule(null, null, null, Precedence.PREC_NONE, null),
-  /* TOKEN_LEFT_BRACE    */ new GrammarRule(Map, null, null, Precedence.PREC_NONE, null),
-  /* TOKEN_RIGHT_BRACE   */ new GrammarRule(null, null, null, Precedence.PREC_NONE, null),
-  /* TOKEN_COLON         */ new GrammarRule(null, null, null, Precedence.PREC_NONE, null),
-  /* TOKEN_DOT           */ new GrammarRule(null, Call, null, Precedence.PREC_CALL, null),
-  /* TOKEN_DOTDOT        */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.PREC_RANGE, ".."),
-  /* TOKEN_DOTDOTDOT     */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.PREC_RANGE, "..."),
-  /* TOKEN_COMMA         */ new GrammarRule(null, null, null, Precedence.PREC_NONE, null),
-  /* TOKEN_STAR          */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.PREC_FACTOR, "*"),
-  /* TOKEN_SLASH         */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.PREC_FACTOR, "/"),
-  /* TOKEN_PERCENT       */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.PREC_FACTOR, "%"),
-  /* TOKEN_PLUS          */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.PREC_TERM, "+"),
-  /* TOKEN_MINUS         */ new GrammarRule(UnaryOp, InfixOp, MixedSignature, Precedence.PREC_TERM, "-"),
-  /* TOKEN_LTLT          */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.PREC_BITWISE_SHIFT, "<<"),
-  /* TOKEN_GTGT          */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.PREC_BITWISE_SHIFT, ">>"),
-  /* TOKEN_PIPE          */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.PREC_BITWISE_OR, "|"),
-  /* TOKEN_PIPEPIPE      */ new GrammarRule(null, or_, null, Precedence.PREC_LOGICAL_OR, null),
-  /* TOKEN_CARET         */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.PREC_BITWISE_XOR, "^"),
-  /* TOKEN_AMP           */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.PREC_BITWISE_AND, "&"),
-  /* TOKEN_AMPAMP        */ new GrammarRule(null, and_, null, Precedence.PREC_LOGICAL_AND, null),
-  /* TOKEN_BANG          */ new GrammarRule(UnaryOp, null, UnarySignature, Precedence.PREC_NONE, "!"),
-  /* TOKEN_TILDE         */ new GrammarRule(UnaryOp, null, UnarySignature, Precedence.PREC_NONE, "~"),
-  /* TOKEN_QUESTION      */ new GrammarRule(null, Conditional, null, Precedence.PREC_ASSIGNMENT, null),
-  /* TOKEN_EQ            */ new GrammarRule(null, null, null, Precedence.PREC_NONE, null),
-  /* TOKEN_LT            */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.PREC_COMPARISON, "<"),
-  /* TOKEN_GT            */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.PREC_COMPARISON, ">"),
-  /* TOKEN_LTEQ          */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.PREC_COMPARISON, "<="),
-  /* TOKEN_GTEQ          */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.PREC_COMPARISON, ">="),
-  /* TOKEN_EQEQ          */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.PREC_EQUALITY, "=="),
-  /* TOKEN_BANGEQ        */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.PREC_EQUALITY, "!="),
-  /* TOKEN_BREAK         */ new GrammarRule(null, null, null, Precedence.PREC_NONE, null),
-  /* TOKEN_CLASS         */ new GrammarRule(null, null, null, Precedence.PREC_NONE, null),
-  /* TOKEN_CONSTRUCT     */ new GrammarRule(null, null, ConstructorSignature, Precedence.PREC_NONE, null),
-  /* TOKEN_ELSE          */ new GrammarRule(null, null, null, Precedence.PREC_NONE, null),
-  /* TOKEN_FALSE         */ new GrammarRule(Boolean, null, null, Precedence.PREC_NONE, null),
-  /* TOKEN_FOR           */ new GrammarRule(null, null, null, Precedence.PREC_NONE, null),
-  /* TOKEN_USING         */ new GrammarRule(null, null, null, Precedence.PREC_NONE, null),
-  /* TOKEN_IF            */ new GrammarRule(null, null, null, Precedence.PREC_NONE, null),
-  /* TOKEN_IMPORT        */ new GrammarRule(null, null, null, Precedence.PREC_NONE, null),
-  /* TOKEN_IN            */ new GrammarRule(null, null, null, Precedence.PREC_NONE, null),
-  /* TOKEN_IS            */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.PREC_IS, "is"),
-  /* TOKEN_NULL          */ new GrammarRule(null_, null, null, Precedence.PREC_NONE, null),
-  /* TOKEN_RETURN        */ new GrammarRule(null, null, null, Precedence.PREC_NONE, null),
-  /* TOKEN_STATIC        */ new GrammarRule(null, null, null, Precedence.PREC_NONE, null),
-  /* TOKEN_SUPER         */ new GrammarRule(super_, null, null, Precedence.PREC_NONE, null),
-  /* TOKEN_THIS          */ new GrammarRule(this_, null, null, Precedence.PREC_NONE, null),
-  /* TOKEN_TRUE          */ new GrammarRule(Boolean, null, null, Precedence.PREC_NONE, null),
-  /* TOKEN_VAR           */ new GrammarRule(null, null, null, Precedence.PREC_NONE, null),
-  /* TOKEN_WHILE         */ new GrammarRule(null, null, null, Precedence.PREC_NONE, null),
-  /* TOKEN_FIELD         */ new GrammarRule(Field, null, null, Precedence.PREC_NONE, null),
-  /* TOKEN_STATIC_FIELD  */ new GrammarRule(StaticField, null, null, Precedence.PREC_NONE, null),
-  /* TOKEN_NAME          */ new GrammarRule(Name, null, NamedSignature, Precedence.PREC_NONE, null),
-  /* TOKEN_NUMBER        */ new GrammarRule(Number, null, null, Precedence.PREC_NONE, null),
-  /* TOKEN_STRING        */ new GrammarRule(string_, null, null, Precedence.PREC_NONE, null),
-  /* TOKEN_LINE          */ new GrammarRule(null, null, null, Precedence.PREC_NONE, null),
-  /* TOKEN_ERROR         */ new GrammarRule(null, null, null, Precedence.PREC_NONE, null),
-  /* TOKEN_EOF           */ new GrammarRule(null, null, null, Precedence.PREC_NONE, null)
+  /* TOKEN_LEFT_PAREN    */ new GrammarRule(Grouping, null, null, Precedence.None, null),
+  /* TOKEN_RIGHT_PAREN   */ new GrammarRule(null, null, null, Precedence.None, null),
+  /* TOKEN_LEFT_BRACKET  */ new GrammarRule(List, Subscript, SubscriptSignature, Precedence.Call, null),
+  /* TOKEN_RIGHT_BRACKET */ new GrammarRule(null, null, null, Precedence.None, null),
+  /* TOKEN_LEFT_BRACE    */ new GrammarRule(Map, null, null, Precedence.None, null),
+  /* TOKEN_RIGHT_BRACE   */ new GrammarRule(null, null, null, Precedence.None, null),
+  /* TOKEN_COLON         */ new GrammarRule(null, null, null, Precedence.None, null),
+  /* TOKEN_DOT           */ new GrammarRule(null, Call, null, Precedence.Call, null),
+  /* TOKEN_DOTDOT        */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.Range, ".."),
+  /* TOKEN_DOTDOTDOT     */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.Range, "..."),
+  /* TOKEN_COMMA         */ new GrammarRule(null, null, null, Precedence.None, null),
+  /* TOKEN_STAR          */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.Factor, "*"),
+  /* TOKEN_SLASH         */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.Factor, "/"),
+  /* TOKEN_PERCENT       */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.Factor, "%"),
+  /* TOKEN_PLUS          */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.Term, "+"),
+  /* TOKEN_MINUS         */ new GrammarRule(UnaryOp, InfixOp, MixedSignature, Precedence.Term, "-"),
+  /* TOKEN_LTLT          */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.BitwiseShift, "<<"),
+  /* TOKEN_GTGT          */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.BitwiseShift, ">>"),
+  /* TOKEN_PIPE          */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.BitwiseOr, "|"),
+  /* TOKEN_PIPEPIPE      */ new GrammarRule(null, or_, null, Precedence.LogicalOr, null),
+  /* TOKEN_CARET         */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.BitwiseXor, "^"),
+  /* TOKEN_AMP           */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.BitwiseAnd, "&"),
+  /* TOKEN_AMPAMP        */ new GrammarRule(null, and_, null, Precedence.LogicalAnd, null),
+  /* TOKEN_BANG          */ new GrammarRule(UnaryOp, null, UnarySignature, Precedence.None, "!"),
+  /* TOKEN_TILDE         */ new GrammarRule(UnaryOp, null, UnarySignature, Precedence.None, "~"),
+  /* TOKEN_QUESTION      */ new GrammarRule(null, Conditional, null, Precedence.Assignment, null),
+  /* TOKEN_EQ            */ new GrammarRule(null, null, null, Precedence.None, null),
+  /* TOKEN_LT            */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.Comparison, "<"),
+  /* TOKEN_GT            */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.Comparison, ">"),
+  /* TOKEN_LTEQ          */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.Comparison, "<="),
+  /* TOKEN_GTEQ          */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.Comparison, ">="),
+  /* TOKEN_EQEQ          */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.Equality, "=="),
+  /* TOKEN_BANGEQ        */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.Equality, "!="),
+  /* TOKEN_BREAK         */ new GrammarRule(null, null, null, Precedence.None, null),
+  /* TOKEN_CLASS         */ new GrammarRule(null, null, null, Precedence.None, null),
+  /* TOKEN_CONSTRUCT     */ new GrammarRule(null, null, ConstructorSignature, Precedence.None, null),
+  /* TOKEN_ELSE          */ new GrammarRule(null, null, null, Precedence.None, null),
+  /* TOKEN_FALSE         */ new GrammarRule(Boolean, null, null, Precedence.None, null),
+  /* TOKEN_FOR           */ new GrammarRule(null, null, null, Precedence.None, null),
+  /* TOKEN_USING         */ new GrammarRule(null, null, null, Precedence.None, null),
+  /* TOKEN_IF            */ new GrammarRule(null, null, null, Precedence.None, null),
+  /* TOKEN_IMPORT        */ new GrammarRule(null, null, null, Precedence.None, null),
+  /* TOKEN_IN            */ new GrammarRule(null, null, null, Precedence.None, null),
+  /* TOKEN_IS            */ new GrammarRule(null, InfixOp, InfixSignature, Precedence.Is, "is"),
+  /* TOKEN_NULL          */ new GrammarRule(null_, null, null, Precedence.None, null),
+  /* TOKEN_RETURN        */ new GrammarRule(null, null, null, Precedence.None, null),
+  /* TOKEN_STATIC        */ new GrammarRule(null, null, null, Precedence.None, null),
+  /* TOKEN_SUPER         */ new GrammarRule(super_, null, null, Precedence.None, null),
+  /* TOKEN_THIS          */ new GrammarRule(this_, null, null, Precedence.None, null),
+  /* TOKEN_TRUE          */ new GrammarRule(Boolean, null, null, Precedence.None, null),
+  /* TOKEN_VAR           */ new GrammarRule(null, null, null, Precedence.None, null),
+  /* TOKEN_WHILE         */ new GrammarRule(null, null, null, Precedence.None, null),
+  /* TOKEN_FIELD         */ new GrammarRule(Field, null, null, Precedence.None, null),
+  /* TOKEN_STATIC_FIELD  */ new GrammarRule(StaticField, null, null, Precedence.None, null),
+  /* TOKEN_NAME          */ new GrammarRule(Name, null, NamedSignature, Precedence.None, null),
+  /* TOKEN_NUMBER        */ new GrammarRule(Number, null, null, Precedence.None, null),
+  /* TOKEN_STRING        */ new GrammarRule(string_, null, null, Precedence.None, null),
+  /* TOKEN_LINE          */ new GrammarRule(null, null, null, Precedence.None, null),
+  /* TOKEN_ERROR         */ new GrammarRule(null, null, null, Precedence.None, null),
+  /* TOKEN_EOF           */ new GrammarRule(null, null, null, Precedence.None, null)
 };
 
         // Gets the [GrammarRule] associated with tokens of [type].
         private GrammarRule GetRule(TokenType type)
         {
-            return rules[(byte)type];
+            return _rules[(byte)type];
         }
 
         // The main entrypoint for the top-down operator precedence parser.
         private void ParsePrecedence(bool allowAssignment, Precedence precedence)
         {
             NextToken();
-            GrammarFn prefix = rules[(int)parser.previous.type].prefix;
+            GrammarFn prefix = _rules[(int)_parser.Previous.Type].Prefix;
 
             if (prefix == null)
             {
@@ -2463,10 +2455,10 @@ namespace Wren.Core.Bytecode
 
             prefix(this, allowAssignment);
 
-            while (rules[(int)parser.current.type].precedence >= precedence)
+            while (_rules[(int)_parser.Current.Type].Precedence >= precedence)
             {
                 NextToken();
-                GrammarFn infix = rules[(int)parser.previous.type].infix;
+                GrammarFn infix = _rules[(int)_parser.Previous.Type].Infix;
                 infix(this, allowAssignment);
             }
         }
@@ -2475,7 +2467,7 @@ namespace Wren.Core.Bytecode
         // on the stack.
         private void Expression()
         {
-            ParsePrecedence(true, Precedence.PREC_LOWEST);
+            ParsePrecedence(true, Precedence.Lowest);
         }
 
         // Parses a curly block or an expression statement. Used in places like the
@@ -2484,7 +2476,7 @@ namespace Wren.Core.Bytecode
         private void Block()
         {
             // Curly block.
-            if (Match(TokenType.TOKEN_LEFT_BRACE))
+            if (Match(TokenType.LeftBrace))
             {
                 PushScope();
                 if (FinishBlock())
@@ -2608,10 +2600,10 @@ namespace Wren.Core.Bytecode
         // know what to loop back to at the end of the body.
         private void StartLoop(Loop l)
         {
-            l.enclosing = loop;
-            l.start = bytecode.Count - 1 - 1;
-            l.scopeDepth = scopeDepth;
-            loop = l;
+            l.Enclosing = _loop;
+            l.Start = _bytecode.Count - 1 - 1;
+            l.ScopeDepth = _scopeDepth;
+            _loop = l;
         }
 
         // Emits the [Instruction.JUMP_IF] instruction used to test the loop condition and
@@ -2619,18 +2611,18 @@ namespace Wren.Core.Bytecode
         // later once we know where the end of the body is.
         private void TestExitLoop()
         {
-            if (loop == null)
+            if (_loop == null)
                 return;
-            loop.exitJump = EmitJump(Instruction.JUMP_IF);
+            _loop.ExitJump = EmitJump(Instruction.JUMP_IF);
         }
 
         // Compiles the body of the loop and tracks its extent so that contained "break"
         // statements can be handled correctly.
         private void LoopBody()
         {
-            if (loop == null)
+            if (_loop == null)
                 return;
-            loop.body = bytecode.Count - 1;
+            _loop.Body = _bytecode.Count - 1;
             Block();
         }
 
@@ -2638,31 +2630,31 @@ namespace Wren.Core.Bytecode
         // we know where the end of the loop is.
         private void EndLoop()
         {
-            int loopOffset = bytecode.Count - 1 - loop.start + 2;
+            int loopOffset = _bytecode.Count - 1 - _loop.Start + 2;
             // TODO: Check for overflow.
             EmitShortArg(Instruction.LOOP, loopOffset);
 
-            PatchJump(loop.exitJump);
+            PatchJump(_loop.ExitJump);
 
             // Find any break placeholder instructions (which will be Instruction.END in the
             // bytecode) and replace them with real jumps.
-            int i = loop.body;
-            while (i < bytecode.Count - 1)
+            int i = _loop.Body;
+            while (i < _bytecode.Count - 1)
             {
-                if (bytecode[i] == (byte)Instruction.END)
+                if (_bytecode[i] == (byte)Instruction.END)
                 {
-                    bytecode[i] = (byte)Instruction.JUMP;
+                    _bytecode[i] = (byte)Instruction.JUMP;
                     PatchJump(i + 1);
                     i += 3;
                 }
                 else
                 {
                     // Skip this instruction and its arguments.
-                    i += 1 + GetNumArguments(bytecode.ToArray(), constants, i);
+                    i += 1 + GetNumArguments(_bytecode.ToArray(), _constants, i);
                 }
             }
 
-            loop = loop.enclosing;
+            _loop = _loop.Enclosing;
         }
 
         private void ForStatement()
@@ -2698,14 +2690,14 @@ namespace Wren.Core.Bytecode
             // Create a scope for the hidden local variables used for the iterator.
             PushScope();
 
-            Consume(TokenType.TOKEN_LEFT_PAREN, "Expect '(' after 'for'.");
-            Consume(TokenType.TOKEN_NAME, "Expect for loop variable name.");
+            Consume(TokenType.LeftParen, "Expect '(' after 'for'.");
+            Consume(TokenType.Name, "Expect for loop variable name.");
 
             // Remember the name of the loop variable.
-            string name = parser.source.Substring(parser.previous.start, parser.previous.length);
-            int length = parser.previous.length;
+            string name = _parser.Source.Substring(_parser.Previous.Start, _parser.Previous.Length);
+            int length = _parser.Previous.Length;
 
-            Consume(TokenType.TOKEN_IN, "Expect 'in' after loop variable.");
+            Consume(TokenType.In, "Expect 'in' after loop variable.");
             IgnoreNewlines();
 
             // Evaluate the sequence expression and store it in a hidden local variable.
@@ -2718,7 +2710,7 @@ namespace Wren.Core.Bytecode
             null_(this, false);
             int iterSlot = DefineLocal("iter ", 5);
 
-            Consume(TokenType.TOKEN_RIGHT_PAREN, "Expect ')' after loop expression.");
+            Consume(TokenType.RightParen, "Expect ')' after loop expression.");
 
             Loop l = new Loop();
             StartLoop(l);
@@ -2763,9 +2755,9 @@ namespace Wren.Core.Bytecode
             StartLoop(l);
 
             // Compile the condition.
-            Consume(TokenType.TOKEN_LEFT_PAREN, "Expect '(' after 'while'.");
+            Consume(TokenType.LeftParen, "Expect '(' after 'while'.");
             Expression();
-            Consume(TokenType.TOKEN_RIGHT_PAREN, "Expect ')' after while condition.");
+            Consume(TokenType.RightParen, "Expect ')' after while condition.");
 
             TestExitLoop();
             LoopBody();
@@ -2776,9 +2768,9 @@ namespace Wren.Core.Bytecode
         // curly blocks. Unlike expressions, these do not leave a value on the stack.
         private void Statement()
         {
-            if (Match(TokenType.TOKEN_BREAK))
+            if (Match(TokenType.Break))
             {
-                if (loop == null)
+                if (_loop == null)
                 {
                     Error("Cannot use 'break' outside of a loop.");
                     return;
@@ -2786,7 +2778,7 @@ namespace Wren.Core.Bytecode
 
                 // Since we will be jumping out of the scope, make sure any locals in it
                 // are discarded first.
-                DiscardLocals(loop.scopeDepth + 1);
+                DiscardLocals(_loop.ScopeDepth + 1);
 
                 // Emit a placeholder instruction for the jump to the end of the body. When
                 // we're done compiling the loop body and know where the end is, we'll
@@ -2797,18 +2789,18 @@ namespace Wren.Core.Bytecode
                 return;
             }
 
-            if (Match(TokenType.TOKEN_FOR))
+            if (Match(TokenType.For))
             {
                 ForStatement();
                 return;
             }
 
-            if (Match(TokenType.TOKEN_IF))
+            if (Match(TokenType.If))
             {
                 // Compile the condition.
-                Consume(TokenType.TOKEN_LEFT_PAREN, "Expect '(' after 'if'.");
+                Consume(TokenType.LeftParen, "Expect '(' after 'if'.");
                 Expression();
-                Consume(TokenType.TOKEN_RIGHT_PAREN, "Expect ')' after if condition.");
+                Consume(TokenType.RightParen, "Expect ')' after if condition.");
 
                 // Jump to the else branch if the condition is false.
                 int ifJump = EmitJump(Instruction.JUMP_IF);
@@ -2817,7 +2809,7 @@ namespace Wren.Core.Bytecode
                 Block();
 
                 // Compile the else branch if there is one.
-                if (Match(TokenType.TOKEN_ELSE))
+                if (Match(TokenType.Else))
                 {
                     // Jump over the else branch when the if branch is taken.
                     int elseJump = EmitJump(Instruction.JUMP);
@@ -2837,10 +2829,10 @@ namespace Wren.Core.Bytecode
                 return;
             }
 
-            if (Match(TokenType.TOKEN_RETURN))
+            if (Match(TokenType.Return))
             {
                 // Compile the return value.
-                if (Peek() == TokenType.TOKEN_LINE)
+                if (Peek() == TokenType.Line)
                 {
                     // Implicitly return null if there is no value.
                     Emit(Instruction.NULL);
@@ -2854,7 +2846,7 @@ namespace Wren.Core.Bytecode
                 return;
             }
 
-            if (Match(TokenType.TOKEN_WHILE))
+            if (Match(TokenType.While))
             {
                 WhileStatement();
                 return;
@@ -2870,10 +2862,10 @@ namespace Wren.Core.Bytecode
         private bool Method(ClassCompiler classCompiler, int classSlot)
         {
 
-            bool isForeign = Match(TokenType.TOKEN_FOREIGN);
-            classCompiler.isStaticMethod = Match(TokenType.TOKEN_STATIC);
+            bool isForeign = Match(TokenType.Foreign);
+            classCompiler.IsStaticMethod = Match(TokenType.Static);
 
-            SignatureFn signatureFn = GetRule(parser.current.type).method;
+            SignatureFn signatureFn = GetRule(_parser.Current.Type).Method;
             NextToken();
 
             if (signatureFn == null)
@@ -2883,13 +2875,13 @@ namespace Wren.Core.Bytecode
             }
 
             // Build the method signature.
-            Signature signature = SignatureFromToken(new Signature(), SignatureType.SIG_GETTER);
-            classCompiler.signature = signature;
+            Signature signature = SignatureFromToken(new Signature(), SignatureType.Getter);
+            classCompiler.Signature = signature;
 
-            Compiler methodCompiler = new Compiler(parser, this, false);
+            Compiler methodCompiler = new Compiler(_parser, this, false);
             signatureFn(methodCompiler, signature);
 
-            if (classCompiler.isStaticMethod && signature.Type == SignatureType.SIG_INITIALIZER)
+            if (classCompiler.IsStaticMethod && signature.Type == SignatureType.Initializer)
             {
                 Error("A constructor cannot be static.");
             }
@@ -2904,19 +2896,19 @@ namespace Wren.Core.Bytecode
             }
             else
             {
-                Consume(TokenType.TOKEN_LEFT_BRACE, "Expect '{' to begin method body.");
-                methodCompiler.FinishBody(signature.Type == SignatureType.SIG_INITIALIZER);
+                Consume(TokenType.LeftBrace, "Expect '{' to begin method body.");
+                methodCompiler.FinishBody(signature.Type == SignatureType.Initializer);
                 methodCompiler.EndCompiler(fullSignature);
             }
 
             // Define the method. For a constructor, this defines the instance
             // initializer method.
             int methodSymbol = SignatureSymbol(signature);
-            DefineMethod(classSlot, classCompiler.isStaticMethod, methodSymbol);
+            DefineMethod(classSlot, classCompiler.IsStaticMethod, methodSymbol);
 
-            if (signature.Type == SignatureType.SIG_INITIALIZER)
+            if (signature.Type == SignatureType.Initializer)
             {
-                signature.Type = SignatureType.SIG_METHOD;
+                signature.Type = SignatureType.Method;
                 int constructorSymbol = SignatureSymbol(signature);
                 CreateConstructor(signature, methodSymbol);
                 DefineMethod(classSlot, true, constructorSymbol);
@@ -2927,9 +2919,9 @@ namespace Wren.Core.Bytecode
 
         private void CreateConstructor(Signature signature, int initializerSymbol)
         {
-            Compiler methodCompiler = new Compiler(parser, this, false);
+            Compiler methodCompiler = new Compiler(_parser, this, false);
 
-            methodCompiler.Emit(enclosingClass.isForeign ? Instruction.FOREIGN_CONSTRUCT : Instruction.CONSTRUCT);
+            methodCompiler.Emit(_enclosingClass.IsForeign ? Instruction.FOREIGN_CONSTRUCT : Instruction.CONSTRUCT);
             methodCompiler.EmitShortArg(Instruction.CALL_0 + signature.Arity, initializerSymbol);
             methodCompiler.Emit(Instruction.RETURN);
 
@@ -2938,7 +2930,7 @@ namespace Wren.Core.Bytecode
 
         private void DefineMethod(int classSlot, bool isStaticMethod, int methodSymbol)
         {
-            if (scopeDepth == 0)
+            if (_scopeDepth == 0)
             {
                 EmitShortArg(Instruction.LOAD_MODULE_VAR, classSlot);
             }
@@ -2959,14 +2951,14 @@ namespace Wren.Core.Bytecode
             int slot = DeclareNamedVariable();
 
             // Make a string constant for the name.
-            int nameConstant = AddConstant(new Value(parser.source.Substring(parser.previous.start, parser.previous.length)));
+            int nameConstant = AddConstant(new Value(_parser.Source.Substring(_parser.Previous.Start, _parser.Previous.Length)));
 
             EmitShortArg(Instruction.CONSTANT, nameConstant);
 
             // Load the superclass (if there is one).
-            if (Match(TokenType.TOKEN_IS))
+            if (Match(TokenType.Is))
             {
-                ParsePrecedence(false, Precedence.PREC_CALL);
+                ParsePrecedence(false, Precedence.Call);
             }
             else
             {
@@ -3003,21 +2995,21 @@ namespace Wren.Core.Bytecode
             // into account.
             List<string> fields = new List<string>();
 
-            classCompiler.fields = fields;
-            classCompiler.isForeign = isForeign;
+            classCompiler.Fields = fields;
+            classCompiler.IsForeign = isForeign;
 
-            enclosingClass = classCompiler;
+            _enclosingClass = classCompiler;
 
             // Compile the method definitions.
-            Consume(TokenType.TOKEN_LEFT_BRACE, "Expect '{' after class declaration.");
+            Consume(TokenType.LeftBrace, "Expect '{' after class declaration.");
             MatchLine();
 
-            while (!Match(TokenType.TOKEN_RIGHT_BRACE))
+            while (!Match(TokenType.RightBrace))
             {
                 if (!Method(classCompiler, slot)) break;
 
                 // Don't require a newline after the last definition.
-                if (Match(TokenType.TOKEN_RIGHT_BRACE)) break;
+                if (Match(TokenType.RightBrace)) break;
 
                 ConsumeLine("Expect newline after definition in class.");
             }
@@ -3025,17 +3017,17 @@ namespace Wren.Core.Bytecode
             if (!isForeign)
             {
                 // Update the class with the number of fields.
-                bytecode[numFieldsInstruction] = (byte)fields.Count;
+                _bytecode[numFieldsInstruction] = (byte)fields.Count;
             }
 
-            enclosingClass = null;
+            _enclosingClass = null;
 
             PopScope();
         }
 
         private void Import()
         {
-            Consume(TokenType.TOKEN_STRING, "Expect a string after 'import'.");
+            Consume(TokenType.String, "Expect a string after 'import'.");
             int moduleConstant = StringConstant();
 
             // Load the module.
@@ -3045,7 +3037,7 @@ namespace Wren.Core.Bytecode
             Emit(Instruction.POP);
 
             // The for clause is optional.
-            if (!Match(TokenType.TOKEN_FOR)) return;
+            if (!Match(TokenType.For)) return;
 
             // Compile the comma-separated list of variables to import.
             do
@@ -3053,7 +3045,7 @@ namespace Wren.Core.Bytecode
                 int slot = DeclareNamedVariable();
 
                 // Define a string constant for the variable name.
-                string varName = parser.source.Substring(parser.previous.start, parser.previous.length);
+                string varName = _parser.Source.Substring(_parser.Previous.Start, _parser.Previous.Length);
                 int variableConstant = AddConstant(new Value(varName));
 
                 // Load the variable from the other module.
@@ -3062,18 +3054,18 @@ namespace Wren.Core.Bytecode
 
                 // Store the result in the variable here.
                 DefineVariable(slot);
-            } while (Match(TokenType.TOKEN_COMMA));
+            } while (Match(TokenType.Comma));
         }
 
         private void VariableDefinition()
         {
             // Grab its name, but don't declare it yet. A (local) variable shouldn't be
             // in scope in its own initializer.
-            Consume(TokenType.TOKEN_NAME, "Expect variable name.");
-            Token nameToken = parser.previous;
+            Consume(TokenType.Name, "Expect variable name.");
+            Token nameToken = _parser.Previous;
 
             // Compile the initializer.
-            if (Match(TokenType.TOKEN_EQ))
+            if (Match(TokenType.Eq))
             {
                 Expression();
             }
@@ -3093,19 +3085,19 @@ namespace Wren.Core.Bytecode
         // like the non-curly body of an if or while.
         private void Definition()
         {
-            if (Match(TokenType.TOKEN_CLASS))
+            if (Match(TokenType.Class))
             {
                 ClassDefinition(false);
                 return;
             }
 
-            if (Match(TokenType.TOKEN_IMPORT))
+            if (Match(TokenType.Import))
             {
                 Import();
                 return;
             }
 
-            if (Match(TokenType.TOKEN_VAR))
+            if (Match(TokenType.Var))
             {
                 VariableDefinition();
                 return;
@@ -3119,17 +3111,17 @@ namespace Wren.Core.Bytecode
             Parser parser = new Parser
             {
                 vm = vm,
-                module = module,
-                sourcePath = sourcePath,
-                source = source,
-                tokenStart = 0,
-                currentChar = 0,
-                currentLine = 1,
-                current = { type = TokenType.TOKEN_ERROR, start = 0, length = 0, line = 0 },
-                skipNewlines = true,
-                printErrors = printErrors,
-                hasError = false,
-                raw = ""
+                Module = module,
+                SourcePath = sourcePath,
+                Source = source,
+                TokenStart = 0,
+                CurrentChar = 0,
+                CurrentLine = 1,
+                Current = { Type = TokenType.Error, Start = 0, Length = 0, Line = 0 },
+                SkipNewlines = true,
+                PrintErrors = printErrors,
+                HasError = false,
+                Raw = ""
             };
 
             Compiler compiler = new Compiler(parser, null, true);
@@ -3139,14 +3131,14 @@ namespace Wren.Core.Bytecode
 
             compiler.IgnoreNewlines();
 
-            while (!compiler.Match(TokenType.TOKEN_EOF))
+            while (!compiler.Match(TokenType.Eof))
             {
                 compiler.Definition();
 
                 // If there is no newline, it must be the end of the block on the same line.
                 if (!compiler.MatchLine())
                 {
-                    compiler.Consume(TokenType.TOKEN_EOF, "Expect end of file.");
+                    compiler.Consume(TokenType.Eof, "Expect end of file.");
                     break;
                 }
             }
@@ -3157,9 +3149,9 @@ namespace Wren.Core.Bytecode
             // See if there are any implicitly declared module-level variables that never
             // got an explicit definition.
             // TODO: It would be nice if the error was on the line where it was used.
-            for (int i = 0; i < parser.module.Variables.Count; i++)
+            for (int i = 0; i < parser.Module.Variables.Count; i++)
             {
-                ModuleVariable t = parser.module.Variables[i];
+                ModuleVariable t = parser.Module.Variables[i];
                 if (t.Container.Type == ValueType.Undefined)
                 {
                     compiler.Error(string.Format("Variable '{0}' is used but not defined.", t.Name));

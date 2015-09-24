@@ -81,8 +81,10 @@ var start = System.clock
 
 var map = {}
 
+var i = 0
 for (key in keys) {
-  map[key] = key.count
+  map[key] = i
+  i = i + 1
 }
 
 var sum = 0
@@ -95,4 +97,4 @@ for (key in keys) {
 }
 
 System.print(sum)
-System.print("elapsed: ", System.clock - start)
+System.print("elapsed: " + (System.clock - start).toString)

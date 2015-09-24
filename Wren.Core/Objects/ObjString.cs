@@ -7,17 +7,17 @@ namespace Wren.Core.Objects
 {
     public class ObjString : Obj
     {
-        private static readonly List<ObjString> strings = new List<ObjString>();
-        private static bool initCompleted;
+        private static readonly List<ObjString> Strings = new List<ObjString>();
+        private static bool _initCompleted;
 
         public static void InitClass()
         {
-            foreach (ObjString s in strings)
+            foreach (ObjString s in Strings)
             {
                 s.ClassObj = WrenVM.StringClass;
             }
-            initCompleted = true;
-            strings.Clear();
+            _initCompleted = true;
+            Strings.Clear();
         }
 
         // Inline array of the string's bytes followed by a null terminator.
@@ -26,8 +26,8 @@ namespace Wren.Core.Objects
         {
             Value = s;
             ClassObj = WrenVM.StringClass;
-            if (!initCompleted)
-                strings.Add(this);
+            if (!_initCompleted)
+                Strings.Add(this);
         }
 
         public readonly string Value;

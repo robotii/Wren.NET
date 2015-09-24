@@ -21,4 +21,4 @@ for (i in 1..1000000) {
 }
 
 System.print(count)
-System.print("elapsed: ", System.clock - start)
+System.print("elapsed: " + (System.clock - start).toString)

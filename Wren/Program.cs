@@ -6,7 +6,7 @@ namespace Wren
 {
     class Program
     {
-        private static string loadedFile;
+        private static string _loadedFile;
 
         static int Main(string[] args)
         {
@@ -29,7 +29,7 @@ namespace Wren
         {
             if (File.Exists(path))
             {
-                loadedFile = path;
+                _loadedFile = path;
                 string source = File.ReadAllText(path);
                 WrenVM vm = new WrenVM { LoadModuleFn = LoadModule };
                 return (int)vm.Interpret(path, source);
@@ -57,10 +57,10 @@ namespace Wren
 
         static string LoadModule(string name)
         {
-            int lastPathSeparator = loadedFile.LastIndexOf("\\", StringComparison.Ordinal);
+            int lastPathSeparator = _loadedFile.LastIndexOf("\\", StringComparison.Ordinal);
             if (lastPathSeparator < 0)
-                lastPathSeparator = loadedFile.LastIndexOf("/", StringComparison.Ordinal);
-            string rootDir = loadedFile.Substring(0, lastPathSeparator + 1);
+                lastPathSeparator = _loadedFile.LastIndexOf("/", StringComparison.Ordinal);
+            string rootDir = _loadedFile.Substring(0, lastPathSeparator + 1);
             string path = rootDir + name + ".wren";
             if (File.Exists(path))
             {

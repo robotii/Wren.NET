@@ -30,9 +30,9 @@ namespace Wren.Core.VM
         public static ObjClass StringClass;
 
         // The fiber that is currently running.
-        ObjFiber fiber;
+        ObjFiber _fiber;
 
-        readonly ObjMap modules;
+        readonly ObjMap _modules;
 
         public WrenVM()
         {
@@ -42,8 +42,8 @@ namespace Wren.Core.VM
             // Implicitly create a "core" module for the built in libraries.
             ObjModule coreModule = new ObjModule(name);
 
-            modules = new ObjMap();
-            modules.Set(new Value(ValueType.Null), new Value(coreModule));
+            _modules = new ObjMap();
+            _modules.Set(new Value(ValueType.Null), new Value(coreModule));
 
             CoreLibrary core = new CoreLibrary(this);
             core.InitializeCore();
@@ -63,7 +63,7 @@ namespace Wren.Core.VM
         {
             ObjFn methodFn = methodContainer.Obj as ObjFn ?? ((ObjClosure)methodContainer.Obj).Function;
 
-            Method method = new Method { mType = MethodType.Block, obj = methodContainer.Obj };
+            Method method = new Method { MType = MethodType.Block, Obj = methodContainer.Obj };
 
             if (methodType == MethodType.Static)
                 classObj = classObj.ClassObj;
@@ -88,7 +88,7 @@ namespace Wren.Core.VM
         // Returns null if no module with that name has been loaded.
         private ObjModule GetModule(Value name)
         {
-            Value moduleContainer = modules.Get(name);
+            Value moduleContainer = _modules.Get(name);
             return moduleContainer.Type == ValueType.Undefined ? null : moduleContainer.Obj as ObjModule;
         }
 
@@ -109,7 +109,7 @@ namespace Wren.Core.VM
 
                 // Store it in the VM's module registry so we don't load the same module
                 // multiple times.
-                modules.Set(name, new Value(module));
+                _modules.Set(name, new Value(module));
 
                 // Implicitly import the core module.
                 ObjModule coreModule = GetCoreModule();
@@ -136,7 +136,7 @@ namespace Wren.Core.VM
         private Value ImportModule(Value name)
         {
             // If the module is already loaded, we don't need to do anything.
-            if (modules.Get(name).Type != ValueType.Undefined) return new Value(ValueType.Null);
+            if (_modules.Get(name).Type != ValueType.Undefined) return new Value(ValueType.Null);
 
             // Load the module's source code from the embedder.
             string source = LoadModuleFn(name.Obj.ToString());
@@ -212,13 +212,13 @@ namespace Wren.Core.VM
             int index;
 
             /* Load Frame */
-            CallFrame frame = fiber.Frames[fiber.NumFrames - 1];
-            int ip = frame.ip;
+            CallFrame frame = _fiber.Frames[_fiber.NumFrames - 1];
+            int ip = frame.Ip;
             int stackStart = frame.StackStart;
-            Value[] stack = fiber.Stack;
+            Value[] stack = _fiber.Stack;
             Value[] args = new Value[17];
 
-            ObjFn fn = frame.fn as ObjFn ?? ((ObjClosure)frame.fn).Function;
+            ObjFn fn = frame.Fn as ObjFn ?? ((ObjClosure)frame.Fn).Function;
             byte[] bytecode = fn.Bytecode;
 
             while (true)
@@ -237,18 +237,18 @@ namespace Wren.Core.VM
                     case Instruction.LOAD_LOCAL_8:
                         {
                             index = stackStart + instruction - Instruction.LOAD_LOCAL_0;
-                            if (fiber.StackTop >= fiber.Capacity)
-                                stack = fiber.IncreaseStack();
-                            stack[fiber.StackTop++] = stack[index];
+                            if (_fiber.StackTop >= _fiber.Capacity)
+                                stack = _fiber.IncreaseStack();
+                            stack[_fiber.StackTop++] = stack[index];
                             break;
                         }
 
                     case Instruction.LOAD_LOCAL:
                         {
                             index = stackStart + bytecode[ip++];
-                            if (fiber.StackTop >= fiber.Capacity)
-                                stack = fiber.IncreaseStack();
-                            stack[fiber.StackTop++] = stack[index];
+                            if (_fiber.StackTop >= _fiber.Capacity)
+                                stack = _fiber.IncreaseStack();
+                            stack[_fiber.StackTop++] = stack[index];
                             break;
                         }
 
@@ -257,48 +257,48 @@ namespace Wren.Core.VM
                             byte field = bytecode[ip++];
                             Value receiver = stack[stackStart];
                             ObjInstance instance = receiver.Obj as ObjInstance;
-                            if (fiber.StackTop >= fiber.Capacity)
-                                stack = fiber.IncreaseStack();
-                            stack[fiber.StackTop++] = instance.Fields[field];
+                            if (_fiber.StackTop >= _fiber.Capacity)
+                                stack = _fiber.IncreaseStack();
+                            stack[_fiber.StackTop++] = instance.Fields[field];
                             break;
                         }
 
                     case Instruction.POP:
                         {
-                            fiber.StackTop--;
+                            _fiber.StackTop--;
                             break;
                         }
 
                     case Instruction.DUP:
                         {
-                            if (fiber.StackTop >= fiber.Capacity)
-                                stack = fiber.IncreaseStack();
-                            stack[fiber.StackTop] = stack[fiber.StackTop - 1];
-                            fiber.StackTop++;
+                            if (_fiber.StackTop >= _fiber.Capacity)
+                                stack = _fiber.IncreaseStack();
+                            stack[_fiber.StackTop] = stack[_fiber.StackTop - 1];
+                            _fiber.StackTop++;
                             break;
                         }
 
                     case Instruction.NULL:
                         {
-                            if (fiber.StackTop >= fiber.Capacity)
-                                stack = fiber.IncreaseStack();
-                            stack[fiber.StackTop++] = new Value(ValueType.Null);
+                            if (_fiber.StackTop >= _fiber.Capacity)
+                                stack = _fiber.IncreaseStack();
+                            stack[_fiber.StackTop++] = new Value(ValueType.Null);
                             break;
                         }
 
                     case Instruction.FALSE:
                         {
-                            if (fiber.StackTop >= fiber.Capacity)
-                                stack = fiber.IncreaseStack();
-                            stack[fiber.StackTop++] = new Value(ValueType.False);
+                            if (_fiber.StackTop >= _fiber.Capacity)
+                                stack = _fiber.IncreaseStack();
+                            stack[_fiber.StackTop++] = new Value(ValueType.False);
                             break;
                         }
 
                     case Instruction.TRUE:
                         {
-                            if (fiber.StackTop >= fiber.Capacity)
-                                stack = fiber.IncreaseStack();
-                            stack[fiber.StackTop++] = new Value(ValueType.True);
+                            if (_fiber.StackTop >= _fiber.Capacity)
+                                stack = _fiber.IncreaseStack();
+                            stack[_fiber.StackTop++] = new Value(ValueType.True);
                             break;
                         }
 
@@ -343,7 +343,7 @@ namespace Wren.Core.VM
                             ip += 2;
 
                             // The receiver is the first argument.
-                            int argStart = fiber.StackTop - numArgs;
+                            int argStart = _fiber.StackTop - numArgs;
                             Value receiver = stack[argStart];
                             ObjClass classObj;
 
@@ -382,16 +382,16 @@ namespace Wren.Core.VM
 
                                 if (method != null)
                                 {
-                                    if (method.mType == MethodType.Primitive)
+                                    if (method.MType == MethodType.Primitive)
                                     {
                                         for (int i = 0; i < numArgs; i++)
                                             args[i] = stack[argStart + i];
                                         // After calling this, the result will be in the first arg slot.
-                                        PrimitiveResult result = method.primitive(this, fiber, args);
+                                        PrimitiveResult result = method.Primitive(this, _fiber, args);
 
                                         if (result == PrimitiveResult.Value)
                                         {
-                                            fiber.StackTop = argStart + 1;
+                                            _fiber.StackTop = argStart + 1;
                                             stack[argStart] = args[0];
                                             instruction = (Instruction)bytecode[ip];
                                             if (instruction == Instruction.STORE_LOCAL)
@@ -403,7 +403,7 @@ namespace Wren.Core.VM
                                             break;
                                         }
 
-                                        frame.ip = ip;
+                                        frame.Ip = ip;
 
                                         switch (result)
                                         {
@@ -412,47 +412,47 @@ namespace Wren.Core.VM
                                                 // If we don't have a fiber to switch to, stop interpreting.
                                                 if (args[0].Type == ValueType.Null) return true;
 
-                                                fiber = args[0].Obj as ObjFiber;
+                                                _fiber = args[0].Obj as ObjFiber;
                                                 /* Load Frame */
-                                                frame = fiber.Frames[fiber.NumFrames - 1];
-                                                ip = frame.ip;
+                                                frame = _fiber.Frames[_fiber.NumFrames - 1];
+                                                ip = frame.Ip;
                                                 stackStart = frame.StackStart;
-                                                stack = fiber.Stack;
-                                                fn = (frame.fn as ObjFn) ?? (frame.fn as ObjClosure).Function;
+                                                stack = _fiber.Stack;
+                                                fn = (frame.Fn as ObjFn) ?? (frame.Fn as ObjClosure).Function;
                                                 bytecode = fn.Bytecode;
                                                 break;
 
                                             case PrimitiveResult.Call:
-                                                fiber.Frames.Add(frame = new CallFrame { fn = receiver.Obj, StackStart = argStart, ip = 0 });
-                                                fiber.NumFrames++;
+                                                _fiber.Frames.Add(frame = new CallFrame { Fn = receiver.Obj, StackStart = argStart, Ip = 0 });
+                                                _fiber.NumFrames++;
 
                                                 /* Load Frame */
                                                 ip = 0;
                                                 stackStart = argStart;
-                                                fn = (frame.fn as ObjFn) ?? (frame.fn as ObjClosure).Function;
+                                                fn = (frame.Fn as ObjFn) ?? (frame.Fn as ObjClosure).Function;
                                                 bytecode = fn.Bytecode;
                                                 break;
 
                                             case PrimitiveResult.Error:
-                                                RUNTIME_ERROR(fiber, args[0]);
-                                                if (fiber == null)
+                                                RUNTIME_ERROR(_fiber, args[0]);
+                                                if (_fiber == null)
                                                     return false;
-                                                frame = fiber.Frames[fiber.NumFrames - 1];
-                                                ip = frame.ip;
+                                                frame = _fiber.Frames[_fiber.NumFrames - 1];
+                                                ip = frame.Ip;
                                                 stackStart = frame.StackStart;
-                                                stack = fiber.Stack;
-                                                fn = (frame.fn as ObjFn) ?? (frame.fn as ObjClosure).Function;
+                                                stack = _fiber.Stack;
+                                                fn = (frame.Fn as ObjFn) ?? (frame.Fn as ObjClosure).Function;
                                                 bytecode = fn.Bytecode;
                                                 break;
                                         }
                                         break;
                                     }
-                                    else if (method.mType == MethodType.Block)
+                                    if (method.MType == MethodType.Block)
                                     {
-                                        Obj mObj = method.obj;
-                                        frame.ip = ip;
-                                        fiber.Frames.Add(frame = new CallFrame { fn = mObj, StackStart = argStart, ip = 0 });
-                                        fiber.NumFrames++;
+                                        Obj mObj = method.Obj;
+                                        frame.Ip = ip;
+                                        _fiber.Frames.Add(frame = new CallFrame { Fn = mObj, StackStart = argStart, Ip = 0 });
+                                        _fiber.NumFrames++;
                                         /* Load Frame */
                                         ip = 0;
                                         stackStart = argStart;
@@ -464,15 +464,15 @@ namespace Wren.Core.VM
                             }
 
                             /* Method not found */
-                            frame.ip = ip;
-                            RUNTIME_ERROR(fiber, MethodNotFound(this, classObj, symbol));
-                            if (fiber == null)
+                            frame.Ip = ip;
+                            RUNTIME_ERROR(_fiber, MethodNotFound(this, classObj, symbol));
+                            if (_fiber == null)
                                 return false;
-                            frame = fiber.Frames[fiber.NumFrames - 1];
-                            ip = frame.ip;
+                            frame = _fiber.Frames[_fiber.NumFrames - 1];
+                            ip = frame.Ip;
                             stackStart = frame.StackStart;
-                            stack = fiber.Stack;
-                            fn = (frame.fn as ObjFn) ?? (frame.fn as ObjClosure).Function;
+                            stack = _fiber.Stack;
+                            fn = (frame.Fn as ObjFn) ?? (frame.Fn as ObjClosure).Function;
                             bytecode = fn.Bytecode;
 
                         }
@@ -481,46 +481,46 @@ namespace Wren.Core.VM
                     case Instruction.STORE_LOCAL:
                         {
                             index = stackStart + bytecode[ip++];
-                            stack[index] = stack[fiber.StackTop - 1];
+                            stack[index] = stack[_fiber.StackTop - 1];
                             break;
                         }
 
                     case Instruction.CONSTANT:
                         {
-                            if (fiber.StackTop >= fiber.Capacity)
-                                stack = fiber.IncreaseStack();
-                            stack[fiber.StackTop++] = fn.Constants[(bytecode[ip] << 8) + bytecode[ip + 1]];
+                            if (_fiber.StackTop >= _fiber.Capacity)
+                                stack = _fiber.IncreaseStack();
+                            stack[_fiber.StackTop++] = fn.Constants[(bytecode[ip] << 8) + bytecode[ip + 1]];
                             ip += 2;
                             break;
                         }
 
                     case Instruction.LOAD_UPVALUE:
                         {
-                            if (fiber.StackTop >= fiber.Capacity)
-                                stack = fiber.IncreaseStack();
-                            stack[fiber.StackTop++] = ((ObjClosure)frame.fn).Upvalues[bytecode[ip++]].Container;
+                            if (_fiber.StackTop >= _fiber.Capacity)
+                                stack = _fiber.IncreaseStack();
+                            stack[_fiber.StackTop++] = ((ObjClosure)frame.Fn).Upvalues[bytecode[ip++]].Container;
                             break;
                         }
 
                     case Instruction.STORE_UPVALUE:
                         {
-                            ObjUpvalue[] upvalues = ((ObjClosure)frame.fn).Upvalues;
-                            upvalues[bytecode[ip++]].Container = stack[fiber.StackTop - 1];
+                            ObjUpvalue[] upvalues = ((ObjClosure)frame.Fn).Upvalues;
+                            upvalues[bytecode[ip++]].Container = stack[_fiber.StackTop - 1];
                             break;
                         }
 
                     case Instruction.LOAD_MODULE_VAR:
                         {
-                            if (fiber.StackTop >= fiber.Capacity)
-                                stack = fiber.IncreaseStack();
-                            stack[fiber.StackTop++] = fn.Module.Variables[(bytecode[ip] << 8) + bytecode[ip + 1]].Container;
+                            if (_fiber.StackTop >= _fiber.Capacity)
+                                stack = _fiber.IncreaseStack();
+                            stack[_fiber.StackTop++] = fn.Module.Variables[(bytecode[ip] << 8) + bytecode[ip + 1]].Container;
                             ip += 2;
                             break;
                         }
 
                     case Instruction.STORE_MODULE_VAR:
                         {
-                            fn.Module.Variables[(bytecode[ip] << 8) + bytecode[ip + 1]].Container = stack[fiber.StackTop - 1];
+                            fn.Module.Variables[(bytecode[ip] << 8) + bytecode[ip + 1]].Container = stack[_fiber.StackTop - 1];
                             ip += 2;
                             break;
                         }
@@ -530,27 +530,27 @@ namespace Wren.Core.VM
                             byte field = bytecode[ip++];
                             Value receiver = stack[stackStart];
                             ObjInstance instance = receiver.Obj as ObjInstance;
-                            instance.Fields[field] = stack[fiber.StackTop - 1];
+                            instance.Fields[field] = stack[_fiber.StackTop - 1];
                             break;
                         }
 
                     case Instruction.LOAD_FIELD:
                         {
                             byte field = bytecode[ip++];
-                            Value receiver = stack[--fiber.StackTop];
+                            Value receiver = stack[--_fiber.StackTop];
                             ObjInstance instance = receiver.Obj as ObjInstance;
-                            if (fiber.StackTop >= fiber.Capacity)
-                                stack = fiber.IncreaseStack();
-                            stack[fiber.StackTop++] = instance.Fields[field];
+                            if (_fiber.StackTop >= _fiber.Capacity)
+                                stack = _fiber.IncreaseStack();
+                            stack[_fiber.StackTop++] = instance.Fields[field];
                             break;
                         }
 
                     case Instruction.STORE_FIELD:
                         {
                             byte field = bytecode[ip++];
-                            Value receiver = stack[--fiber.StackTop];
+                            Value receiver = stack[--_fiber.StackTop];
                             ObjInstance instance = receiver.Obj as ObjInstance;
-                            instance.Fields[field] = stack[fiber.StackTop - 1];
+                            instance.Fields[field] = stack[_fiber.StackTop - 1];
                             break;
                         }
 
@@ -574,7 +574,7 @@ namespace Wren.Core.VM
                         {
                             int offset = (bytecode[ip] << 8) + bytecode[ip + 1];
                             ip += 2;
-                            ValueType condition = stack[--fiber.StackTop].Type;
+                            ValueType condition = stack[--_fiber.StackTop].Type;
 
                             if (condition == ValueType.False || condition == ValueType.Null) ip += offset;
                             break;
@@ -585,54 +585,54 @@ namespace Wren.Core.VM
                         {
                             int offset = (bytecode[ip] << 8) + bytecode[ip + 1];
                             ip += 2;
-                            ValueType condition = stack[fiber.StackTop - 1].Type;
+                            ValueType condition = stack[_fiber.StackTop - 1].Type;
 
                             if ((condition == ValueType.Null || condition == ValueType.False) ^ instruction == Instruction.OR)
                                 ip += offset;
                             else
-                                fiber.StackTop--;
+                                _fiber.StackTop--;
                             break;
                         }
 
                     case Instruction.CLOSE_UPVALUE:
                         {
-                            fiber.CloseUpvalue();
-                            fiber.StackTop--;
+                            _fiber.CloseUpvalue();
+                            _fiber.StackTop--;
                             break;
                         }
 
                     case Instruction.RETURN:
                         {
-                            fiber.Frames.RemoveAt(--fiber.NumFrames);
-                            Value result = stack[--fiber.StackTop];
+                            _fiber.Frames.RemoveAt(--_fiber.NumFrames);
+                            Value result = stack[--_fiber.StackTop];
                             // Close any upvalues still in scope.
-                            if (fiber.StackTop > stackStart)
+                            if (_fiber.StackTop > stackStart)
                             {
                                 Value first = stack[stackStart];
-                                while (fiber.OpenUpvalues != null && fiber.OpenUpvalues.Container != first)
+                                while (_fiber.OpenUpvalues != null && _fiber.OpenUpvalues.Container != first)
                                 {
-                                    fiber.CloseUpvalue();
+                                    _fiber.CloseUpvalue();
                                 }
-                                fiber.CloseUpvalue();
+                                _fiber.CloseUpvalue();
                             }
 
                             // If the fiber is complete, end it.
-                            if (fiber.NumFrames == 0)
+                            if (_fiber.NumFrames == 0)
                             {
                                 // If this is the main fiber, we're done.
-                                if (fiber.Caller == null)
+                                if (_fiber.Caller == null)
                                     return true;
 
                                 // We have a calling fiber to resume.
-                                fiber = fiber.Caller;
-                                stack = fiber.Stack;
+                                _fiber = _fiber.Caller;
+                                stack = _fiber.Stack;
                                 // Store the result in the resuming fiber.
-                                stack[fiber.StackTop - 1] = result;
+                                stack[_fiber.StackTop - 1] = result;
                             }
                             else
                             {
                                 // Discard the stack slots for the call frame (leaving one slot for the result).
-                                fiber.StackTop = stackStart + 1;
+                                _fiber.StackTop = stackStart + 1;
 
                                 // Store the result of the block in the first slot, which is where the
                                 // caller expects it.
@@ -640,10 +640,10 @@ namespace Wren.Core.VM
                             }
 
                             /* Load Frame */
-                            frame = fiber.Frames[fiber.NumFrames - 1];
-                            ip = frame.ip;
+                            frame = _fiber.Frames[_fiber.NumFrames - 1];
+                            ip = frame.Ip;
                             stackStart = frame.StackStart;
-                            fn = frame.fn as ObjFn ?? (frame.fn as ObjClosure).Function;
+                            fn = frame.Fn as ObjFn ?? (frame.Fn as ObjClosure).Function;
                             bytecode = fn.Bytecode;
                             break;
                         }
@@ -656,9 +656,9 @@ namespace Wren.Core.VM
                             // Create the closure and push it on the stack before creating upvalues
                             // so that it doesn't get collected.
                             ObjClosure closure = new ObjClosure(prototype);
-                            if (fiber.StackTop >= fiber.Capacity)
-                                stack = fiber.IncreaseStack();
-                            stack[fiber.StackTop++] = new Value(closure);
+                            if (_fiber.StackTop >= _fiber.Capacity)
+                                stack = _fiber.IncreaseStack();
+                            stack[_fiber.StackTop++] = new Value(closure);
 
                             // Capture upvalues.
                             for (int i = 0; i < prototype.NumUpvalues; i++)
@@ -668,12 +668,12 @@ namespace Wren.Core.VM
                                 if (isLocal > 0)
                                 {
                                     // Make an new upvalue to close over the parent's local variable.
-                                    closure.Upvalues[i] = fiber.CaptureUpvalue(stack[stackStart + index]);
+                                    closure.Upvalues[i] = _fiber.CaptureUpvalue(stack[stackStart + index]);
                                 }
                                 else
                                 {
                                     // Use the same upvalue as the current call frame.
-                                    closure.Upvalues[i] = ((ObjClosure)frame.fn).Upvalues[index];
+                                    closure.Upvalues[i] = ((ObjClosure)frame.Fn).Upvalues[index];
                                 }
                             }
 
@@ -682,22 +682,22 @@ namespace Wren.Core.VM
 
                     case Instruction.CLASS:
                         {
-                            Value name = stack[fiber.StackTop - 2];
-                            ObjClass superclass = stack[fiber.StackTop - 1].Obj as ObjClass;
+                            Value name = stack[_fiber.StackTop - 2];
+                            ObjClass superclass = stack[_fiber.StackTop - 1].Obj as ObjClass;
 
-                            Value error = ValidateSuperclass(name, stack[fiber.StackTop - 1]);
+                            Value error = ValidateSuperclass(name, stack[_fiber.StackTop - 1]);
                             if (error != null)
                             {
-                                frame.ip = ip;
-                                RUNTIME_ERROR(fiber, error);
-                                if (fiber == null)
+                                frame.Ip = ip;
+                                RUNTIME_ERROR(_fiber, error);
+                                if (_fiber == null)
                                     return false;
                                 /* Load Frame */
-                                frame = fiber.Frames[fiber.NumFrames - 1];
-                                ip = frame.ip;
+                                frame = _fiber.Frames[_fiber.NumFrames - 1];
+                                ip = frame.Ip;
                                 stackStart = frame.StackStart;
-                                stack = fiber.Stack;
-                                fn = (frame.fn as ObjFn) ?? (frame.fn as ObjClosure).Function;
+                                stack = _fiber.Stack;
+                                fn = (frame.Fn as ObjFn) ?? (frame.Fn as ObjClosure).Function;
                                 bytecode = fn.Bytecode;
                                 break;
                             }
@@ -708,28 +708,28 @@ namespace Wren.Core.VM
 
                             // Don't pop the superclass and name off the stack until the subclass is
                             // done being created, to make sure it doesn't get collected.
-                            fiber.StackTop -= 2;
+                            _fiber.StackTop -= 2;
 
                             // Now that we know the total number of fields, make sure we don't overflow.
-                            if (superclass.NumFields + numFields > Compiler.MAX_FIELDS)
+                            if (superclass.NumFields + numFields > Compiler.MaxFields)
                             {
-                                frame.ip = ip;
-                                RUNTIME_ERROR(fiber, new Value(string.Format("Class '{0}' may not have more than 255 fields, including inherited ones.", name.Obj)));
-                                if (fiber == null)
+                                frame.Ip = ip;
+                                RUNTIME_ERROR(_fiber, new Value(string.Format("Class '{0}' may not have more than 255 fields, including inherited ones.", name.Obj)));
+                                if (_fiber == null)
                                     return false;
                                 /* Load Frame */
-                                frame = fiber.Frames[fiber.NumFrames - 1];
-                                ip = frame.ip;
+                                frame = _fiber.Frames[_fiber.NumFrames - 1];
+                                ip = frame.Ip;
                                 stackStart = frame.StackStart;
-                                stack = fiber.Stack;
-                                fn = (frame.fn as ObjFn) ?? (frame.fn as ObjClosure).Function;
+                                stack = _fiber.Stack;
+                                fn = (frame.Fn as ObjFn) ?? (frame.Fn as ObjClosure).Function;
                                 bytecode = fn.Bytecode;
                                 break;
                             }
 
-                            if (fiber.StackTop >= fiber.Capacity)
-                                stack = fiber.IncreaseStack();
-                            stack[fiber.StackTop++] = classObj;
+                            if (_fiber.StackTop >= _fiber.Capacity)
+                                stack = _fiber.IncreaseStack();
+                            stack[_fiber.StackTop++] = classObj;
                             break;
                         }
 
@@ -738,26 +738,26 @@ namespace Wren.Core.VM
                         {
                             int symbol = (bytecode[ip] << 8) + bytecode[ip + 1];
                             ip += 2;
-                            ObjClass classObj = stack[fiber.StackTop - 1].Obj as ObjClass;
-                            Value method = stack[fiber.StackTop - 2];
+                            ObjClass classObj = stack[_fiber.StackTop - 1].Obj as ObjClass;
+                            Value method = stack[_fiber.StackTop - 2];
                             MethodType methodType = instruction == Instruction.METHOD_INSTANCE ? MethodType.None : MethodType.Static;
                             Value error = BindMethod(methodType, symbol, classObj, method);
                             if ((error.Obj is ObjString))
                             {
-                                frame.ip = ip;
-                                RUNTIME_ERROR(fiber, error);
-                                if (fiber == null)
+                                frame.Ip = ip;
+                                RUNTIME_ERROR(_fiber, error);
+                                if (_fiber == null)
                                     return false;
                                 /* Load Frame */
-                                frame = fiber.Frames[fiber.NumFrames - 1];
-                                ip = frame.ip;
+                                frame = _fiber.Frames[_fiber.NumFrames - 1];
+                                ip = frame.Ip;
                                 stackStart = frame.StackStart;
-                                stack = fiber.Stack;
-                                fn = (frame.fn as ObjFn) ?? (frame.fn as ObjClosure).Function;
+                                stack = _fiber.Stack;
+                                fn = (frame.Fn as ObjFn) ?? (frame.Fn as ObjClosure).Function;
                                 bytecode = fn.Bytecode;
                                 break;
                             }
-                            fiber.StackTop -= 2;
+                            _fiber.StackTop -= 2;
                             break;
                         }
 
@@ -770,16 +770,16 @@ namespace Wren.Core.VM
                             // If it returned a string, it was an error message.
                             if ((result.Obj is ObjString))
                             {
-                                frame.ip = ip;
-                                RUNTIME_ERROR(fiber, result);
-                                if (fiber == null)
+                                frame.Ip = ip;
+                                RUNTIME_ERROR(_fiber, result);
+                                if (_fiber == null)
                                     return false;
                                 /* Load Frame */
-                                frame = fiber.Frames[fiber.NumFrames - 1];
-                                ip = frame.ip;
+                                frame = _fiber.Frames[_fiber.NumFrames - 1];
+                                ip = frame.Ip;
                                 stackStart = frame.StackStart;
-                                stack = fiber.Stack;
-                                fn = (frame.fn as ObjFn) ?? (frame.fn as ObjClosure).Function;
+                                stack = _fiber.Stack;
+                                fn = (frame.Fn as ObjFn) ?? (frame.Fn as ObjClosure).Function;
                                 bytecode = fn.Bytecode;
                                 break;
                             }
@@ -787,24 +787,24 @@ namespace Wren.Core.VM
                             // Make a slot that the module's fiber can use to store its result in.
                             // It ends up getting discarded, but CODE_RETURN expects to be able to
                             // place a value there.
-                            if (fiber.StackTop >= fiber.Capacity)
-                                stack = fiber.IncreaseStack();
-                            stack[fiber.StackTop++] = Value.Null;
+                            if (_fiber.StackTop >= _fiber.Capacity)
+                                stack = _fiber.IncreaseStack();
+                            stack[_fiber.StackTop++] = Value.Null;
 
                             // If it returned a fiber to execute the module body, switch to it.
                             if (result.Obj is ObjFiber)
                             {
                                 // Return to this module when that one is done.
-                                (result.Obj as ObjFiber).Caller = fiber;
+                                (result.Obj as ObjFiber).Caller = _fiber;
 
-                                frame.ip = ip;
-                                fiber = (result.Obj as ObjFiber);
+                                frame.Ip = ip;
+                                _fiber = (result.Obj as ObjFiber);
                                 /* Load Frame */
-                                frame = fiber.Frames[fiber.NumFrames - 1];
-                                ip = frame.ip;
+                                frame = _fiber.Frames[_fiber.NumFrames - 1];
+                                ip = frame.Ip;
                                 stackStart = frame.StackStart;
-                                stack = fiber.Stack;
-                                fn = (frame.fn as ObjFn) ?? (frame.fn as ObjClosure).Function;
+                                stack = _fiber.Stack;
+                                fn = (frame.Fn as ObjFn) ?? (frame.Fn as ObjClosure).Function;
                                 bytecode = fn.Bytecode;
                             }
 
@@ -820,22 +820,22 @@ namespace Wren.Core.VM
                             Value result;
                             if (ImportVariable(module, variable, out result))
                             {
-                                if (fiber.StackTop >= fiber.Capacity)
-                                    stack = fiber.IncreaseStack();
-                                stack[fiber.StackTop++] = result;
+                                if (_fiber.StackTop >= _fiber.Capacity)
+                                    stack = _fiber.IncreaseStack();
+                                stack[_fiber.StackTop++] = result;
                             }
                             else
                             {
-                                frame.ip = ip;
-                                RUNTIME_ERROR(fiber, result);
-                                if (fiber == null)
+                                frame.Ip = ip;
+                                RUNTIME_ERROR(_fiber, result);
+                                if (_fiber == null)
                                     return false;
                                 /* Load Frame */
-                                frame = fiber.Frames[fiber.NumFrames - 1];
-                                ip = frame.ip;
+                                frame = _fiber.Frames[_fiber.NumFrames - 1];
+                                ip = frame.Ip;
                                 stackStart = frame.StackStart;
-                                stack = fiber.Stack;
-                                fn = (frame.fn as ObjFn) ?? (frame.fn as ObjClosure).Function;
+                                stack = _fiber.Stack;
+                                fn = (frame.Fn as ObjFn) ?? (frame.Fn as ObjClosure).Function;
                                 bytecode = fn.Bytecode;
                             }
                             break;
@@ -843,19 +843,19 @@ namespace Wren.Core.VM
 
                     case Instruction.CONSTRUCT:
                         {
-                            int stackPosition = fiber.StackTop - 1 + (Instruction.CALL_0 - (Instruction)bytecode[ip]);
+                            int stackPosition = _fiber.StackTop - 1 + (Instruction.CALL_0 - (Instruction)bytecode[ip]);
                             ObjClass v = stack[stackPosition].Obj as ObjClass;
                             if (v == null)
                             {
-                                RUNTIME_ERROR(fiber, new Value("'this' should be a class."));
-                                if (fiber == null)
+                                RUNTIME_ERROR(_fiber, new Value("'this' should be a class."));
+                                if (_fiber == null)
                                     return false;
                                 /* Load Frame */
-                                frame = fiber.Frames[fiber.NumFrames - 1];
-                                ip = frame.ip;
+                                frame = _fiber.Frames[_fiber.NumFrames - 1];
+                                ip = frame.Ip;
                                 stackStart = frame.StackStart;
-                                stack = fiber.Stack;
-                                fn = (frame.fn as ObjFn) ?? (frame.fn as ObjClosure).Function;
+                                stack = _fiber.Stack;
+                                fn = (frame.Fn as ObjFn) ?? (frame.Fn as ObjClosure).Function;
                                 bytecode = fn.Bytecode;
                                 break;
                             }
@@ -890,7 +890,7 @@ namespace Wren.Core.VM
             ObjFn fn = Compiler.Compile(this, coreModule, "", source, true);
             if (fn == null) return InterpretResult.CompileError;
 
-            fiber = new ObjFiber(fn);
+            _fiber = new ObjFiber(fn);
 
             return RunInterpreter() ? InterpretResult.Success : InterpretResult.RuntimeError;
         }
@@ -908,7 +908,7 @@ namespace Wren.Core.VM
                 return InterpretResult.CompileError;
             }
 
-            fiber = f;
+            _fiber = f;
 
             bool succeeded = RunInterpreter();
 
@@ -925,7 +925,7 @@ namespace Wren.Core.VM
         internal int DeclareVariable(ObjModule module, string name)
         {
             if (module == null) module = GetCoreModule();
-            if (module.Variables.Count == ObjModule.MAX_MODULE_VARS) return -2;
+            if (module.Variables.Count == ObjModule.MaxModuleVars) return -2;
 
             module.Variables.Add(new ModuleVariable { Name = name, Container = new Value() });
             return module.Variables.Count - 1;
@@ -934,7 +934,7 @@ namespace Wren.Core.VM
         internal int DefineVariable(ObjModule module, string name, Value c)
         {
             if (module == null) module = GetCoreModule();
-            if (module.Variables.Count == ObjModule.MAX_MODULE_VARS) return -2;
+            if (module.Variables.Count == ObjModule.MaxModuleVars) return -2;
 
             // See if the variable is already explicitly or implicitly declared.
             int symbol = module.Variables.FindIndex(m => m.Name == name);
@@ -971,11 +971,11 @@ namespace Wren.Core.VM
             if (f.CallerIsTrying)
             {
                 f.Caller.SetReturnValue(v);
-                fiber = f.Caller;
+                _fiber = f.Caller;
                 f.Error = v.Obj as ObjString;
                 return;
             }
-            fiber = null;
+            _fiber = null;
 
             // TODO: Fix this so that there is no dependancy on the console
             if (v == null || v.Obj == null || !(v.Obj is ObjString))
@@ -995,7 +995,7 @@ namespace Wren.Core.VM
             }
             int symbol = MethodNames.IndexOf(s);
 
-            Method m = new Method { primitive = func, mType = MethodType.Primitive };
+            Method m = new Method { Primitive = func, MType = MethodType.Primitive };
             objClass.BindMethod(symbol, m);
         }
 
