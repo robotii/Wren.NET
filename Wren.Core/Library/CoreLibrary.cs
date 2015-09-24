@@ -11,7 +11,6 @@ namespace Wren.Core.Library
     {
         private readonly WrenVM _vm;
 
-        // This string literal is generated automatically from core. Do not edit.
         private const string CoreLibSource =
             "class Bool {}\n"
             + "class Fiber {}\n"
@@ -635,7 +634,7 @@ namespace Wren.Core.Library
 
         static PrimitiveResult prim_list_instantiate(WrenVM vm, ObjFiber fiber, Value[] args)
         {
-            args[0] = new Value(new ObjList(0));
+            args[0] = new Value(new ObjList(16));
             return PrimitiveResult.Value;
         }
 
@@ -733,16 +732,16 @@ namespace Wren.Core.Library
                 {
                     if (!(index < 0) && !(index >= list.Count() - 1))
                     {
+                        // Move to the next index.
                         args[0] = new Value(index + 1);
                         return PrimitiveResult.Value;
                     }
 
-                    // Otherwise, move to the next index.
+                    // Stop if we're out of bounds.
                     args[0] = new Value(false);
                     return PrimitiveResult.Value;
                 }
 
-                // Stop if we're out of bounds.
                 args[0] = new Value("Iterator must be an integer.");
                 return PrimitiveResult.Error;
             }
@@ -1380,7 +1379,7 @@ namespace Wren.Core.Library
         {
             if (args[1].Type == ValueType.Num)
             {
-                args[0] = new Value(args[0].Num == (args[1].Num));
+                args[0] = new Value(args[0].Num == args[1].Num);
                 return PrimitiveResult.Value;
             }
 
@@ -1517,13 +1516,6 @@ namespace Wren.Core.Library
 
             args[0] = new Value("Right operand must be a class.");
             return PrimitiveResult.Error;
-        }
-
-        static PrimitiveResult prim_object_new(WrenVM vm, ObjFiber fiber, Value[] args)
-        {
-            // This is the default argument-less constructor that all objects inherit.
-            // It just returns "this".
-            return PrimitiveResult.Value;
         }
 
         static PrimitiveResult prim_object_toString(WrenVM vm, ObjFiber fiber, Value[] args)
@@ -2111,7 +2103,6 @@ namespace Wren.Core.Library
             _vm.Primitive(WrenVM.ObjectClass, "!", prim_object_not);
             _vm.Primitive(WrenVM.ObjectClass, "==(_)", prim_object_eqeq);
             _vm.Primitive(WrenVM.ObjectClass, "!=(_)", prim_object_bangeq);
-            _vm.Primitive(WrenVM.ObjectClass, "init new()", prim_object_new);
             _vm.Primitive(WrenVM.ObjectClass, "is(_)", prim_object_is);
             _vm.Primitive(WrenVM.ObjectClass, "toString", prim_object_toString);
             _vm.Primitive(WrenVM.ObjectClass, "type", prim_object_type);
