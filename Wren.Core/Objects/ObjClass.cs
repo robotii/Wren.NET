@@ -90,48 +90,4 @@ namespace Wren.Core.Objects
         }
     }
 
-    public enum PrimitiveResult
-    {
-        // A normal value has been returned.
-        Value,
-
-        // A runtime error occurred.
-        Error,
-
-        // A new callframe has been pushed.
-        Call,
-
-        // A fiber is being switched to.
-        RunFiber
-
-    };
-
-    public delegate PrimitiveResult Primitive(WrenVM vm, ObjFiber fiber, Value[] args);
-
-    public enum MethodType
-    {
-        // A primitive method implemented in the VM.
-        // this can directly manipulate the fiber's stack.
-        Primitive,
-
-        // A normal user-defined method.
-        Block,
-
-        // No method for the given symbol.
-        None,
-
-        Static
-    };
-
-    public class Method : Obj
-    {
-        public MethodType MType;
-
-        // The method function itself. The [type] determines which field of the union
-        // is used.
-        public Primitive Primitive;
-
-        // May be a [ObjFn] or [ObjClosure].
-        public Obj Obj;
-    } ;
 }

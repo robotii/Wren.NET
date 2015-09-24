@@ -8,6 +8,51 @@ namespace Wren.Core.VM
 {
     public delegate string WrenLoadModuleFn(string name);
 
+    public delegate PrimitiveResult Primitive(WrenVM vm, ObjFiber fiber, Value[] args);
+
+    public enum MethodType
+    {
+        // A primitive method implemented in the VM.
+        // this can directly manipulate the fiber's stack.
+        Primitive,
+
+        // A normal user-defined method.
+        Block,
+
+        // No method for the given symbol.
+        None,
+
+        Static
+    };
+
+    public enum PrimitiveResult
+    {
+        // A normal value has been returned.
+        Value,
+
+        // A runtime error occurred.
+        Error,
+
+        // A new callframe has been pushed.
+        Call,
+
+        // A fiber is being switched to.
+        RunFiber
+
+    };
+
+    public class Method : Obj
+    {
+        public MethodType MType;
+
+        // The method function itself. The [type] determines which field of the union
+        // is used.
+        public Primitive Primitive;
+
+        // May be a [ObjFn] or [ObjClosure].
+        public Obj Obj;
+    } ;
+
     public enum InterpretResult
     {
         Success = 0,
