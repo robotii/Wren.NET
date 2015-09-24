@@ -9,8 +9,10 @@ namespace Wren.Core.Objects
         public const int MaxModuleVars = 65536;
 
         // The currently defined top-level variables.
+        public List<ModuleVariable> Variables;
 
         // The name of the module.
+        public ObjString Name;
 
         // Creates a new module.
         public ObjModule(ObjString name)
@@ -18,10 +20,6 @@ namespace Wren.Core.Objects
             Name = name;
             Variables = new List<ModuleVariable>();
         }
-
-        public List<ModuleVariable> Variables;
-
-        public ObjString Name;
     }
 
     public class ModuleVariable
