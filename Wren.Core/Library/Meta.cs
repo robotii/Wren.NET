@@ -43,9 +43,9 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        public static void LoadMetaLibrary(WrenVM vm)
+        public static void LoadLibrary(WrenVM vm)
         {
-            vm.Interpret("", MetaLibSource);
+            vm.Interpret("", "", MetaLibSource);
 
             ObjClass meta = (ObjClass)vm.FindVariable("Meta").Obj;
             vm.Primitive(meta.ClassObj, "eval(_)", Eval);

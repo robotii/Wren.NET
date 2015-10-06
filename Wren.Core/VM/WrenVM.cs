@@ -94,7 +94,7 @@ namespace Wren.Core.VM
             core.InitializeCore();
 
             // Load in System functions
-            Meta.LoadMetaLibrary(this);
+            Meta.LoadLibrary(this);
         }
 
         public List<string> MethodNames;
@@ -106,6 +106,10 @@ namespace Wren.Core.VM
         // Defines [methodValue] as a method on [classObj].
         private static Value BindMethod(MethodType methodType, int symbol, ObjClass classObj, Value methodContainer)
         {
+            // If we are binding a foreign method, just return, as this will be handled later
+            if (methodContainer.Obj is ObjString)
+                return new Value(ValueType.Null);
+
             ObjFn methodFn = methodContainer.Obj as ObjFn ?? ((ObjClosure)methodContainer.Obj).Function;
 
             Method method = new Method { MType = MethodType.Block, Obj = methodContainer.Obj };
@@ -135,6 +139,17 @@ namespace Wren.Core.VM
         {
             Value moduleContainer = _modules.Get(name);
             return moduleContainer.Type == ValueType.Undefined ? null : moduleContainer.Obj as ObjModule;
+        }
+
+        private ObjModule GetModuleByName(string name)
+        {
+            for (int i = 1; i < _modules.Count();i++)
+            {
+                Obj v = _modules.GetKey(i).Obj;
+                if (v as ObjString != null && (v as ObjString).Value == name)
+                    return _modules.Get(i).Obj as ObjModule;
+            }
+            return null;
         }
 
         // Looks up the core module in the module map.
@@ -939,12 +954,12 @@ namespace Wren.Core.VM
             return RunInterpreter() ? InterpretResult.Success : InterpretResult.RuntimeError;
         }
 
-        public InterpretResult Interpret(string sourcePath, string source)
+        public InterpretResult Interpret(string moduleName, string sourcePath, string source)
         {
             if (sourcePath.Length == 0) return LoadIntoCore(source);
 
             // TODO: Better module name.
-            Value name = new Value("main");
+            Value name = new Value(moduleName);
 
             ObjFiber f = LoadModule(name, source);
             if (f == null)
@@ -964,6 +979,15 @@ namespace Wren.Core.VM
             ObjModule coreModule = GetCoreModule();
             int symbol = coreModule.Variables.FindIndex(v => v.Name == name);
             return coreModule.Variables[symbol].Container;
+        }
+
+        public Value FindVariable(string moduleName, string name)
+        {
+            ObjModule m = GetModuleByName(moduleName);
+            if(m == null)
+                return new Value();
+            int symbol = m.Variables.FindIndex(v => v.Name == name);
+            return m.Variables[symbol].Container;
         }
 
         internal int DeclareVariable(ObjModule module, string name)

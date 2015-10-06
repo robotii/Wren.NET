@@ -2171,7 +2171,7 @@ namespace Wren.Core.Library
             //   '---------'   '-------------------'            -'
 
             // The rest of the classes can now be defined normally.
-            _vm.Interpret("", CoreLibSource);
+            _vm.Interpret("", "", CoreLibSource);
 
             WrenVM.BoolClass = (ObjClass)_vm.FindVariable("Bool").Obj;
             _vm.Primitive(WrenVM.BoolClass, "toString", prim_bool_toString);

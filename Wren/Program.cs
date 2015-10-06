@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Wren.Core.Library;
 using Wren.Core.VM;
 
 namespace Wren
@@ -32,7 +33,8 @@ namespace Wren
                 _loadedFile = path;
                 string source = File.ReadAllText(path);
                 WrenVM vm = new WrenVM { LoadModuleFn = LoadModule };
-                return (int)vm.Interpret(path, source);
+                LibraryLoader.LoadLibraries(vm);
+                return (int)vm.Interpret("main", path, source);
             }
             return 66; // File Not Found
         }
@@ -40,6 +42,7 @@ namespace Wren
         static void RunRepl()
         {
             WrenVM vm = new WrenVM();
+            LibraryLoader.LoadLibraries(vm);
 
             Console.WriteLine("-- wren v0.0.0");
 
@@ -51,7 +54,7 @@ namespace Wren
                 line = Console.ReadLine();
 
                 // TODO: Handle failure.
-                vm.Interpret("Prompt", line);
+                vm.Interpret("Prompt","Prompt", line);
             }
         }
 

@@ -37,6 +37,7 @@
     <Compile Include="Bytecode\Compiler.cs" />
     <Compile Include="Library\CoreLibrary.cs" />
     <Compile Include="Library\Meta.cs" />
+    <Compile Include="Library\LoadLibrary.cs" />
     <Compile Include="Objects\Obj.cs" />
     <Compile Include="Objects\ObjClass.cs" />
     <Compile Include="Objects\ObjClosure.cs" />

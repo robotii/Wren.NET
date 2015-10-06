@@ -4,16 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{2A114B79-6315-49CE-BB90-4ABFEA825682}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{BEF1B2A8-5BAA-4CD4-BEF5-7813E72B8A98}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Wren</RootNamespace>
-    <AssemblyName>Wren</AssemblyName>
+    <RootNamespace>WrenLibrary</RootNamespace>
+    <AssemblyName>WrenLibrary</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -23,7 +22,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -34,19 +32,23 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
+    <Compile Include="io.cs" />
+    <Compile Include="Scheduler.cs" />
+    <Compile Include="Timer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WrenLibrary.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Wren.Core\Wren.Core.csproj">
-      <Project>{5a0c9e57-79bc-4af6-8dd2-01841252813e}</Project>
+      <Project>{5A0C9E57-79BC-4AF6-8DD2-01841252813E}</Project>
       <Name>Wren.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\WrenLibrary\WrenLibrary.csproj">
-      <Project>{bef1b2a8-5baa-4cd4-bef5-7813e72b8a98}</Project>
-      <Name>WrenLibrary</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
