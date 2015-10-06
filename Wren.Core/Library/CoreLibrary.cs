@@ -328,8 +328,7 @@ namespace Wren.Core.Library
 
         static PrimitiveResult prim_fiber_abort(WrenVM vm, Value[] args)
         {
-            Obj o = args[1].Obj;
-            args[0] = o is ObjString ? args[1] : new Value("Error message must be a string.");
+            args[0] = args[1];
             return PrimitiveResult.Error;
         }
 
@@ -412,6 +411,12 @@ namespace Wren.Core.Library
             return PrimitiveResult.Value;
         }
 
+        static PrimitiveResult prim_fiber_suspend(WrenVM vm, Value[] args)
+        {
+            args[0] = new Value(ValueType.Null);
+            return PrimitiveResult.RunFiber;
+        }
+
         static PrimitiveResult prim_fiber_error(WrenVM vm, Value[] args)
         {
             ObjFiber runFiber = (ObjFiber)args[0].Obj;
@@ -426,7 +431,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_fiber_run(WrenVM vm, Value[] args)
+        static PrimitiveResult prim_fiber_transfer(WrenVM vm, Value[] args)
         {
             ObjFiber runFiber = (ObjFiber)args[0].Obj;
 
@@ -452,7 +457,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_fiber_run1(WrenVM vm, Value[] args)
+        static PrimitiveResult prim_fiber_transfer1(WrenVM vm, Value[] args)
         {
             ObjFiber runFiber = (ObjFiber)args[0].Obj;
 
@@ -2176,14 +2181,15 @@ namespace Wren.Core.Library
             _vm.Primitive(WrenVM.FiberClass.ClassObj, "new(_)", prim_fiber_new);
             _vm.Primitive(WrenVM.FiberClass.ClassObj, "abort(_)", prim_fiber_abort);
             _vm.Primitive(WrenVM.FiberClass.ClassObj, "current", prim_fiber_current);
+            _vm.Primitive(WrenVM.FiberClass.ClassObj, "suspend()", prim_fiber_suspend);
             _vm.Primitive(WrenVM.FiberClass.ClassObj, "yield()", prim_fiber_yield);
             _vm.Primitive(WrenVM.FiberClass.ClassObj, "yield(_)", prim_fiber_yield1);
             _vm.Primitive(WrenVM.FiberClass, "call()", prim_fiber_call);
             _vm.Primitive(WrenVM.FiberClass, "call(_)", prim_fiber_call1);
             _vm.Primitive(WrenVM.FiberClass, "error", prim_fiber_error);
             _vm.Primitive(WrenVM.FiberClass, "isDone", prim_fiber_isDone);
-            _vm.Primitive(WrenVM.FiberClass, "run()", prim_fiber_run);
-            _vm.Primitive(WrenVM.FiberClass, "run(_)", prim_fiber_run1);
+            _vm.Primitive(WrenVM.FiberClass, "transfer()", prim_fiber_transfer);
+            _vm.Primitive(WrenVM.FiberClass, "transfer(_)", prim_fiber_transfer1);
             _vm.Primitive(WrenVM.FiberClass, "try()", prim_fiber_try);
 
             WrenVM.FnClass = (ObjClass)_vm.FindVariable("Fn").Obj;
