@@ -3085,11 +3085,15 @@ namespace Wren.Core.Bytecode
         // like the non-curly body of an if or while.
         private void Definition()
         {
+            bool isForeign = Match(TokenType.Foreign);
+
             if (Match(TokenType.Class))
             {
-                ClassDefinition(false);
+                ClassDefinition(isForeign);
                 return;
             }
+
+            // TODO: Disallow foreign to be used outside a class
 
             if (Match(TokenType.Import))
             {
