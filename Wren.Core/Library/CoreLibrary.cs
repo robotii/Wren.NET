@@ -1448,6 +1448,19 @@ namespace Wren.Core.Library
             return PrimitiveResult.Value;
         }
 
+        static PrimitiveResult prim_num_isInfinity(WrenVM vm, Value[] args)
+        {
+            args[0] = new Value(double.IsInfinity(args[0].Num));
+            return PrimitiveResult.Value;
+        }
+
+        static PrimitiveResult prim_num_isInteger(WrenVM vm, Value[] args)
+        {
+            double v = args[0].Num;
+            args[0] = new Value(!double.IsNaN(v) && !double.IsInfinity(v) && v == Math.Truncate(v));
+            return PrimitiveResult.Value;
+        }
+
         static PrimitiveResult prim_num_sign(WrenVM vm, Value[] args)
         {
             double value = args[0].Num;
@@ -2234,6 +2247,8 @@ namespace Wren.Core.Library
             _vm.Primitive(WrenVM.NumClass, "atan(_)", prim_num_atan2);
             _vm.Primitive(WrenVM.NumClass, "fraction", prim_num_fraction);
             _vm.Primitive(WrenVM.NumClass, "isNan", prim_num_isNan);
+            _vm.Primitive(WrenVM.NumClass, "isInfinity", prim_num_isInfinity);
+            _vm.Primitive(WrenVM.NumClass, "isInteger", prim_num_isInteger);
             _vm.Primitive(WrenVM.NumClass, "sign", prim_num_sign);
             _vm.Primitive(WrenVM.NumClass, "toString", prim_num_toString);
             _vm.Primitive(WrenVM.NumClass, "truncate", prim_num_truncate);
