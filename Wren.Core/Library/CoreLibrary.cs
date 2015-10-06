@@ -265,13 +265,13 @@ namespace Wren.Core.Library
 
         private static readonly Regex CheckDouble = new Regex(@"^(0[0-7]*|((?!0)|[-+]|(?=0+\.))(\d*\.)?\d+([eE]([-+])?\d+)?)$");
 
-        static PrimitiveResult prim_bool_not(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_bool_not(WrenVM vm, Value[] args)
         {
             args[0] = new Value(args[0].Type != ValueType.True);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_bool_toString(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_bool_toString(WrenVM vm, Value[] args)
         {
             if (args[0].Type == ValueType.True)
             {
@@ -284,13 +284,13 @@ namespace Wren.Core.Library
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_class_name(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_class_name(WrenVM vm, Value[] args)
         {
             args[0] = new Value(((ObjClass)args[0].Obj).Name);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_class_supertype(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_class_supertype(WrenVM vm, Value[] args)
         {
             ObjClass classObj = (ObjClass)args[0].Obj;
 
@@ -306,7 +306,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_fiber_new(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_fiber_new(WrenVM vm, Value[] args)
         {
             Obj o = args[1].Obj;
             if (o is ObjFn || o is ObjClosure)
@@ -326,14 +326,14 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_fiber_abort(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_fiber_abort(WrenVM vm, Value[] args)
         {
             Obj o = args[1].Obj;
             args[0] = o is ObjString ? args[1] : new Value("Error message must be a string.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_fiber_call(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_fiber_call(WrenVM vm, Value[] args)
         {
             ObjFiber runFiber = args[0].Obj as ObjFiber;
 
@@ -344,7 +344,7 @@ namespace Wren.Core.Library
                     if (runFiber.Caller == null)
                     {
                         // Remember who ran it.
-                        runFiber.Caller = fiber;
+                        runFiber.Caller = vm.Fiber;
 
                         // If the fiber was yielded, make the yield call return null.
                         if (runFiber.StackTop > 0)
@@ -366,7 +366,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_fiber_call1(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_fiber_call1(WrenVM vm, Value[] args)
         {
             ObjFiber runFiber = args[0].Obj as ObjFiber;
 
@@ -377,7 +377,7 @@ namespace Wren.Core.Library
                     if (runFiber.Caller == null)
                     {
                         // Remember who ran it.
-                        runFiber.Caller = fiber;
+                        runFiber.Caller = vm.Fiber;
 
                         // If the fiber was yielded, make the yield call return the value passed to
                         // run.
@@ -390,7 +390,7 @@ namespace Wren.Core.Library
                         // in its stack. Since fiber.run(value) has two arguments (the fiber and the
                         // value) and we only need one slot for the result, discard the other slot
                         // now.
-                        fiber.StackTop--;
+                        vm.Fiber.StackTop--;
 
                         return PrimitiveResult.RunFiber;
                     }
@@ -406,27 +406,27 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_fiber_current(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_fiber_current(WrenVM vm, Value[] args)
         {
-            args[0] = new Value(fiber);
+            args[0] = new Value(vm.Fiber);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_fiber_error(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_fiber_error(WrenVM vm, Value[] args)
         {
             ObjFiber runFiber = (ObjFiber)args[0].Obj;
             args[0] = runFiber.Error == null ? new Value(ValueType.Null) : new Value(runFiber.Error);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_fiber_isDone(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_fiber_isDone(WrenVM vm, Value[] args)
         {
             ObjFiber runFiber = (ObjFiber)args[0].Obj;
             args[0] = new Value(runFiber.NumFrames == 0 || runFiber.Error != null);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_fiber_run(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_fiber_run(WrenVM vm, Value[] args)
         {
             ObjFiber runFiber = (ObjFiber)args[0].Obj;
 
@@ -442,7 +442,7 @@ namespace Wren.Core.Library
                 // elimination. The switched-from fiber is discarded and when the switched
                 // to fiber completes or yields, control passes to the switched-from fiber's
                 // caller.
-                runFiber.Caller = fiber.Caller;
+                runFiber.Caller = vm.Fiber.Caller;
 
                 return PrimitiveResult.RunFiber;
             }
@@ -452,7 +452,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_fiber_run1(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_fiber_run1(WrenVM vm, Value[] args)
         {
             ObjFiber runFiber = (ObjFiber)args[0].Obj;
 
@@ -468,7 +468,7 @@ namespace Wren.Core.Library
                 // elimination. The switched-from fiber is discarded and when the switched
                 // to fiber completes or yields, control passes to the switched-from fiber's
                 // caller.
-                runFiber.Caller = fiber.Caller;
+                runFiber.Caller = vm.Fiber.Caller;
 
                 return PrimitiveResult.RunFiber;
             }
@@ -479,7 +479,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_fiber_try(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_fiber_try(WrenVM vm, Value[] args)
         {
             ObjFiber runFiber = (ObjFiber)args[0].Obj;
 
@@ -487,7 +487,7 @@ namespace Wren.Core.Library
             {
                 if (runFiber.Caller == null)
                 {
-                    runFiber.Caller = fiber;
+                    runFiber.Caller = vm.Fiber;
                     runFiber.CallerIsTrying = true;
 
                     // If the fiber was yielded, make the yield call return null.
@@ -507,12 +507,12 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_fiber_yield(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_fiber_yield(WrenVM vm, Value[] args)
         {
             // Unhook this fiber from the one that called it.
-            ObjFiber caller = fiber.Caller;
-            fiber.Caller = null;
-            fiber.CallerIsTrying = false;
+            ObjFiber caller = vm.Fiber.Caller;
+            vm.Fiber.Caller = null;
+            vm.Fiber.CallerIsTrying = false;
 
             // If we don't have any other pending fibers, jump all the way out of the
             // interpreter.
@@ -532,12 +532,12 @@ namespace Wren.Core.Library
             return PrimitiveResult.RunFiber;
         }
 
-        static PrimitiveResult prim_fiber_yield1(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_fiber_yield1(WrenVM vm, Value[] args)
         {
             // Unhook this fiber from the one that called it.
-            ObjFiber caller = fiber.Caller;
-            fiber.Caller = null;
-            fiber.CallerIsTrying = false;
+            ObjFiber caller = vm.Fiber.Caller;
+            vm.Fiber.Caller = null;
+            vm.Fiber.CallerIsTrying = false;
 
             // If we don't have any other pending fibers, jump all the way out of the
             // interpreter.
@@ -554,7 +554,7 @@ namespace Wren.Core.Library
                 // in its stack. Since Fiber.yield(value) has two arguments (the Fiber class
                 // and the value) and we only need one slot for the result, discard the other
                 // slot now.
-                fiber.StackTop--;
+                vm.Fiber.StackTop--;
 
                 // Return the fiber to resume.
                 args[0] = new Value(caller);
@@ -563,7 +563,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.RunFiber;
         }
 
-        static PrimitiveResult prim_fn_new(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_fn_new(WrenVM vm, Value[] args)
         {
             Obj v = args[1].Obj;
             if (v != null && (v is ObjFn || v is ObjClosure))
@@ -577,7 +577,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_fn_arity(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_fn_arity(WrenVM vm, Value[] args)
         {
             ObjFn fn = args[0].Obj as ObjFn;
             args[0] = fn != null ? new Value(fn.Arity) : new Value(0.0);
@@ -608,37 +608,37 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_fn_call0(WrenVM vm, ObjFiber fiber, Value[] args) { return CallFn(args, 0); }
-        static PrimitiveResult prim_fn_call1(WrenVM vm, ObjFiber fiber, Value[] args) { return CallFn(args, 1); }
-        static PrimitiveResult prim_fn_call2(WrenVM vm, ObjFiber fiber, Value[] args) { return CallFn(args, 2); }
-        static PrimitiveResult prim_fn_call3(WrenVM vm, ObjFiber fiber, Value[] args) { return CallFn(args, 3); }
-        static PrimitiveResult prim_fn_call4(WrenVM vm, ObjFiber fiber, Value[] args) { return CallFn(args, 4); }
-        static PrimitiveResult prim_fn_call5(WrenVM vm, ObjFiber fiber, Value[] args) { return CallFn(args, 5); }
-        static PrimitiveResult prim_fn_call6(WrenVM vm, ObjFiber fiber, Value[] args) { return CallFn(args, 6); }
-        static PrimitiveResult prim_fn_call7(WrenVM vm, ObjFiber fiber, Value[] args) { return CallFn(args, 7); }
-        static PrimitiveResult prim_fn_call8(WrenVM vm, ObjFiber fiber, Value[] args) { return CallFn(args, 8); }
-        static PrimitiveResult prim_fn_call9(WrenVM vm, ObjFiber fiber, Value[] args) { return CallFn(args, 9); }
-        static PrimitiveResult prim_fn_call10(WrenVM vm, ObjFiber fiber, Value[] args) { return CallFn(args, 10); }
-        static PrimitiveResult prim_fn_call11(WrenVM vm, ObjFiber fiber, Value[] args) { return CallFn(args, 11); }
-        static PrimitiveResult prim_fn_call12(WrenVM vm, ObjFiber fiber, Value[] args) { return CallFn(args, 12); }
-        static PrimitiveResult prim_fn_call13(WrenVM vm, ObjFiber fiber, Value[] args) { return CallFn(args, 13); }
-        static PrimitiveResult prim_fn_call14(WrenVM vm, ObjFiber fiber, Value[] args) { return CallFn(args, 14); }
-        static PrimitiveResult prim_fn_call15(WrenVM vm, ObjFiber fiber, Value[] args) { return CallFn(args, 15); }
-        static PrimitiveResult prim_fn_call16(WrenVM vm, ObjFiber fiber, Value[] args) { return CallFn(args, 16); }
+        static PrimitiveResult prim_fn_call0(WrenVM vm, Value[] args) { return CallFn(args, 0); }
+        static PrimitiveResult prim_fn_call1(WrenVM vm, Value[] args) { return CallFn(args, 1); }
+        static PrimitiveResult prim_fn_call2(WrenVM vm, Value[] args) { return CallFn(args, 2); }
+        static PrimitiveResult prim_fn_call3(WrenVM vm, Value[] args) { return CallFn(args, 3); }
+        static PrimitiveResult prim_fn_call4(WrenVM vm, Value[] args) { return CallFn(args, 4); }
+        static PrimitiveResult prim_fn_call5(WrenVM vm, Value[] args) { return CallFn(args, 5); }
+        static PrimitiveResult prim_fn_call6(WrenVM vm, Value[] args) { return CallFn(args, 6); }
+        static PrimitiveResult prim_fn_call7(WrenVM vm, Value[] args) { return CallFn(args, 7); }
+        static PrimitiveResult prim_fn_call8(WrenVM vm, Value[] args) { return CallFn(args, 8); }
+        static PrimitiveResult prim_fn_call9(WrenVM vm, Value[] args) { return CallFn(args, 9); }
+        static PrimitiveResult prim_fn_call10(WrenVM vm, Value[] args) { return CallFn(args, 10); }
+        static PrimitiveResult prim_fn_call11(WrenVM vm, Value[] args) { return CallFn(args, 11); }
+        static PrimitiveResult prim_fn_call12(WrenVM vm, Value[] args) { return CallFn(args, 12); }
+        static PrimitiveResult prim_fn_call13(WrenVM vm, Value[] args) { return CallFn(args, 13); }
+        static PrimitiveResult prim_fn_call14(WrenVM vm, Value[] args) { return CallFn(args, 14); }
+        static PrimitiveResult prim_fn_call15(WrenVM vm, Value[] args) { return CallFn(args, 15); }
+        static PrimitiveResult prim_fn_call16(WrenVM vm, Value[] args) { return CallFn(args, 16); }
 
-        static PrimitiveResult prim_fn_toString(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_fn_toString(WrenVM vm, Value[] args)
         {
             args[0] = new Value("<fn>");
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_list_instantiate(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_list_instantiate(WrenVM vm, Value[] args)
         {
             args[0] = new Value(new ObjList(16));
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_list_add(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_list_add(WrenVM vm, Value[] args)
         {
             ObjList list = args[0].Obj as ObjList;
             if (list == null)
@@ -651,7 +651,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_list_clear(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_list_clear(WrenVM vm, Value[] args)
         {
             ObjList list = args[0].Obj as ObjList;
             if (list == null)
@@ -665,7 +665,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_list_count(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_list_count(WrenVM vm, Value[] args)
         {
             ObjList list = args[0].Obj as ObjList;
             if (list != null)
@@ -678,7 +678,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_list_insert(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_list_insert(WrenVM vm, Value[] args)
         {
             ObjList list = (ObjList)args[0].Obj;
 
@@ -708,7 +708,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_list_iterate(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_list_iterate(WrenVM vm, Value[] args)
         {
             ObjList list = (ObjList)args[0].Obj;
 
@@ -750,7 +750,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_list_iteratorValue(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_list_iteratorValue(WrenVM vm, Value[] args)
         {
             ObjList list = (ObjList)args[0].Obj;
 
@@ -777,7 +777,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_list_removeAt(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_list_removeAt(WrenVM vm, Value[] args)
         {
             ObjList list = (ObjList)args[0].Obj;
 
@@ -806,7 +806,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_list_subscript(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_list_subscript(WrenVM vm, Value[] args)
         {
             ObjList list = (ObjList)args[0].Obj;
 
@@ -896,7 +896,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_list_subscriptSetter(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_list_subscriptSetter(WrenVM vm, Value[] args)
         {
             ObjList list = (ObjList)args[0].Obj;
             if (args[1].Type == ValueType.Num)
@@ -928,13 +928,13 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_map_instantiate(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_map_instantiate(WrenVM vm, Value[] args)
         {
             args[0] = new Value(new ObjMap());
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_map_subscript(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_map_subscript(WrenVM vm, Value[] args)
         {
             ObjMap map = args[0].Obj as ObjMap;
 
@@ -959,7 +959,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_map_subscriptSetter(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_map_subscriptSetter(WrenVM vm, Value[] args)
         {
             ObjMap map = args[0].Obj as ObjMap;
 
@@ -977,7 +977,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_map_clear(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_map_clear(WrenVM vm, Value[] args)
         {
             ObjMap m = args[0].Obj as ObjMap;
             if (m != null)
@@ -986,7 +986,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_map_containsKey(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_map_containsKey(WrenVM vm, Value[] args)
         {
             ObjMap map = (ObjMap)args[0].Obj;
 
@@ -1002,14 +1002,14 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_map_count(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_map_count(WrenVM vm, Value[] args)
         {
             ObjMap m = (ObjMap)args[0].Obj;
             args[0] = new Value(m.Count());
             return PrimitiveResult.Value;
         }
 
-        private static PrimitiveResult prim_map_iterate(WrenVM vm, ObjFiber fiber, Value[] args)
+        private static PrimitiveResult prim_map_iterate(WrenVM vm, Value[] args)
         {
             ObjMap map = (ObjMap)args[0].Obj;
 
@@ -1050,7 +1050,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_map_remove(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_map_remove(WrenVM vm, Value[] args)
         {
             ObjMap map = (ObjMap)args[0].Obj;
 
@@ -1064,7 +1064,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_map_keyIteratorValue(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_map_keyIteratorValue(WrenVM vm, Value[] args)
         {
             ObjMap map = (ObjMap)args[0].Obj;
 
@@ -1091,7 +1091,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_map_valueIteratorValue(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_map_valueIteratorValue(WrenVM vm, Value[] args)
         {
             ObjMap map = (ObjMap)args[0].Obj;
 
@@ -1118,19 +1118,19 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_null_not(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_null_not(WrenVM vm, Value[] args)
         {
             args[0] = new Value(true);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_null_toString(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_null_toString(WrenVM vm, Value[] args)
         {
             args[0] = new Value("null");
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_num_fromString(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_fromString(WrenVM vm, Value[] args)
         {
             ObjString s = args[1].Obj as ObjString;
 
@@ -1162,13 +1162,13 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_num_pi(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_pi(WrenVM vm, Value[] args)
         {
             args[0] = new Value(Math.PI);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_num_minus(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_minus(WrenVM vm, Value[] args)
         {
             if (args[1].Type == ValueType.Num)
             {
@@ -1179,7 +1179,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_num_plus(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_plus(WrenVM vm, Value[] args)
         {
             if (args[1].Type == ValueType.Num)
             {
@@ -1190,7 +1190,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_num_multiply(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_multiply(WrenVM vm, Value[] args)
         {
             if (args[1].Type == ValueType.Num)
             {
@@ -1201,7 +1201,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_num_divide(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_divide(WrenVM vm, Value[] args)
         {
             if (args[1].Type == ValueType.Num)
             {
@@ -1212,7 +1212,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_num_lt(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_lt(WrenVM vm, Value[] args)
         {
             if (args[1].Type == ValueType.Num)
             {
@@ -1223,7 +1223,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_num_gt(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_gt(WrenVM vm, Value[] args)
         {
             if (args[1].Type == ValueType.Num)
             {
@@ -1234,7 +1234,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_num_lte(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_lte(WrenVM vm, Value[] args)
         {
             if (args[1].Type == ValueType.Num)
             {
@@ -1245,7 +1245,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_num_gte(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_gte(WrenVM vm, Value[] args)
         {
             if (args[1].Type == ValueType.Num)
             {
@@ -1256,7 +1256,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_num_And(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_And(WrenVM vm, Value[] args)
         {
             if (args[1].Type == ValueType.Num)
             {
@@ -1266,7 +1266,7 @@ namespace Wren.Core.Library
             args[0] = new Value("Right operand must be a number.");
             return PrimitiveResult.Error;
         }
-        static PrimitiveResult prim_num_Or(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_Or(WrenVM vm, Value[] args)
         {
             if (args[1].Type == ValueType.Num)
             {
@@ -1277,7 +1277,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_num_Xor(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_Xor(WrenVM vm, Value[] args)
         {
             if (args[1].Type == ValueType.Num)
             {
@@ -1287,7 +1287,7 @@ namespace Wren.Core.Library
             args[0] = new Value("Right operand must be a number.");
             return PrimitiveResult.Error;
         }
-        static PrimitiveResult prim_num_LeftShift(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_LeftShift(WrenVM vm, Value[] args)
         {
             if (args[1].Type == ValueType.Num)
             {
@@ -1297,7 +1297,7 @@ namespace Wren.Core.Library
             args[0] = new Value("Right operand must be a number.");
             return PrimitiveResult.Error;
         }
-        static PrimitiveResult prim_num_RightShift(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_RightShift(WrenVM vm, Value[] args)
         {
             if (args[1].Type == ValueType.Num)
             {
@@ -1308,63 +1308,63 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_num_abs(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_abs(WrenVM vm, Value[] args)
         {
             args[0] = new Value(Math.Abs(args[0].Num));
             return PrimitiveResult.Value;
         }
-        static PrimitiveResult prim_num_acos(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_acos(WrenVM vm, Value[] args)
         {
             args[0] = new Value(Math.Acos(args[0].Num));
             return PrimitiveResult.Value;
         }
-        static PrimitiveResult prim_num_asin(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_asin(WrenVM vm, Value[] args)
         {
             args[0] = new Value(Math.Asin(args[0].Num));
             return PrimitiveResult.Value;
         }
-        static PrimitiveResult prim_num_atan(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_atan(WrenVM vm, Value[] args)
         {
             args[0] = new Value(Math.Atan(args[0].Num));
             return PrimitiveResult.Value;
         }
-        static PrimitiveResult prim_num_ceil(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_ceil(WrenVM vm, Value[] args)
         {
             args[0] = new Value(Math.Ceiling(args[0].Num));
             return PrimitiveResult.Value;
         }
-        static PrimitiveResult prim_num_cos(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_cos(WrenVM vm, Value[] args)
         {
             args[0] = new Value(Math.Cos(args[0].Num));
             return PrimitiveResult.Value;
         }
-        static PrimitiveResult prim_num_floor(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_floor(WrenVM vm, Value[] args)
         {
             args[0] = new Value(Math.Floor(args[0].Num));
             return PrimitiveResult.Value;
         }
-        static PrimitiveResult prim_num_negate(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_negate(WrenVM vm, Value[] args)
         {
             args[0] = new Value(-args[0].Num);
             return PrimitiveResult.Value;
         }
-        static PrimitiveResult prim_num_sin(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_sin(WrenVM vm, Value[] args)
         {
             args[0] = new Value(Math.Sin(args[0].Num));
             return PrimitiveResult.Value;
         }
-        static PrimitiveResult prim_num_sqrt(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_sqrt(WrenVM vm, Value[] args)
         {
             args[0] = new Value(Math.Sqrt(args[0].Num));
             return PrimitiveResult.Value;
         }
-        static PrimitiveResult prim_num_tan(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_tan(WrenVM vm, Value[] args)
         {
             args[0] = new Value(Math.Tan(args[0].Num));
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_num_mod(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_mod(WrenVM vm, Value[] args)
         {
             if (args[1].Type == ValueType.Num)
             {
@@ -1375,7 +1375,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_num_eqeq(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_eqeq(WrenVM vm, Value[] args)
         {
             if (args[1].Type == ValueType.Num)
             {
@@ -1387,7 +1387,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_num_bangeq(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_bangeq(WrenVM vm, Value[] args)
         {
             if (args[1].Type == ValueType.Num)
             {
@@ -1399,19 +1399,19 @@ namespace Wren.Core.Library
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_num_bitwiseNot(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_bitwiseNot(WrenVM vm, Value[] args)
         {
             args[0] = new Value(~(Int64)args[0].Num);
             // Bitwise operators always work on 64-bit signed ints.
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_num_dotDot(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_dotDot(WrenVM vm, Value[] args)
         {
             return range_from_numbers(args[0], args[1], true, out args[0]);
         }
 
-        static PrimitiveResult prim_num_dotDotDot(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_dotDotDot(WrenVM vm, Value[] args)
         {
             return range_from_numbers(args[0], args[1], false, out args[0]);
         }
@@ -1430,68 +1430,68 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_num_atan2(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_atan2(WrenVM vm, Value[] args)
         {
             args[0] = new Value(Math.Atan2(args[0].Num, args[1].Num));
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_num_fraction(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_fraction(WrenVM vm, Value[] args)
         {
             args[0] = new Value(args[0].Num - Math.Truncate(args[0].Num));
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_num_isNan(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_isNan(WrenVM vm, Value[] args)
         {
             args[0] = new Value(double.IsNaN(args[0].Num));
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_num_sign(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_sign(WrenVM vm, Value[] args)
         {
             double value = args[0].Num;
             args[0] = new Value(Math.Sign(value));
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_num_toString(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_toString(WrenVM vm, Value[] args)
         {
             args[0] = new Value(args[0].Num.ToString(CultureInfo.InvariantCulture));
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_num_truncate(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_num_truncate(WrenVM vm, Value[] args)
         {
             args[0] = new Value(Math.Truncate(args[0].Num));
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_object_same(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_object_same(WrenVM vm, Value[] args)
         {
             args[0] = new Value(Value.Equals(args[1], args[2]));
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_object_not(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_object_not(WrenVM vm, Value[] args)
         {
             args[0] = new Value(false);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_object_eqeq(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_object_eqeq(WrenVM vm, Value[] args)
         {
             args[0] = new Value(Value.Equals(args[0], args[1]));
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_object_bangeq(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_object_bangeq(WrenVM vm, Value[] args)
         {
             args[0] = new Value(!Value.Equals(args[0], args[1]));
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_object_is(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_object_is(WrenVM vm, Value[] args)
         {
             if (args[1].Obj as ObjClass != null)
             {
@@ -1518,7 +1518,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_object_toString(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_object_toString(WrenVM vm, Value[] args)
         {
             ObjClass cClass = args[0].Obj as ObjClass;
             ObjInstance instance = args[0].Obj as ObjInstance;
@@ -1538,45 +1538,45 @@ namespace Wren.Core.Library
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_object_type(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_object_type(WrenVM vm, Value[] args)
         {
             args[0] = new Value(args[0].GetClass());
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_range_from(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_range_from(WrenVM vm, Value[] args)
         {
             args[0] = new Value(((ObjRange)args[0].Obj).From);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_range_to(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_range_to(WrenVM vm, Value[] args)
         {
             args[0] = new Value(((ObjRange)args[0].Obj).To);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_range_min(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_range_min(WrenVM vm, Value[] args)
         {
             ObjRange range = (ObjRange)args[0].Obj;
             args[0] = range.From < range.To ? new Value(range.From) : new Value(range.To);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_range_max(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_range_max(WrenVM vm, Value[] args)
         {
             ObjRange range = (ObjRange)args[0].Obj;
             args[0] = range.From > range.To ? new Value(range.From) : new Value(range.To);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_range_isInclusive(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_range_isInclusive(WrenVM vm, Value[] args)
         {
             args[0] = new Value(((ObjRange)args[0].Obj).IsInclusive);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_range_iterate(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_range_iterate(WrenVM vm, Value[] args)
         {
             ObjRange range = (ObjRange)args[0].Obj;
 
@@ -1631,14 +1631,14 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_range_iteratorValue(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_range_iteratorValue(WrenVM vm, Value[] args)
         {
             // Assume the iterator is a number so that is the value of the range.
             args[0] = args[1];
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_range_toString(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_range_toString(WrenVM vm, Value[] args)
         {
             ObjRange range = args[0].Obj as ObjRange;
 
@@ -1647,7 +1647,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_string_eqeq(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_string_eqeq(WrenVM vm, Value[] args)
         {
             ObjString aString = (ObjString)args[0].Obj;
             ObjString bString = args[1].Obj as ObjString;
@@ -1655,7 +1655,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_string_bangeq(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_string_bangeq(WrenVM vm, Value[] args)
         {
             ObjString aString = (ObjString)args[0].Obj;
             ObjString bString = args[1].Obj as ObjString;
@@ -1663,7 +1663,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_string_fromCodePoint(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_string_fromCodePoint(WrenVM vm, Value[] args)
         {
             if (args[1].Type == ValueType.Num)
             {
@@ -1694,7 +1694,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_string_byteAt(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_string_byteAt(WrenVM vm, Value[] args)
         {
             Byte[] s = ((ObjString)args[0].Obj).GetBytes();
 
@@ -1722,14 +1722,14 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        private static PrimitiveResult prim_string_byteCount(WrenVM vm, ObjFiber fiber, Value[] args)
+        private static PrimitiveResult prim_string_byteCount(WrenVM vm, Value[] args)
         {
             Byte[] s = ((ObjString)args[0].Obj).GetBytes();
             args[0] = new Value(s.Length);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_string_codePointAt(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_string_codePointAt(WrenVM vm, Value[] args)
         {
             ObjString s = args[0].Obj as ObjString;
 
@@ -1762,7 +1762,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_string_contains(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_string_contains(WrenVM vm, Value[] args)
         {
             ObjString s = (ObjString)args[0].Obj;
             ObjString search = args[1].Obj as ObjString;
@@ -1777,13 +1777,13 @@ namespace Wren.Core.Library
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_string_count(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_string_count(WrenVM vm, Value[] args)
         {
             args[0] = new Value(args[0].Obj.ToString().Length);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_string_endsWith(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_string_endsWith(WrenVM vm, Value[] args)
         {
             ObjString s = (ObjString)args[0].Obj;
             ObjString search = args[1].Obj as ObjString;
@@ -1798,7 +1798,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_string_indexOf(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_string_indexOf(WrenVM vm, Value[] args)
         {
             ObjString s = (ObjString)args[0].Obj;
             ObjString search = args[1].Obj as ObjString;
@@ -1814,7 +1814,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_string_iterate(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_string_iterate(WrenVM vm, Value[] args)
         {
             ObjString s = (ObjString)args[0].Obj;
 
@@ -1861,7 +1861,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_string_iterateByte(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_string_iterateByte(WrenVM vm, Value[] args)
         {
             Byte[] s = ((ObjString)args[0].Obj).GetBytes();
 
@@ -1898,7 +1898,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_string_iteratorValue(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_string_iteratorValue(WrenVM vm, Value[] args)
         {
             ObjString s = (ObjString)args[0].Obj;
 
@@ -1925,7 +1925,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_string_startsWith(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_string_startsWith(WrenVM vm, Value[] args)
         {
             ObjString s = (ObjString)args[0].Obj;
             ObjString search = args[1].Obj as ObjString;
@@ -1940,12 +1940,12 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_string_toString(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_string_toString(WrenVM vm, Value[] args)
         {
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_string_plus(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_string_plus(WrenVM vm, Value[] args)
         {
             ObjString s1 = args[1].Obj as ObjString;
             if (s1 != null)
@@ -1958,7 +1958,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_string_subscript(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult prim_string_subscript(WrenVM vm, Value[] args)
         {
             string s = ((ObjString)args[0].Obj).Value;
 
@@ -2051,7 +2051,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult WriteString(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult WriteString(WrenVM vm, Value[] args)
         {
             if (args[1] != null && args[1].Type == ValueType.Obj)
             {
@@ -2062,7 +2062,7 @@ namespace Wren.Core.Library
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult Clock(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult Clock(WrenVM vm, Value[] args)
         {
             args[0] = new Value((double)DateTime.Now.Ticks / 10000000);
             return PrimitiveResult.Value;

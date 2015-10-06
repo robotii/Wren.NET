@@ -8,13 +8,13 @@ namespace Wren.Core.Library
     {
         const string MetaLibSource = "class Meta {}\n";
 
-        static PrimitiveResult Eval(WrenVM vm, ObjFiber fiber, Value[] args)
+        static PrimitiveResult Eval(WrenVM vm, Value[] args)
         {
             if (args[1] != null && args[1].Obj is ObjString)
             {
 
                 // Eval the code in the module where the calling function was defined.
-                Obj callingFn = fiber.GetFrame().Fn;
+                Obj callingFn = vm.Fiber.GetFrame().Fn;
                 ObjModule module = (callingFn is ObjFn)
                     ? ((ObjFn)callingFn).Module
                     : ((ObjClosure)callingFn).Function.Module;
@@ -31,7 +31,7 @@ namespace Wren.Core.Library
                 // TODO: Include the compile errors in the runtime error message.
 
                 // Create a fiber to run the code in.
-                ObjFiber evalFiber = new ObjFiber(fn) { Caller = fiber };
+                ObjFiber evalFiber = new ObjFiber(fn) { Caller = vm.Fiber };
 
                 // Switch to the fiber.
                 args[0] = new Value(evalFiber);
