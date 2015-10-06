@@ -2,6 +2,7 @@ var Global = "global"
 
 class Foo {
   construct new() {}
+
   method {
     System.print(Global)
   }

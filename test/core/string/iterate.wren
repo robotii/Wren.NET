@@ -22,3 +22,8 @@ System.print("a\0b\0c".iterate(1)) // expect: 2
 System.print("a\0b\0c".iterate(2)) // expect: 3
 System.print("a\0b\0c".iterate(3)) // expect: 4
 System.print("a\0b\0c".iterate(4)) // expect: false
+
+// Iterates over invalid UTF-8 one byte at a time.
+System.print("\xef\xf7".iterate(null)) // expect: 0
+System.print("\xef\xf7".iterate(0)) // expect: 1
+System.print("\xef\xf7".iterate(1)) // expect: false

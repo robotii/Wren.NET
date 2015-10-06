@@ -27,12 +27,12 @@ System.print("søméஃthîng"[-1]) // expect: g
 System.print("søméஃthîng"[-2]) // expect: n
 System.print("søméஃthîng"[-4]) // expect: î
 
-// If the subscript is in the middle of a UTF-8 sequence, yield an empty string.
-System.print("søméஃthîng"[2] == "") // expect: true
-System.print("søméஃthîng"[7] == "") // expect: true
-System.print("søméஃthîng"[8] == "") // expect: true
-System.print("søméஃ"[-1] == "") // expect: true
-System.print("søméஃ"[-2] == "") // expect: true
+// If the subscript is in the middle of a UTF-8 sequence, return the raw byte.
+System.print("søméஃthîng"[2] == "\xb8") // expect: true
+System.print("søméஃthîng"[7] == "\xae") // expect: true
+System.print("søméஃthîng"[8] == "\x83") // expect: true
+System.print("søméஃ"[-1] == "\x83") // expect: true
+System.print("søméஃ"[-2] == "\xae") // expect: true
 
 // 8-bit clean.
 System.print("a\0b\0c"[0] == "a") // expect: true
@@ -40,3 +40,7 @@ System.print("a\0b\0c"[1] == "\0") // expect: true
 System.print("a\0b\0c"[2] == "b") // expect: true
 System.print("a\0b\0c"[3] == "\0") // expect: true
 System.print("a\0b\0c"[4] == "c") // expect: true
+
+// Returns single byte strings for invalid UTF-8 sequences.
+System.print("\xef\xf7"[0] == "\xef") // expect: true
+System.print("\xef\xf7"[1] == "\xf7") // expect: true

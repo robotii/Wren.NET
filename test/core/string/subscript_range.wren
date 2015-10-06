@@ -32,3 +32,18 @@ System.print(string[3...-6]) // expect: dcba
 // An empty range at zero is allowed on an empty string.
 System.print(""[0...0] == "") // expect: true
 System.print(""[0..-1] == "") // expect: true
+
+// Indexes by byte, not code point.
+//
+// Bytes:           11111
+//        012345678901234
+// Chars: sø mé ஃ  thî ng
+System.print("søméஃthîng"[0..3]) // expect: søm
+System.print("søméஃthîng"[3...10]) // expect: méஃt
+
+// Only includes sequences whose first byte is in the range.
+System.print("søméஃthîng"[2..6]) // expect: méஃ
+System.print("søméஃthîng"[2...6]) // expect: mé
+System.print("søméஃthîng"[2...7]) // expect: méஃ
+
+// TODO: Strings including invalid UTF-8.

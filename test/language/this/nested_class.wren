@@ -1,5 +1,6 @@
 class Outer {
   construct new() {}
+
   method {
     System.print(this) // expect: Outer
 
@@ -8,6 +9,7 @@ class Outer {
 
       class Inner {
         construct new() {}
+
         method {
           System.print(this) // expect: Inner
         }

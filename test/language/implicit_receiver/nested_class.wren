@@ -1,5 +1,6 @@
 class Outer {
   construct new() {}
+
   getter {
     System.print("outer getter")
   }
@@ -19,6 +20,7 @@ class Outer {
 
     class Inner {
       construct new() {}
+
       getter {
         System.print("inner getter")
       }

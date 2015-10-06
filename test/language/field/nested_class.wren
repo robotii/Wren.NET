@@ -1,11 +1,13 @@
 class Outer {
   construct new() {}
+
   method {
     _field = "outer"
     System.print(_field) // expect: outer
 
     class Inner {
       construct new() {}
+
       method {
         _field = "inner"
         System.print(_field) // expect: inner

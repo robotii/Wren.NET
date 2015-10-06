@@ -1,9 +1,7 @@
 var fiber = Fiber.new {
   System.print("fiber 1")
-  var result = Fiber.yield()
-  System.print(result)
-  result = Fiber.yield()
-  System.print(result)
+  System.print(Fiber.yield())
+  System.print(Fiber.yield())
 }
 
 fiber.call() // expect: fiber 1

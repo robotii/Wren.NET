@@ -1,5 +1,4 @@
 class Foo {
-  construct new() {}
   methodOnFoo { System.print("foo") }
   method(a) { System.print("foo") }
   method(a, b, c) { System.print("foo") }

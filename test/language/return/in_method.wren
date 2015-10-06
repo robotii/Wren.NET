@@ -1,5 +1,6 @@
 class Foo {
   construct new() {}
+
   method {
     return "ok"
     System.print("bad")

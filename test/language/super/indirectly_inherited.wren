@@ -8,6 +8,7 @@ class B is A {}
 
 class C is B {
   construct new() {}
+
   foo {
     System.print("C.foo")
     super.foo
