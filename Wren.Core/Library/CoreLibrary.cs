@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using Wren.Core.Objects;
 using Wren.Core.VM;
-using ValueType = Wren.Core.Objects.ValueType;
 
 namespace Wren.Core.Library
 {
@@ -267,13 +266,13 @@ namespace Wren.Core.Library
 
         static PrimitiveResult prim_bool_not(WrenVM vm, Obj[] args)
         {
-            args[0] = new Obj(args[0].Type != ValueType.True);
+            args[0] = new Obj(args[0].Type != ObjType.True);
             return PrimitiveResult.Value;
         }
 
         static PrimitiveResult prim_bool_toString(WrenVM vm, Obj[] args)
         {
-            if (args[0].Type == ValueType.True)
+            if (args[0].Type == ObjType.True)
             {
                 args[0] = Obj.MakeString("true");
             }
@@ -297,7 +296,7 @@ namespace Wren.Core.Library
             // Object has no superclass.
             if (classObj.Superclass == null)
             {
-                args[0] = new Obj(ValueType.Null);
+                args[0] = new Obj(ObjType.Null);
             }
             else
             {
@@ -348,7 +347,7 @@ namespace Wren.Core.Library
                         // If the fiber was yielded, make the yield call return null.
                         if (runFiber.StackTop > 0)
                         {
-                            runFiber.StoreValue(-1, new Obj(ValueType.Null));
+                            runFiber.StoreValue(-1, new Obj(ObjType.Null));
                         }
 
                         return PrimitiveResult.RunFiber;
@@ -413,14 +412,14 @@ namespace Wren.Core.Library
 
         static PrimitiveResult prim_fiber_suspend(WrenVM vm, Obj[] args)
         {
-            args[0] = new Obj(ValueType.Null);
+            args[0] = new Obj(ObjType.Null);
             return PrimitiveResult.RunFiber;
         }
 
         static PrimitiveResult prim_fiber_error(WrenVM vm, Obj[] args)
         {
             ObjFiber runFiber = (ObjFiber)args[0];
-            args[0] = runFiber.Error ?? new Obj(ValueType.Null);
+            args[0] = runFiber.Error ?? new Obj(ObjType.Null);
             return PrimitiveResult.Value;
         }
 
@@ -439,7 +438,7 @@ namespace Wren.Core.Library
             {
                 if (runFiber.Caller == null && runFiber.StackTop > 0)
                 {
-                    runFiber.StoreValue(-1, new Obj(ValueType.Null));
+                    runFiber.StoreValue(-1, new Obj(ObjType.Null));
                 }
 
                 // Unlike run, this does not remember the calling fiber. Instead, it
@@ -498,7 +497,7 @@ namespace Wren.Core.Library
                     // If the fiber was yielded, make the yield call return null.
                     if (runFiber.StackTop > 0)
                     {
-                        runFiber.StoreValue(-1, new Obj(ValueType.Null));
+                        runFiber.StoreValue(-1, new Obj(ObjType.Null));
                     }
 
                     return PrimitiveResult.RunFiber;
@@ -523,12 +522,12 @@ namespace Wren.Core.Library
             // interpreter.
             if (caller == null)
             {
-                args[0] = new Obj(ValueType.Null);
+                args[0] = new Obj(ObjType.Null);
             }
             else
             {
                 // Make the caller's run method return null.
-                caller.StoreValue(-1, new Obj(ValueType.Null));
+                caller.StoreValue(-1, new Obj(ObjType.Null));
 
                 // Return the fiber to resume.
                 args[0] = caller;
@@ -548,7 +547,7 @@ namespace Wren.Core.Library
             // interpreter.
             if (caller == null)
             {
-                args[0] = new Obj(ValueType.Null);
+                args[0] = new Obj(ObjType.Null);
             }
             else
             {
@@ -666,7 +665,7 @@ namespace Wren.Core.Library
             }
             list.Clear();
 
-            args[0] = new Obj(ValueType.Null);
+            args[0] = new Obj(ObjType.Null);
             return PrimitiveResult.Value;
         }
 
@@ -687,7 +686,7 @@ namespace Wren.Core.Library
         {
             ObjList list = (ObjList)args[0];
 
-            if (args[1].Type == ValueType.Num)
+            if (args[1].Type == ObjType.Num)
             {
                 int index = (int)args[1].Num;
                 if (args[1].Num == index)
@@ -718,7 +717,7 @@ namespace Wren.Core.Library
             ObjList list = (ObjList)args[0];
 
             // If we're starting the iteration, return the first index.
-            if (args[1].Type == ValueType.Null)
+            if (args[1].Type == ObjType.Null)
             {
                 if (list.Count() != 0)
                 {
@@ -730,7 +729,7 @@ namespace Wren.Core.Library
                 return PrimitiveResult.Value;
             }
 
-            if (args[1].Type == ValueType.Num)
+            if (args[1].Type == ObjType.Num)
             {
                 int index = (int)args[1].Num;
                 if (args[1].Num == index)
@@ -759,7 +758,7 @@ namespace Wren.Core.Library
         {
             ObjList list = (ObjList)args[0];
 
-            if (args[1].Type == ValueType.Num)
+            if (args[1].Type == ObjType.Num)
             {
                 int index = (int)args[1].Num;
                 if (args[1].Num == index)
@@ -786,7 +785,7 @@ namespace Wren.Core.Library
         {
             ObjList list = (ObjList)args[0];
 
-            if (args[1].Type == ValueType.Num)
+            if (args[1].Type == ObjType.Num)
             {
                 int index = (int)args[1].Num;
                 if (args[1].Num == index)
@@ -815,7 +814,7 @@ namespace Wren.Core.Library
         {
             ObjList list = (ObjList)args[0];
 
-            if (args[1].Type == ValueType.Num)
+            if (args[1].Type == ObjType.Num)
             {
                 int index = (int)args[1].Num;
                 if (index == args[1].Num)
@@ -904,7 +903,7 @@ namespace Wren.Core.Library
         static PrimitiveResult prim_list_subscriptSetter(WrenVM vm, Obj[] args)
         {
             ObjList list = (ObjList)args[0];
-            if (args[1].Type == ValueType.Num)
+            if (args[1].Type == ObjType.Num)
             {
                 int index = (int)args[1].Num;
 
@@ -948,14 +947,14 @@ namespace Wren.Core.Library
                 if (map != null)
                 {
                     args[0] = map.Get(args[1]);
-                    if (args[0].Type == ValueType.Undefined)
+                    if (args[0].Type == ObjType.Undefined)
                     {
-                        args[0] = new Obj(ValueType.Null);
+                        args[0] = new Obj(ObjType.Null);
                     }
                 }
                 else
                 {
-                    args[0] = new Obj(ValueType.Null);
+                    args[0] = new Obj(ObjType.Null);
                 }
                 return PrimitiveResult.Value;
             }
@@ -987,7 +986,7 @@ namespace Wren.Core.Library
             ObjMap m = args[0] as ObjMap;
             if (m != null)
                 m.Clear();
-            args[0] = new Obj(ValueType.Null);
+            args[0] = new Obj(ObjType.Null);
             return PrimitiveResult.Value;
         }
 
@@ -999,7 +998,7 @@ namespace Wren.Core.Library
             {
                 Obj v = map.Get(args[1]);
 
-                args[0] = new Obj(v.Type != ValueType.Undefined);
+                args[0] = new Obj(v.Type != ObjType.Undefined);
                 return PrimitiveResult.Value;
             }
 
@@ -1025,7 +1024,7 @@ namespace Wren.Core.Library
             }
 
             // Start one past the last entry we stopped at.
-            if (args[1].Type == ValueType.Num)
+            if (args[1].Type == ObjType.Num)
             {
                 if (args[1].Num < 0)
                 {
@@ -1036,7 +1035,7 @@ namespace Wren.Core.Library
 
                 if (index == args[1].Num)
                 {
-                    args[0] = index > map.Count() || map.Get(index).Type == ValueType.Undefined ? new Obj(false) : new Obj(index + 1);
+                    args[0] = index > map.Count() || map.Get(index).Type == ObjType.Undefined ? new Obj(false) : new Obj(index + 1);
                     return PrimitiveResult.Value;
                 }
 
@@ -1045,7 +1044,7 @@ namespace Wren.Core.Library
             }
 
             // If we're starting the iteration, start at the first used entry.
-            if (args[1].Type == ValueType.Null)
+            if (args[1].Type == ObjType.Null)
             {
                 args[0] = new Obj(1);
                 return PrimitiveResult.Value;
@@ -1061,7 +1060,7 @@ namespace Wren.Core.Library
 
             if (ValidateKey(args[1]))
             {
-                args[0] = map != null ? map.Remove(args[1]) : new Obj(ValueType.Null);
+                args[0] = map != null ? map.Remove(args[1]) : new Obj(ObjType.Null);
                 return PrimitiveResult.Value;
             }
 
@@ -1073,7 +1072,7 @@ namespace Wren.Core.Library
         {
             ObjMap map = (ObjMap)args[0];
 
-            if (args[1].Type == ValueType.Num)
+            if (args[1].Type == ObjType.Num)
             {
                 int index = (int)args[1].Num;
 
@@ -1100,7 +1099,7 @@ namespace Wren.Core.Library
         {
             ObjMap map = (ObjMap)args[0];
 
-            if (args[1].Type == ValueType.Num)
+            if (args[1].Type == ObjType.Num)
             {
                 int index = (int)args[1].Num;
 
@@ -1158,7 +1157,7 @@ namespace Wren.Core.Library
                     }
                 }
 
-                args[0] = new Obj(ValueType.Null);
+                args[0] = new Obj(ObjType.Null);
                 return PrimitiveResult.Value;
             }
 
@@ -1175,7 +1174,7 @@ namespace Wren.Core.Library
 
         static PrimitiveResult prim_num_minus(WrenVM vm, Obj[] args)
         {
-            if (args[1].Type == ValueType.Num)
+            if (args[1].Type == ObjType.Num)
             {
                 args[0] = new Obj(args[0].Num - args[1].Num);
                 return PrimitiveResult.Value;
@@ -1186,7 +1185,7 @@ namespace Wren.Core.Library
 
         static PrimitiveResult prim_num_plus(WrenVM vm, Obj[] args)
         {
-            if (args[1].Type == ValueType.Num)
+            if (args[1].Type == ObjType.Num)
             {
                 args[0] = new Obj(args[0].Num + args[1].Num);
                 return PrimitiveResult.Value;
@@ -1197,7 +1196,7 @@ namespace Wren.Core.Library
 
         static PrimitiveResult prim_num_multiply(WrenVM vm, Obj[] args)
         {
-            if (args[1].Type == ValueType.Num)
+            if (args[1].Type == ObjType.Num)
             {
                 args[0] = new Obj(args[0].Num * args[1].Num);
                 return PrimitiveResult.Value;
@@ -1208,7 +1207,7 @@ namespace Wren.Core.Library
 
         static PrimitiveResult prim_num_divide(WrenVM vm, Obj[] args)
         {
-            if (args[1].Type == ValueType.Num)
+            if (args[1].Type == ObjType.Num)
             {
                 args[0] = new Obj(args[0].Num / args[1].Num);
                 return PrimitiveResult.Value;
@@ -1219,7 +1218,7 @@ namespace Wren.Core.Library
 
         static PrimitiveResult prim_num_lt(WrenVM vm, Obj[] args)
         {
-            if (args[1].Type == ValueType.Num)
+            if (args[1].Type == ObjType.Num)
             {
                 args[0] = new Obj(args[0].Num < args[1].Num);
                 return PrimitiveResult.Value;
@@ -1230,7 +1229,7 @@ namespace Wren.Core.Library
 
         static PrimitiveResult prim_num_gt(WrenVM vm, Obj[] args)
         {
-            if (args[1].Type == ValueType.Num)
+            if (args[1].Type == ObjType.Num)
             {
                 args[0] = new Obj(args[0].Num > args[1].Num);
                 return PrimitiveResult.Value;
@@ -1241,7 +1240,7 @@ namespace Wren.Core.Library
 
         static PrimitiveResult prim_num_lte(WrenVM vm, Obj[] args)
         {
-            if (args[1].Type == ValueType.Num)
+            if (args[1].Type == ObjType.Num)
             {
                 args[0] = new Obj(args[0].Num <= args[1].Num);
                 return PrimitiveResult.Value;
@@ -1252,7 +1251,7 @@ namespace Wren.Core.Library
 
         static PrimitiveResult prim_num_gte(WrenVM vm, Obj[] args)
         {
-            if (args[1].Type == ValueType.Num)
+            if (args[1].Type == ObjType.Num)
             {
                 args[0] = new Obj(args[0].Num >= args[1].Num);
                 return PrimitiveResult.Value;
@@ -1263,7 +1262,7 @@ namespace Wren.Core.Library
 
         static PrimitiveResult prim_num_And(WrenVM vm, Obj[] args)
         {
-            if (args[1].Type == ValueType.Num)
+            if (args[1].Type == ObjType.Num)
             {
                 args[0] = new Obj((Int64)args[0].Num & (Int64)args[1].Num);
                 return PrimitiveResult.Value;
@@ -1273,7 +1272,7 @@ namespace Wren.Core.Library
         }
         static PrimitiveResult prim_num_Or(WrenVM vm, Obj[] args)
         {
-            if (args[1].Type == ValueType.Num)
+            if (args[1].Type == ObjType.Num)
             {
                 args[0] = new Obj((Int64)args[0].Num | (Int64)args[1].Num);
                 return PrimitiveResult.Value;
@@ -1284,7 +1283,7 @@ namespace Wren.Core.Library
 
         static PrimitiveResult prim_num_Xor(WrenVM vm, Obj[] args)
         {
-            if (args[1].Type == ValueType.Num)
+            if (args[1].Type == ObjType.Num)
             {
                 args[0] = new Obj((Int64)args[0].Num ^ (Int64)args[1].Num);
                 return PrimitiveResult.Value;
@@ -1294,7 +1293,7 @@ namespace Wren.Core.Library
         }
         static PrimitiveResult prim_num_LeftShift(WrenVM vm, Obj[] args)
         {
-            if (args[1].Type == ValueType.Num)
+            if (args[1].Type == ObjType.Num)
             {
                 args[0] = new Obj((Int64)args[0].Num << (int)args[1].Num);
                 return PrimitiveResult.Value;
@@ -1304,7 +1303,7 @@ namespace Wren.Core.Library
         }
         static PrimitiveResult prim_num_RightShift(WrenVM vm, Obj[] args)
         {
-            if (args[1].Type == ValueType.Num)
+            if (args[1].Type == ObjType.Num)
             {
                 args[0] = new Obj((Int64)args[0].Num >> (int)args[1].Num);
                 return PrimitiveResult.Value;
@@ -1371,7 +1370,7 @@ namespace Wren.Core.Library
 
         static PrimitiveResult prim_num_mod(WrenVM vm, Obj[] args)
         {
-            if (args[1].Type == ValueType.Num)
+            if (args[1].Type == ObjType.Num)
             {
                 args[0] = new Obj(args[0].Num % args[1].Num);
                 return PrimitiveResult.Value;
@@ -1382,7 +1381,7 @@ namespace Wren.Core.Library
 
         static PrimitiveResult prim_num_eqeq(WrenVM vm, Obj[] args)
         {
-            if (args[1].Type == ValueType.Num)
+            if (args[1].Type == ObjType.Num)
             {
                 args[0] = new Obj(args[0].Num == args[1].Num);
                 return PrimitiveResult.Value;
@@ -1394,7 +1393,7 @@ namespace Wren.Core.Library
 
         static PrimitiveResult prim_num_bangeq(WrenVM vm, Obj[] args)
         {
-            if (args[1].Type == ValueType.Num)
+            if (args[1].Type == ObjType.Num)
             {
                 args[0] = new Obj(args[0].Num != args[1].Num);
                 return PrimitiveResult.Value;
@@ -1423,7 +1422,7 @@ namespace Wren.Core.Library
 
         static PrimitiveResult range_from_numbers(Obj start, Obj end, bool inclusive, out Obj range)
         {
-            if (end.Type == ValueType.Num)
+            if (end.Type == ObjType.Num)
             {
                 double from = start.Num;
                 double to = end.Num;
@@ -1606,7 +1605,7 @@ namespace Wren.Core.Library
             }
 
             // Start the iteration.
-            if (args[1].Type == ValueType.Num)
+            if (args[1].Type == ObjType.Num)
             {
                 double iterator = args[1].Num;
 
@@ -1639,7 +1638,7 @@ namespace Wren.Core.Library
                 args[0] = new Obj(iterator);
                 return PrimitiveResult.Value;
             }
-            if (args[1].Type == ValueType.Null)
+            if (args[1].Type == ObjType.Null)
             {
                 args[0] = new Obj(range.From);
                 return PrimitiveResult.Value;
@@ -1683,7 +1682,7 @@ namespace Wren.Core.Library
 
         static PrimitiveResult prim_string_fromCodePoint(WrenVM vm, Obj[] args)
         {
-            if (args[1].Type == ValueType.Num)
+            if (args[1].Type == ObjType.Num)
             {
                 int codePoint = (int)args[1].Num;
 
@@ -1716,7 +1715,7 @@ namespace Wren.Core.Library
         {
             Byte[] s = ((ObjString)args[0]).GetBytes();
 
-            if (args[1].Type == ValueType.Num)
+            if (args[1].Type == ObjType.Num)
             {
                 int index = (int)args[1].Num;
 
@@ -1756,7 +1755,7 @@ namespace Wren.Core.Library
                 return PrimitiveResult.Error;
             }
 
-            if (args[1].Type != ValueType.Num)
+            if (args[1].Type != ObjType.Num)
             {
                 args[0] = Obj.MakeString("Index must be a number.");
                 return PrimitiveResult.Error;
@@ -1837,7 +1836,7 @@ namespace Wren.Core.Library
             ObjString s = (ObjString)args[0];
 
             // If we're starting the iteration, return the first index.
-            if (args[1].Type == ValueType.Null)
+            if (args[1].Type == ObjType.Null)
             {
                 if (s.Str.Length != 0)
                 {
@@ -1848,7 +1847,7 @@ namespace Wren.Core.Library
                 return PrimitiveResult.Value;
             }
 
-            if (args[1].Type == ValueType.Num)
+            if (args[1].Type == ObjType.Num)
             {
                 if (args[1].Num < 0)
                 {
@@ -1884,7 +1883,7 @@ namespace Wren.Core.Library
             Byte[] s = ((ObjString)args[0]).GetBytes();
 
             // If we're starting the iteration, return the first index.
-            if (args[1].Type == ValueType.Null)
+            if (args[1].Type == ObjType.Null)
             {
                 if (s.Length == 0)
                 {
@@ -1895,7 +1894,7 @@ namespace Wren.Core.Library
                 return PrimitiveResult.Value;
             }
 
-            if (args[1].Type != ValueType.Num) return PrimitiveResult.Error;
+            if (args[1].Type != ObjType.Num) return PrimitiveResult.Error;
 
             if (args[1].Num < 0)
             {
@@ -1920,7 +1919,7 @@ namespace Wren.Core.Library
         {
             ObjString s = (ObjString)args[0];
 
-            if (args[1].Type == ValueType.Num)
+            if (args[1].Type == ObjType.Num)
             {
                 int index = (int)args[1].Num;
 
@@ -1980,7 +1979,7 @@ namespace Wren.Core.Library
         {
             string s = ((ObjString)args[0]).Str;
 
-            if (args[1].Type == ValueType.Num)
+            if (args[1].Type == ObjType.Num)
             {
                 int index = (int)args[1].Num;
 
@@ -2071,12 +2070,12 @@ namespace Wren.Core.Library
 
         static PrimitiveResult WriteString(WrenVM vm, Obj[] args)
         {
-            if (args[1] != null && args[1].Type == ValueType.Obj)
+            if (args[1] != null && args[1].Type == ObjType.Obj)
             {
                 string s = args[1].ToString();
                 Console.Write(s);
             }
-            args[0] = new Obj(ValueType.Null);
+            args[0] = new Obj(ObjType.Null);
             return PrimitiveResult.Value;
         }
 
@@ -2100,10 +2099,10 @@ namespace Wren.Core.Library
 
         static bool ValidateKey(Obj arg)
         {
-            return arg.Type == ValueType.False
-                   || arg.Type == ValueType.True
-                   || arg.Type == ValueType.Num
-                   || arg.Type == ValueType.Null
+            return arg.Type == ObjType.False
+                   || arg.Type == ObjType.True
+                   || arg.Type == ObjType.Num
+                   || arg.Type == ObjType.Null
                    || arg is ObjClass || arg is ObjFiber
                    || arg is ObjRange || arg is ObjString;
         }

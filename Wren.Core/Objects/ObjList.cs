@@ -11,7 +11,7 @@ namespace Wren.Core.Objects
         // Creates a new list with [numElements] elements (which are left
         // uninitialized.)
         public ObjList(int numElements)
-            : base(ValueType.Obj)
+            : base(ObjType.Obj)
         {
             _elements = new List<Obj>(numElements);
             ClassObj = WrenVM.ListClass;
@@ -57,7 +57,7 @@ namespace Wren.Core.Objects
                 _elements.RemoveAt(index);
                 return v;
             }
-            return new Obj (ValueType.Null);
+            return new Obj(ObjType.Null);
         }
 
     }

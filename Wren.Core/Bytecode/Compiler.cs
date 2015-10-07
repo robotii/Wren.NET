@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using Wren.Core.Objects;
 using Wren.Core.VM;
-using ValueType = Wren.Core.Objects.ValueType;
 
 namespace Wren.Core.Bytecode
 {
@@ -1061,7 +1060,7 @@ namespace Wren.Core.Bytecode
             // Top-level module scope.
             if (_scopeDepth == -1)
             {
-                int symbol = _parser.vm.DefineVariable(_parser.Module, _parser.Source.Substring(t.Start, t.Length), new Obj(ValueType.Null));
+                int symbol = _parser.vm.DefineVariable(_parser.Module, _parser.Source.Substring(t.Start, t.Length), new Obj(ObjType.Null));
 
                 switch (symbol)
                 {
@@ -1621,7 +1620,7 @@ namespace Wren.Core.Bytecode
                 // superclass in a constant. So, here, we create a slot in the constant
                 // table and store null in it. When the method is bound, we'll look up the
                 // superclass then and store it in the constant slot.
-                int constant = AddConstant(new Obj(ValueType.Null));
+                int constant = AddConstant(new Obj(ObjType.Null));
                 EmitShort(constant);
             }
         }
@@ -3156,7 +3155,7 @@ namespace Wren.Core.Bytecode
             for (int i = 0; i < parser.Module.Variables.Count; i++)
             {
                 ModuleVariable t = parser.Module.Variables[i];
-                if (t.Container.Type == ValueType.Undefined)
+                if (t.Container.Type == ObjType.Undefined)
                 {
                     compiler.Error(string.Format("Variable '{0}' is used but not defined.", t.Name));
                 }

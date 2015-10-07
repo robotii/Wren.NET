@@ -18,7 +18,7 @@ namespace Wren.Core.Objects
 
         // Creates a new empty map.
         public ObjMap()
-            : base(ValueType.Obj)
+            : base(ObjType.Obj)
         {
             _entries = new Dictionary<Obj, Obj>(new ObjComparer());
             ClassObj = WrenVM.MapClass;
@@ -68,7 +68,7 @@ namespace Wren.Core.Objects
                 _entries.Remove(key);
                 return v;
             }
-            return new Obj (ValueType.Null);
+            return new Obj (ObjType.Null);
         }
     }
 }

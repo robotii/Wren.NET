@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Text;
 using Wren.Core.VM;
-using ValueType = Wren.Core.Objects.ValueType;
 
 namespace Wren.Core.Objects
 {
@@ -24,7 +23,7 @@ namespace Wren.Core.Objects
         // Inline array of the string's bytes followed by a null terminator.
 
         public ObjString(string s)
-            : base(ValueType.Obj)
+            : base(ObjType.Obj)
         {
             Str = s;
             ClassObj = WrenVM.StringClass;

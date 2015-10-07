@@ -38,7 +38,7 @@ namespace Wren.Core.Objects
         // Creates a new fiber object that will invoke [fn], which can be a function or
         // closure.
         public ObjFiber(Obj fn)
-            : base(ValueType.Obj)
+            : base(ObjType.Obj)
         {
             ResetFiber(fn);
             ClassObj = WrenVM.FiberClass;

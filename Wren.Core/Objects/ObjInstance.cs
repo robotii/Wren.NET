@@ -1,12 +1,10 @@
-﻿using Wren.Core.VM;
-
-namespace Wren.Core.Objects
+﻿namespace Wren.Core.Objects
 {
     public class ObjInstance : Obj
     {
         // Creates a new instance of the given [classObj].
         public ObjInstance(ObjClass classObj)
-            : base(ValueType.Obj)
+            : base(ObjType.Obj)
         {
             Fields = new Obj[classObj.NumFields];
 

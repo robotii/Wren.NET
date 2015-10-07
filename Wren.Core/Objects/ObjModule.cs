@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Wren.Core.VM;
 
 namespace Wren.Core.Objects
 {
@@ -15,7 +14,7 @@ namespace Wren.Core.Objects
         public ObjString Name;
 
         // Creates a new module.
-        public ObjModule(ObjString name) : base(ValueType.Obj)
+        public ObjModule(ObjString name) : base(ObjType.Obj)
         {
             Name = name;
             Variables = new List<ModuleVariable>();

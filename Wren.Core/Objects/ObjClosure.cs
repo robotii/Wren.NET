@@ -13,7 +13,7 @@ namespace Wren.Core.Objects
         // Creates a new closure object that invokes [fn]. Allocates room for its
         // upvalues, but assumes outside code will populate it.
         public ObjClosure(ObjFn fn)
-            : base(ValueType.Obj)
+            : base(ObjType.Obj)
         {
             Function = fn;
             Upvalues = new ObjUpvalue[fn.NumUpvalues];

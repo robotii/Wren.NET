@@ -1,6 +1,4 @@
-﻿using Wren.Core.VM;
-
-namespace Wren.Core.Objects
+﻿namespace Wren.Core.Objects
 {
     public class ObjUpvalue : Obj
     {
@@ -15,7 +13,7 @@ namespace Wren.Core.Objects
 
         // Creates a new open upvalue pointing to [value] on the stack.
         public ObjUpvalue(Obj c)
-            : base(ValueType.Obj)
+            : base(ObjType.Obj)
         {
             Container = c;
             Next = null;

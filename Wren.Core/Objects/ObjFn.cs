@@ -24,7 +24,7 @@ namespace Wren.Core.Objects
             int numUpvalues, int arity,
             byte[] bytecode, ObjString debugSourcePath,
             string debugName, int[] sourceLines)
-            : base(ValueType.Obj)
+            : base(ObjType.Obj)
         {
             Bytecode = bytecode;
             Constants = constants;

@@ -19,21 +19,21 @@ namespace Wren.Core.Objects
     // Base struct for all heap-allocated objects.
     public class Obj
     {
-        public static Obj Null = new Obj(ValueType.Null);
+        public static Obj Null = new Obj(ObjType.Null);
 
         public Obj()
         {
-            Type = ValueType.Undefined;
+            Type = ObjType.Undefined;
         }
 
-        public Obj(ValueType t)
+        public Obj(ObjType t)
         {
             Type = t;
         }
 
         public Obj(double n)
         {
-            Type = ValueType.Num;
+            Type = ObjType.Num;
             Num = n;
         }
 
@@ -44,10 +44,10 @@ namespace Wren.Core.Objects
 
         public Obj(bool b)
         {
-            Type = b ? ValueType.True : ValueType.False;
+            Type = b ? ObjType.True : ObjType.False;
         }
 
-        public readonly ValueType Type;
+        public readonly ObjType Type;
         public readonly double Num;
 
         // The object's class.
@@ -57,13 +57,13 @@ namespace Wren.Core.Objects
         {
             switch (Type)
             {
-                case ValueType.True:
-                case ValueType.False:
+                case ObjType.True:
+                case ObjType.False:
                     return WrenVM.BoolClass;
-                case ValueType.Num:
+                case ObjType.Num:
                     return WrenVM.NumClass;
-                case ValueType.Null:
-                case ValueType.Undefined:
+                case ObjType.Null:
+                case ObjType.Undefined:
                     return WrenVM.NullClass;
                 default:
                     return ClassObj;
@@ -77,12 +77,12 @@ namespace Wren.Core.Objects
         {
             if (a == b) return true;
             if (a.Type != b.Type) return false;
-            if (a.Type == ValueType.Num) return a.Num == b.Num;
+            if (a.Type == ObjType.Num) return a.Num == b.Num;
 
 
             // If we get here, it's only possible for two heap-allocated immutable objects
             // to be equal.
-            if (a.Type != ValueType.Obj) return true;
+            if (a.Type != ObjType.Obj) return true;
 
             // Must be the same type.
             if (a.GetType() != b.GetType()) return false;
@@ -109,9 +109,9 @@ namespace Wren.Core.Objects
         {
             switch (Type)
             {
-                case ValueType.Num:
+                case ObjType.Num:
                     return Num.GetHashCode();
-                case ValueType.Obj:
+                case ObjType.Obj:
                     return base.GetHashCode();
                 default:
                     return Type.GetHashCode();
@@ -119,7 +119,7 @@ namespace Wren.Core.Objects
         }
     }
 
-    public enum ValueType
+    public enum ObjType
     {
         False,
         Null,

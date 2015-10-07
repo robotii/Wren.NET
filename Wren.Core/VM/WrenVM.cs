@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Wren.Core.Bytecode;
 using Wren.Core.Library;
 using Wren.Core.Objects;
-using ValueType = Wren.Core.Objects.ValueType;
 
 namespace Wren.Core.VM
 {
@@ -89,7 +88,7 @@ namespace Wren.Core.VM
             ObjModule coreModule = new ObjModule(name);
 
             _modules = new ObjMap();
-            _modules.Set(new Obj(ValueType.Null), coreModule);
+            _modules.Set(new Obj(ObjType.Null), coreModule);
 
             CoreLibrary core = new CoreLibrary(this);
             core.InitializeCore();
@@ -109,7 +108,7 @@ namespace Wren.Core.VM
         {
             // If we are binding a foreign method, just return, as this will be handled later
             if (methodContainer is ObjString)
-                return new Obj(ValueType.Null);
+                return new Obj(ObjType.Null);
 
             ObjFn methodFn = methodContainer as ObjFn ?? ((ObjClosure)methodContainer).Function;
 
@@ -124,7 +123,7 @@ namespace Wren.Core.VM
             Compiler.BindMethodCode(classObj, methodFn);
 
             classObj.BindMethod(symbol, method);
-            return new Obj(ValueType.Null);
+            return new Obj(ObjType.Null);
         }
 
         // Creates a string containing an appropriate method not found error for a
@@ -139,7 +138,7 @@ namespace Wren.Core.VM
         private ObjModule GetModule(Obj name)
         {
             Obj moduleContainer = _modules.Get(name);
-            return moduleContainer.Type == ValueType.Undefined ? null : moduleContainer as ObjModule;
+            return moduleContainer.Type == ObjType.Undefined ? null : moduleContainer as ObjModule;
         }
 
         private ObjModule GetModuleByName(string name)
@@ -156,7 +155,7 @@ namespace Wren.Core.VM
         // Looks up the core module in the module map.
         private ObjModule GetCoreModule()
         {
-            return GetModule(new Obj(ValueType.Null));
+            return GetModule(new Obj(ObjType.Null));
         }
 
         private ObjFiber LoadModule(Obj name, string source)
@@ -196,7 +195,7 @@ namespace Wren.Core.VM
         private Obj ImportModule(Obj name)
         {
             // If the module is already loaded, we don't need to do anything.
-            if (_modules.Get(name).Type != ValueType.Undefined) return new Obj(ValueType.Null);
+            if (_modules.Get(name).Type != ObjType.Undefined) return new Obj(ObjType.Null);
 
             // Load the module's source code from the embedder.
             string source = LoadModuleFn(name.ToString());
@@ -342,7 +341,7 @@ namespace Wren.Core.VM
                         {
                             if (Fiber.StackTop >= Fiber.Capacity)
                                 stack = Fiber.IncreaseStack();
-                            stack[Fiber.StackTop++] = new Obj(ValueType.Null);
+                            stack[Fiber.StackTop++] = new Obj(ObjType.Null);
                             break;
                         }
 
@@ -350,7 +349,7 @@ namespace Wren.Core.VM
                         {
                             if (Fiber.StackTop >= Fiber.Capacity)
                                 stack = Fiber.IncreaseStack();
-                            stack[Fiber.StackTop++] = new Obj(ValueType.False);
+                            stack[Fiber.StackTop++] = new Obj(ObjType.False);
                             break;
                         }
 
@@ -358,7 +357,7 @@ namespace Wren.Core.VM
                         {
                             if (Fiber.StackTop >= Fiber.Capacity)
                                 stack = Fiber.IncreaseStack();
-                            stack[Fiber.StackTop++] = new Obj(ValueType.True);
+                            stack[Fiber.StackTop++] = new Obj(ObjType.True);
                             break;
                         }
 
@@ -409,15 +408,15 @@ namespace Wren.Core.VM
 
                             if (instruction < Instruction.SUPER_0)
                             {
-                                if (receiver.Type == ValueType.Obj)
+                                if (receiver.Type == ObjType.Obj)
                                 {
                                     classObj = receiver.ClassObj;
                                 }
-                                else if (receiver.Type == ValueType.Num)
+                                else if (receiver.Type == ObjType.Num)
                                 {
                                     classObj = NumClass;
                                 }
-                                else if (receiver.Type == ValueType.True || receiver.Type == ValueType.False)
+                                else if (receiver.Type == ObjType.True || receiver.Type == ObjType.False)
                                 {
                                     classObj = BoolClass;
                                 }
@@ -470,7 +469,7 @@ namespace Wren.Core.VM
                                             case PrimitiveResult.RunFiber:
 
                                                 // If we don't have a fiber to switch to, stop interpreting.
-                                                if (args[0].Type == ValueType.Null) return true;
+                                                if (args[0].Type == ObjType.Null) return true;
 
                                                 Fiber = args[0] as ObjFiber;
                                                 /* Load Frame */
@@ -634,9 +633,9 @@ namespace Wren.Core.VM
                         {
                             int offset = (bytecode[ip] << 8) + bytecode[ip + 1];
                             ip += 2;
-                            ValueType condition = stack[--Fiber.StackTop].Type;
+                            ObjType condition = stack[--Fiber.StackTop].Type;
 
-                            if (condition == ValueType.False || condition == ValueType.Null) ip += offset;
+                            if (condition == ObjType.False || condition == ObjType.Null) ip += offset;
                             break;
                         }
 
@@ -645,9 +644,9 @@ namespace Wren.Core.VM
                         {
                             int offset = (bytecode[ip] << 8) + bytecode[ip + 1];
                             ip += 2;
-                            ValueType condition = stack[Fiber.StackTop - 1].Type;
+                            ObjType condition = stack[Fiber.StackTop - 1].Type;
 
-                            if ((condition == ValueType.Null || condition == ValueType.False) ^ instruction == Instruction.OR)
+                            if ((condition == ObjType.Null || condition == ObjType.False) ^ instruction == Instruction.OR)
                                 ip += offset;
                             else
                                 Fiber.StackTop--;
@@ -1014,7 +1013,7 @@ namespace Wren.Core.VM
                 module.Variables.Add(new ModuleVariable { Name = name, Container = c });
                 symbol = module.Variables.Count - 1;
             }
-            else if (module.Variables[symbol].Container.Type == ValueType.Undefined)
+            else if (module.Variables[symbol].Container.Type == ObjType.Undefined)
             {
                 // Explicitly declaring an implicitly declared one. Mark it as defined.
                 module.Variables[symbol].Container = c;
