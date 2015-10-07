@@ -22,6 +22,7 @@ namespace Wren.Core.VM
         // No method for the given symbol.
         None,
 
+        // Static method
         Static
     };
 
@@ -41,7 +42,7 @@ namespace Wren.Core.VM
 
     };
 
-    public class Method : Obj
+    public class Method
     {
         public MethodType MType;
 

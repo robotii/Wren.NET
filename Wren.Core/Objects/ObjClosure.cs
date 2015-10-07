@@ -6,10 +6,6 @@ namespace Wren.Core.Objects
     // Unlike [ObjFn], this has captured the upvalues that the function accesses.
     public class ObjClosure : Obj
     {
-        // The function that this closure is an instance of.
-
-        // The upvalues this function has closed over.
-
         // Creates a new closure object that invokes [fn]. Allocates room for its
         // upvalues, but assumes outside code will populate it.
         public ObjClosure(ObjFn fn)
@@ -20,8 +16,10 @@ namespace Wren.Core.Objects
             ClassObj = WrenVM.FnClass;
         }
 
+        // The function that this closure is an instance of.
         public ObjFn Function;
 
+        // The upvalues this function has closed over.
         public ObjUpvalue[] Upvalues;
     }
 }

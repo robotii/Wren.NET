@@ -1,4 +1,4 @@
-﻿namespace Wren.Core.VM
+﻿namespace Wren.Core.Bytecode
 {
     // This defines the bytecode instructions used by the VM.
 

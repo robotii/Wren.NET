@@ -20,8 +20,6 @@ namespace Wren.Core.Objects
             Strings.Clear();
         }
 
-        // Inline array of the string's bytes followed by a null terminator.
-
         public ObjString(string s)
             : base(ObjType.Obj)
         {
