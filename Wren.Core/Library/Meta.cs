@@ -8,9 +8,9 @@ namespace Wren.Core.Library
     {
         const string MetaLibSource = "class Meta {}\n";
 
-        static PrimitiveResult Eval(WrenVM vm, Value[] args)
+        static PrimitiveResult Eval(WrenVM vm, Obj[] args)
         {
-            if (args[1] != null && args[1].Obj is ObjString)
+            if (args[1] is ObjString)
             {
 
                 // Eval the code in the module where the calling function was defined.
@@ -20,11 +20,11 @@ namespace Wren.Core.Library
                     : ((ObjClosure)callingFn).Function.Module;
 
                 // Compile it.
-                ObjFn fn = Compiler.Compile(vm, module, "", args[1].Obj.ToString(), false);
+                ObjFn fn = Compiler.Compile(vm, module, "", args[1].ToString(), false);
 
                 if (fn == null)
                 {
-                    args[0] = new Value("Could not compile source code.");
+                    args[0] = Obj.MakeString("Could not compile source code.");
                     return PrimitiveResult.Error;
                 }
 
@@ -34,12 +34,12 @@ namespace Wren.Core.Library
                 ObjFiber evalFiber = new ObjFiber(fn) { Caller = vm.Fiber };
 
                 // Switch to the fiber.
-                args[0] = new Value(evalFiber);
+                args[0] = evalFiber;
 
                 return PrimitiveResult.RunFiber;
             }
 
-            args[0] = new Value("Source code must be a string.");
+            args[0] = Obj.MakeString("Source code must be a string.");
             return PrimitiveResult.Error;
         }
 
@@ -47,7 +47,7 @@ namespace Wren.Core.Library
         {
             vm.Interpret("", "", MetaLibSource);
 
-            ObjClass meta = (ObjClass)vm.FindVariable("Meta").Obj;
+            ObjClass meta = (ObjClass)vm.FindVariable("Meta");
             vm.Primitive(meta.ClassObj, "eval(_)", Eval);
         }
     }

@@ -7,19 +7,20 @@ namespace Wren.Core.Objects
     {
 
         // Pointer to a contiguous array of [capacity] entries.
-        Dictionary<Value,Value> _entries;
+        Dictionary<Obj,Obj> _entries;
 
         // Looks up [key] in [map]. If found, returns the value. Otherwise, returns UNDEFINED.
-        public Value Get(Value key)
+        public Obj Get(Obj key)
         {
-            Value v;
-            return _entries.TryGetValue(key, out v) ? v : new Value();
+            Obj v;
+            return _entries.TryGetValue(key, out v) ? v : new Obj();
         }
 
         // Creates a new empty map.
         public ObjMap()
+            : base(ValueType.Obj)
         {
-            _entries = new Dictionary<Value, Value>(new ValueComparer());
+            _entries = new Dictionary<Obj, Obj>(new ObjComparer());
             ClassObj = WrenVM.MapClass;
         }
 
@@ -28,46 +29,46 @@ namespace Wren.Core.Objects
             return _entries.Count;
         }
 
-        public Value Get(int index)
+        public Obj Get(int index)
         {
             if (index < 0 || index >= _entries.Count)
-                return new Value();
-            Value[] v = new Value[_entries.Count];
+                return new Obj();
+            Obj[] v = new Obj[_entries.Count];
             _entries.Values.CopyTo(v, 0);
             return v[index];
         }
 
-        public Value GetKey(int index)
+        public Obj GetKey(int index)
         {
             if (index < 0 || index >= _entries.Count)
-                return new Value();
-            Value[] v = new Value[_entries.Count];
+                return new Obj();
+            Obj[] v = new Obj[_entries.Count];
             _entries.Keys.CopyTo(v, 0);
             return v[index];
         }
 
         // Associates [key] with [value] in [map].
-        public void Set(Value key, Value c)
+        public void Set(Obj key, Obj c)
         {
             _entries[key] = c;
         }
 
         public void Clear()
         {
-            _entries = new Dictionary<Value, Value>(new ValueComparer());
+            _entries = new Dictionary<Obj, Obj>(new ObjComparer());
         }
 
         // Removes [key] from [map], if present. Returns the value for the key if found
         // or `NULL_VAL` otherwise.
-        public Value Remove(Value key)
+        public Obj Remove(Obj key)
         {
-            Value v;
+            Obj v;
             if (_entries.TryGetValue(key, out v))
             {
                 _entries.Remove(key);
                 return v;
             }
-            return new Value (ValueType.Null);
+            return new Obj (ValueType.Null);
         }
     }
 }

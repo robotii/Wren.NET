@@ -79,7 +79,7 @@ namespace WrenLibrary
         public static void LoadLibrary(WrenVM vm)
         {
             vm.Interpret("io", "io", ioSource);
-            ObjClass file = (ObjClass)vm.FindVariable("io", "File").Obj;
+            ObjClass file = (ObjClass)vm.FindVariable("io", "File");
             vm.Primitive(file.ClassObj, "open_(_,_)", Open);
             vm.Primitive(file.ClassObj, "sizePath_(_,_)", SizePath);
 
@@ -89,32 +89,32 @@ namespace WrenLibrary
             vm.Primitive(file, "size_(_)", Size);
         }
 
-        private static PrimitiveResult Open(WrenVM vm, Value[] args)
+        private static PrimitiveResult Open(WrenVM vm, Obj[] args)
         {
             return PrimitiveResult.Value;
         }
 
-        private static PrimitiveResult SizePath(WrenVM vm, Value[] args)
+        private static PrimitiveResult SizePath(WrenVM vm, Obj[] args)
         {
             return PrimitiveResult.Value;
         }
 
-        private static PrimitiveResult Close(WrenVM vm, Value[] args)
+        private static PrimitiveResult Close(WrenVM vm, Obj[] args)
         {
             return PrimitiveResult.Value;
         }
 
-        private static PrimitiveResult Descriptor(WrenVM vm, Value[] args)
+        private static PrimitiveResult Descriptor(WrenVM vm, Obj[] args)
         {
             return PrimitiveResult.Value;
         }
 
-        private static PrimitiveResult ReadBytes(WrenVM vm, Value[] args)
+        private static PrimitiveResult ReadBytes(WrenVM vm, Obj[] args)
         {
             return PrimitiveResult.Value;
         }
 
-        private static PrimitiveResult Size(WrenVM vm, Value[] args)
+        private static PrimitiveResult Size(WrenVM vm, Obj[] args)
         {
             return PrimitiveResult.Value;
         }

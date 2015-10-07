@@ -23,11 +23,11 @@ namespace WrenLibrary
         public static void LoadLibrary(WrenVM vm)
         {
             vm.Interpret("timer", "timer", timerSource);
-            ObjClass timer = (ObjClass)vm.FindVariable("timer", "Timer").Obj;
+            ObjClass timer = (ObjClass)vm.FindVariable("timer", "Timer");
             vm.Primitive(timer.ClassObj, "startTimer_(_,_)", StartTimer);
         }
 
-        private static PrimitiveResult StartTimer(WrenVM vm, Value[] args)
+        private static PrimitiveResult StartTimer(WrenVM vm, Obj[] args)
         {
             return PrimitiveResult.Value;
         }

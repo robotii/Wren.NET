@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using Wren.Core.Objects;
 using Wren.Core.VM;
-using ValueType = Wren.Core.VM.ValueType;
+using ValueType = Wren.Core.Objects.ValueType;
 
 namespace Wren.Core.Bytecode
 {
@@ -244,7 +244,7 @@ namespace Wren.Core.Bytecode
         public const int MaxParameters = 16;
 
         private readonly Compiler _parent;
-        private readonly List<Value> _constants = new List<Value>();
+        private readonly List<Obj> _constants = new List<Obj>();
         private readonly Local[] _locals = new Local[MaxLocals + 1];
         private int _numLocals;
 
@@ -301,7 +301,7 @@ namespace Wren.Core.Bytecode
         }
 
         // Adds [constant] to the constant pool and returns its index.
-        private int AddConstant(Value constant)
+        private int AddConstant(Obj constant)
         {
             // TODO: attempt to consolidate constants
 
@@ -325,7 +325,7 @@ namespace Wren.Core.Bytecode
 
             // Initialize this to null before allocating in case a GC gets triggered in
             // the middle of initializing the compiler.
-            _constants = new List<Value>();
+            _constants = new List<Obj>();
 
             _numUpValues = 0;
             _numParams = 0;
@@ -1061,7 +1061,7 @@ namespace Wren.Core.Bytecode
             // Top-level module scope.
             if (_scopeDepth == -1)
             {
-                int symbol = _parser.vm.DefineVariable(_parser.Module, _parser.Source.Substring(t.Start, t.Length), new Value(ValueType.Null));
+                int symbol = _parser.vm.DefineVariable(_parser.Module, _parser.Source.Substring(t.Start, t.Length), new Obj(ValueType.Null));
 
                 switch (symbol)
                 {
@@ -1317,7 +1317,7 @@ namespace Wren.Core.Bytecode
             // In the function that contains this one, load the resulting function object.
             if (_parent != null)
             {
-                int constant = _parent.AddConstant(new Value(fn));
+                int constant = _parent.AddConstant(fn);
 
                 // If the function has no upvalues, we don't need to create a closure.
                 // We can just load and run the function directly.
@@ -1621,7 +1621,7 @@ namespace Wren.Core.Bytecode
                 // superclass in a constant. So, here, we create a slot in the constant
                 // table and store null in it. When the method is bound, we'll look up the
                 // superclass then and store it in the constant slot.
-                int constant = AddConstant(new Value(ValueType.Null));
+                int constant = AddConstant(new Obj(ValueType.Null));
                 EmitShort(constant);
             }
         }
@@ -2071,7 +2071,7 @@ namespace Wren.Core.Bytecode
 
         private static void Number(Compiler c, bool allowAssignment)
         {
-            int constant = c.AddConstant(new Value(c._parser.Number));
+            int constant = c.AddConstant(new Obj(c._parser.Number));
 
             // Compile the code to load the constant.
             c.EmitShortArg(Instruction.CONSTANT, constant);
@@ -2081,7 +2081,7 @@ namespace Wren.Core.Bytecode
         private int StringConstant()
         {
             // Define a constant for the literal.
-            int constant = AddConstant(new Value(_parser.Raw));
+            int constant = AddConstant(Obj.MakeString(_parser.Raw));
 
             _parser.Raw = "";
 
@@ -2494,7 +2494,7 @@ namespace Wren.Core.Bytecode
 
         // Returns the number of arguments to the instruction at [ip] in [fn]'s
         // bytecode.
-        private static int GetNumArguments(byte[] bytecode, List<Value> constants, int ip)
+        private static int GetNumArguments(byte[] bytecode, List<Obj> constants, int ip)
         {
             Instruction instruction = (Instruction)bytecode[ip];
             switch (instruction)
@@ -2585,7 +2585,7 @@ namespace Wren.Core.Bytecode
                 case Instruction.CLOSURE:
                     {
                         int constant = (bytecode[ip + 1] << 8) | bytecode[ip + 2];
-                        ObjFn loadedFn = (ObjFn)constants[constant].Obj;
+                        ObjFn loadedFn = (ObjFn)constants[constant];
 
                         // There are two bytes for the constant, then two for each upvalue.
                         return 2 + (loadedFn.NumUpvalues * 2);
@@ -2890,7 +2890,7 @@ namespace Wren.Core.Bytecode
 
             if (isForeign)
             {
-                int constant = AddConstant(new Value(fullSignature));
+                int constant = AddConstant(Obj.MakeString(fullSignature));
 
                 EmitShortArg(Instruction.CONSTANT, constant);
             }
@@ -2951,7 +2951,7 @@ namespace Wren.Core.Bytecode
             int slot = DeclareNamedVariable();
 
             // Make a string constant for the name.
-            int nameConstant = AddConstant(new Value(_parser.Source.Substring(_parser.Previous.Start, _parser.Previous.Length)));
+            int nameConstant = AddConstant(Obj.MakeString(_parser.Source.Substring(_parser.Previous.Start, _parser.Previous.Length)));
 
             EmitShortArg(Instruction.CONSTANT, nameConstant);
 
@@ -3046,7 +3046,7 @@ namespace Wren.Core.Bytecode
 
                 // Define a string constant for the variable name.
                 string varName = _parser.Source.Substring(_parser.Previous.Start, _parser.Previous.Length);
-                int variableConstant = AddConstant(new Value(varName));
+                int variableConstant = AddConstant(Obj.MakeString(varName));
 
                 // Load the variable from the other module.
                 EmitShortArg(Instruction.IMPORT_VARIABLE, moduleConstant);
@@ -3206,7 +3206,7 @@ namespace Wren.Core.Bytecode
 
                             // Fill in the constant slot with a reference to the superclass.
                             int constant = (fn.Bytecode[ip] << 8) | fn.Bytecode[ip + 1];
-                            fn.Constants[constant] = new Value(classObj.Superclass);
+                            fn.Constants[constant] = classObj.Superclass;
                             break;
                         }
 
@@ -3214,9 +3214,9 @@ namespace Wren.Core.Bytecode
                         {
                             // Bind the nested closure too.
                             int constant = (fn.Bytecode[ip] << 8) | fn.Bytecode[ip + 1];
-                            BindMethodCode(classObj, fn.Constants[constant].Obj as ObjFn);
+                            BindMethodCode(classObj, fn.Constants[constant] as ObjFn);
 
-                            ip += GetNumArguments(fn.Bytecode, new List<Value>(fn.Constants), ip - 1);
+                            ip += GetNumArguments(fn.Bytecode, new List<Obj>(fn.Constants), ip - 1);
                             break;
                         }
 
@@ -3225,7 +3225,7 @@ namespace Wren.Core.Bytecode
 
                     default:
                         // Other instructions are unaffected, so just skip over them.
-                        ip += GetNumArguments(fn.Bytecode, new List<Value>(fn.Constants), ip - 1);
+                        ip += GetNumArguments(fn.Bytecode, new List<Obj>(fn.Constants), ip - 1);
                         break;
                 }
             }
@@ -3344,7 +3344,7 @@ namespace Wren.Core.Bytecode
                     case Instruction.CLOSURE:
                         {
                             int constant = (bytecode[ip + 1] << 8) | bytecode[ip + 2];
-                            ObjFn loadedFn = (ObjFn)fn.Constants[constant].Obj;
+                            ObjFn loadedFn = (ObjFn)fn.Constants[constant];
 
                             // There are two bytes for the constant, then two for each upvalue.
                             int j = 2 + (loadedFn.NumUpvalues * 2);

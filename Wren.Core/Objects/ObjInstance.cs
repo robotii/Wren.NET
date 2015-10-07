@@ -6,17 +6,18 @@ namespace Wren.Core.Objects
     {
         // Creates a new instance of the given [classObj].
         public ObjInstance(ObjClass classObj)
+            : base(ValueType.Obj)
         {
-            Fields = new Value[classObj.NumFields];
+            Fields = new Obj[classObj.NumFields];
 
             // Initialize fields to null.
             for (int i = 0; i < classObj.NumFields; i++)
             {
-                Fields[i] = Value.Null;
+                Fields[i] = Null;
             }
             ClassObj = classObj;
         }
 
-        public Value[] Fields;
+        public Obj[] Fields;
     }
 }

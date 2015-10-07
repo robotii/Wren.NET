@@ -52,7 +52,6 @@
     <Compile Include="Objects\ObjUpvalue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VM\Code.cs" />
-    <Compile Include="VM\Value.cs" />
     <Compile Include="VM\WrenVM.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

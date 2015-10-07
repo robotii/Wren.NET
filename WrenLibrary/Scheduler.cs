@@ -37,12 +37,12 @@ namespace WrenLibrary
         public static void LoadLibrary(WrenVM vm)
         {
             vm.Interpret("scheduler", "scheduler", schedulerSource);
-            ObjClass scheduler = (ObjClass)vm.FindVariable("scheduler", "Scheduler").Obj;
+            ObjClass scheduler = (ObjClass)vm.FindVariable("scheduler", "Scheduler");
             vm.Primitive(scheduler.ClassObj, "captureMethods_()", CaptureMethods);
             vm.Interpret("scheduler", "scheduler", "Scheduler.captureMethods_()");
         }
 
-        private static PrimitiveResult CaptureMethods(WrenVM vm, Value[] args)
+        private static PrimitiveResult CaptureMethods(WrenVM vm, Obj[] args)
         {
             return PrimitiveResult.Value;
         }

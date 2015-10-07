@@ -20,10 +20,11 @@ namespace Wren.Core.Objects
         // function will take over ownership of [bytecode] and [sourceLines]. It will
         // copy [constants] into its own array.
         public ObjFn(ObjModule module,
-            Value[] constants,
+            Obj[] constants,
             int numUpvalues, int arity,
             byte[] bytecode, ObjString debugSourcePath,
             string debugName, int[] sourceLines)
+            : base(ValueType.Obj)
         {
             Bytecode = bytecode;
             Constants = constants;
@@ -45,7 +46,7 @@ namespace Wren.Core.Objects
         public ObjModule Module;
         public ObjString SourcePath;
 
-        public Value[] Constants;
+        public Obj[] Constants;
 
         public int Arity;
         public int[] SourceLines;

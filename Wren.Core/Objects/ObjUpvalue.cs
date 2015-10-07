@@ -14,13 +14,14 @@ namespace Wren.Core.Objects
         // next upvalue in that list.
 
         // Creates a new open upvalue pointing to [value] on the stack.
-        public ObjUpvalue(Value c)
+        public ObjUpvalue(Obj c)
+            : base(ValueType.Obj)
         {
             Container = c;
             Next = null;
         }
 
-        public Value Container;
+        public Obj Container;
         public ObjUpvalue Next;
     }
 }

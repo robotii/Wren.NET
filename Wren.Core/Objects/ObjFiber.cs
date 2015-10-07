@@ -5,7 +5,7 @@ namespace Wren.Core.Objects
 {
     public class ObjFiber : Obj
     {
-        internal Value[] Stack;
+        internal Obj[] Stack;
 
         public List<CallFrame> Frames;
 
@@ -38,6 +38,7 @@ namespace Wren.Core.Objects
         // Creates a new fiber object that will invoke [fn], which can be a function or
         // closure.
         public ObjFiber(Obj fn)
+            : base(ValueType.Obj)
         {
             ResetFiber(fn);
             ClassObj = WrenVM.FiberClass;
@@ -51,7 +52,7 @@ namespace Wren.Core.Objects
         // Resets [fiber] back to an initial state where it is ready to invoke [fn].
         private void ResetFiber(Obj fn)
         {
-            Stack = new Value[InitialStackSize];
+            Stack = new Obj[InitialStackSize];
             Capacity = InitialStackSize;
             Frames = new List<CallFrame>();
 
@@ -67,7 +68,7 @@ namespace Wren.Core.Objects
             Frames.Add(frame);
         }
 
-        public Value GetReceiver(int numArgs)
+        public Obj GetReceiver(int numArgs)
         {
             return Stack[StackTop - numArgs];
         }
@@ -87,7 +88,7 @@ namespace Wren.Core.Objects
         // ensure that multiple closures closing over the same variable actually see
         // the same variable.) Otherwise, it will create a new open upvalue and add it
         // the fiber's list of upvalues.
-        public ObjUpvalue CaptureUpvalue(Value local)
+        public ObjUpvalue CaptureUpvalue(Obj local)
         {
             // If there are no open upvalues at all, we must need a new one.
             if (OpenUpvalues == null)
@@ -136,7 +137,7 @@ namespace Wren.Core.Objects
             ObjUpvalue upvalue = OpenUpvalues;
 
             // Move the value into the upvalue itself and point the upvalue to it.
-            upvalue.Container = new Value(upvalue.Container);
+            //upvalue.Container = upvalue.Container;
 
             // Remove it from the open upvalue list.
             OpenUpvalues = upvalue.Next;
@@ -147,10 +148,10 @@ namespace Wren.Core.Objects
         // Returns the fiber that should receive the error or `NULL` if no fiber
         // caught it.
 
-        public ObjFiber RuntimeError(Value error)
+        public ObjFiber RuntimeError(Obj error)
         {
             // Store the error in the fiber so it can be accessed later.
-            Error = error.Obj as ObjString;
+            Error = error as ObjString;
 
             // If the caller ran this fiber using "try", give it the error.
             if (CallerIsTrying)
@@ -176,18 +177,18 @@ namespace Wren.Core.Objects
             NumFrames++;
         }
 
-        public Value Return()
+        public Obj Return()
         {
             Frames.RemoveAt(--NumFrames);
             return Pop();
         }
 
-        public void SetReturnValue(Value v)
+        public void SetReturnValue(Obj v)
         {
             Stack[StackTop - 1] = v;
         }
 
-        public void Push(Value c)
+        public void Push(Obj c)
         {
             if (StackTop >= Capacity)
                 IncreaseStack();
@@ -199,7 +200,7 @@ namespace Wren.Core.Objects
             Push(Stack[StackTop - 1]);
         }
 
-        public Value Pop()
+        public Obj Pop()
         {
             return Stack[--StackTop];
         }
@@ -209,24 +210,24 @@ namespace Wren.Core.Objects
             StackTop--;
         }
 
-        public Value Peek()
+        public Obj Peek()
         {
             return Stack[StackTop - 1];
         }
 
-        public Value Peek2()
+        public Obj Peek2()
         {
             return Stack[StackTop - 2];
         }
 
-        public void StoreValue(int index, Value v)
+        public void StoreValue(int index, Obj v)
         {
-            Stack[StackTop + index] = new Value(v);
+            Stack[StackTop + index] = v;
         }
 
-        public Value[] IncreaseStack()
+        public Obj[] IncreaseStack()
         {
-            Value[] v = new Value[Capacity * 2];
+            Obj[] v = new Obj[Capacity * 2];
             Stack.CopyTo(v, 0);
             Stack = v;
             return Stack;

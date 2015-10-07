@@ -15,7 +15,7 @@ namespace Wren.Core.Objects
         public ObjString Name;
 
         // Creates a new module.
-        public ObjModule(ObjString name)
+        public ObjModule(ObjString name) : base(ValueType.Obj)
         {
             Name = name;
             Variables = new List<ModuleVariable>();
@@ -26,6 +26,6 @@ namespace Wren.Core.Objects
     {
         public string Name;
 
-        internal Value Container;
+        internal Obj Container;
     }
 }

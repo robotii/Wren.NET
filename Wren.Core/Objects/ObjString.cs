@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Wren.Core.VM;
+using ValueType = Wren.Core.Objects.ValueType;
 
 namespace Wren.Core.Objects
 {
@@ -23,42 +24,43 @@ namespace Wren.Core.Objects
         // Inline array of the string's bytes followed by a null terminator.
 
         public ObjString(string s)
+            : base(ValueType.Obj)
         {
-            Value = s;
+            Str = s;
             ClassObj = WrenVM.StringClass;
             if (!_initCompleted)
                 Strings.Add(this);
         }
 
-        public readonly string Value;
+        public readonly string Str;
 
         public override string ToString()
         {
-            return Value;
+            return Str;
         }
 
         public override int GetHashCode()
         {
-            return Value.GetHashCode();
+            return Str.GetHashCode();
         }
 
         // Creates a new string containing the UTF-8 encoding of [value].
-        public static Value FromCodePoint(int v)
+        public static Obj FromCodePoint(int v)
         {
-            return new Value("" + Convert.ToChar(v));
+            return MakeString("" + Convert.ToChar(v));
         }
 
         // Creates a new string containing the code point in [string] starting at byte
         // [index]. If [index] points into the middle of a UTF-8 sequence, returns an
         // empty string.
-        public Value CodePointAt(int index)
+        public Obj CodePointAt(int index)
         {
-            return index > Value.Length ? new Value() : new Value(Value[index]);
+            return index > Str.Length ? new Obj() : new Obj(Str[index]);
         }
 
         public byte[] GetBytes()
         {
-            return Encoding.UTF8.GetBytes(Value);
+            return Encoding.UTF8.GetBytes(Str);
         }
     }
 }

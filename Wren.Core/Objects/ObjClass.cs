@@ -1,5 +1,6 @@
 ﻿using System;
 using Wren.Core.VM;
+using ValueType = Wren.Core.Objects.ValueType;
 
 namespace Wren.Core.Objects
 {
@@ -21,6 +22,7 @@ namespace Wren.Core.Objects
 
         // Creates a new class object as well as its associated metaclass.
         public ObjClass(ObjClass superclass, int numFields, ObjString name)
+            : base(ValueType.Obj)
         {
             Methods = new Method[InitialMethodSize];
             Superclass = superclass;
@@ -44,6 +46,7 @@ namespace Wren.Core.Objects
         // This is only used for bootstrapping the initial Object and Class classes,
         // which are a little special.
         public ObjClass(int numFields, ObjString name)
+            : base(ValueType.Obj)
         {
             Methods = new Method[InitialMethodSize];
             NumFields = numFields;
@@ -67,7 +70,7 @@ namespace Wren.Core.Objects
 
             // Inherit methods from its superclass.
             Methods = new Method[sc.Methods.Length];
-            sc.Methods.CopyTo(Methods,0);
+            sc.Methods.CopyTo(Methods, 0);
         }
 
         public void BindMethod(int symbol, Method method)
@@ -85,7 +88,7 @@ namespace Wren.Core.Objects
             while (i <= symbol)
                 i *= 2;
             Method[] m = new Method[i];
-            Methods.CopyTo(m,0);
+            Methods.CopyTo(m, 0);
             Methods = m;
         }
     }
