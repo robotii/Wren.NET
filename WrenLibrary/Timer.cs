@@ -5,7 +5,7 @@ namespace WrenLibrary
 {
     public static class Timer
     {
-        private static string timerSource =
+        private static string _timerSource =
             "import \"scheduler\" for Scheduler\n"
             + "\n"
             + "class Timer {\n"
@@ -22,7 +22,7 @@ namespace WrenLibrary
 
         public static void LoadLibrary(WrenVM vm)
         {
-            vm.Interpret("timer", "timer", timerSource);
+            vm.Interpret("timer", "timer", _timerSource);
             ObjClass timer = (ObjClass)vm.FindVariable("timer", "Timer");
             vm.Primitive(timer.ClassObj, "startTimer_(_,_)", StartTimer);
         }

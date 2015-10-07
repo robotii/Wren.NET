@@ -20,11 +20,11 @@ namespace Wren.Core.Library
                     : ((ObjClosure)callingFn).Function.Module;
 
                 // Compile it.
-                ObjFn fn = Compiler.Compile(vm, module, "", args[1].ToString(), false);
+                ObjFn fn = Compiler.Compile(vm, module, "", args[stackStart + 1].ToString(), false);
 
                 if (fn == null)
                 {
-                    args[stackStart + 0] = Obj.MakeString("Could not compile source code.");
+                    args[stackStart] = Obj.MakeString("Could not compile source code.");
                     return PrimitiveResult.Error;
                 }
 
@@ -34,12 +34,12 @@ namespace Wren.Core.Library
                 ObjFiber evalFiber = new ObjFiber(fn) { Caller = vm.Fiber };
 
                 // Switch to the fiber.
-                args[stackStart + 0] = evalFiber;
+                args[stackStart] = evalFiber;
 
                 return PrimitiveResult.RunFiber;
             }
 
-            args[0] = Obj.MakeString("Source code must be a string.");
+            args[stackStart] = Obj.MakeString("Source code must be a string.");
             return PrimitiveResult.Error;
         }
 

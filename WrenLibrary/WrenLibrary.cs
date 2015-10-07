@@ -9,7 +9,7 @@ namespace WrenLibrary
         public static void LoadLibrary(WrenVM vm)
         {
             Scheduler.LoadLibrary(vm);
-            io.LoadLibrary(vm);
+            Io.LoadLibrary(vm);
             Timer.LoadLibrary(vm);
         }
     }

@@ -5,7 +5,7 @@ namespace WrenLibrary
 {
     public static class Scheduler
     {
-        private static string schedulerSource =
+        private static string _schedulerSource =
             "class Scheduler {\n"
             + "  static add(callable) {\n"
             + "    if (__scheduled == null) __scheduled = []\n"
@@ -36,7 +36,7 @@ namespace WrenLibrary
 
         public static void LoadLibrary(WrenVM vm)
         {
-            vm.Interpret("scheduler", "scheduler", schedulerSource);
+            vm.Interpret("scheduler", "scheduler", _schedulerSource);
             ObjClass scheduler = (ObjClass)vm.FindVariable("scheduler", "Scheduler");
             vm.Primitive(scheduler.ClassObj, "captureMethods_()", CaptureMethods);
             vm.Interpret("scheduler", "scheduler", "Scheduler.captureMethods_()");

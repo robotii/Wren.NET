@@ -3,9 +3,9 @@ using Wren.Core.VM;
 
 namespace WrenLibrary
 {
-    class io
+    class Io
     {
-        private static string ioSource =
+        private static readonly string _ioSource =
             "import \"scheduler\" for Scheduler\n"
             + "\n"
             + "foreign class File {\n"
@@ -78,7 +78,7 @@ namespace WrenLibrary
 
         public static void LoadLibrary(WrenVM vm)
         {
-            vm.Interpret("io", "io", ioSource);
+            vm.Interpret("io", "io", _ioSource);
             ObjClass file = (ObjClass)vm.FindVariable("io", "File");
             vm.Primitive(file.ClassObj, "open_(_,_)", Open);
             vm.Primitive(file.ClassObj, "sizePath_(_,_)", SizePath);
