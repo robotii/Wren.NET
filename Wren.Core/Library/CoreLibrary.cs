@@ -264,50 +264,50 @@ namespace Wren.Core.Library
 
         private static readonly Regex CheckDouble = new Regex(@"^(0[0-7]*|((?!0)|[-+]|(?=0+\.))(\d*\.)?\d+([eE]([-+])?\d+)?)$");
 
-        static PrimitiveResult prim_bool_not(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_bool_not(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = new Obj(args[0].Type != ObjType.True);
+            args[stackStart + 0] = new Obj(args[stackStart + 0].Type != ObjType.True);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_bool_toString(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_bool_toString(WrenVM vm, Obj[] args, int stackStart)
         {
-            if (args[0].Type == ObjType.True)
+            if (args[stackStart + 0].Type == ObjType.True)
             {
-                args[0] = Obj.MakeString("true");
+                args[stackStart + 0] = Obj.MakeString("true");
             }
             else
             {
-                args[0] = Obj.MakeString("false");
+                args[stackStart + 0] = Obj.MakeString("false");
             }
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_class_name(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_class_name(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = ((ObjClass)args[0]).Name;
+            args[stackStart + 0] = ((ObjClass)args[stackStart + 0]).Name;
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_class_supertype(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_class_supertype(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjClass classObj = (ObjClass)args[0];
+            ObjClass classObj = (ObjClass)args[stackStart + 0];
 
             // Object has no superclass.
             if (classObj.Superclass == null)
             {
-                args[0] = new Obj(ObjType.Null);
+                args[stackStart + 0] = new Obj(ObjType.Null);
             }
             else
             {
-                args[0] = classObj.Superclass;
+                args[stackStart + 0] = classObj.Superclass;
             }
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_fiber_new(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_fiber_new(WrenVM vm, Obj[] args, int stackStart)
         {
-            Obj o = args[1];
+            Obj o = args[stackStart + 1];
             if (o is ObjFn || o is ObjClosure)
             {
                 ObjFiber newFiber = new ObjFiber(o);
@@ -317,23 +317,23 @@ namespace Wren.Core.Library
                 // in here.
                 newFiber.Push(Obj.Null);
 
-                args[0] = newFiber;
+                args[stackStart + 0] = newFiber;
                 return PrimitiveResult.Value;
             }
 
-            args[0] = Obj.MakeString("Argument must be a function.");
+            args[stackStart + 0] = Obj.MakeString("Argument must be a function.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_fiber_abort(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_fiber_abort(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = args[1];
+            args[stackStart + 0] = args[stackStart + 1];
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_fiber_call(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_fiber_call(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjFiber runFiber = args[0] as ObjFiber;
+            ObjFiber runFiber = args[stackStart + 0] as ObjFiber;
 
             if (runFiber != null)
             {
@@ -353,20 +353,20 @@ namespace Wren.Core.Library
                         return PrimitiveResult.RunFiber;
                     }
 
-                    args[0] = Obj.MakeString("Fiber has already been called.");
+                    args[stackStart + 0] = Obj.MakeString("Fiber has already been called.");
                     return PrimitiveResult.Error;
                 }
-                args[0] = Obj.MakeString("Cannot call a finished fiber.");
+                args[stackStart + 0] = Obj.MakeString("Cannot call a finished fiber.");
                 return PrimitiveResult.Error;
             }
 
-            args[0] = Obj.MakeString("Trying to call a non-fiber");
+            args[stackStart + 0] = Obj.MakeString("Trying to call a non-fiber");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_fiber_call1(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_fiber_call1(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjFiber runFiber = args[0] as ObjFiber;
+            ObjFiber runFiber = args[stackStart + 0] as ObjFiber;
 
             if (runFiber != null)
             {
@@ -381,7 +381,7 @@ namespace Wren.Core.Library
                         // run.
                         if (runFiber.StackTop > 0)
                         {
-                            runFiber.StoreValue(-1, args[1]);
+                            runFiber.StoreValue(-1, args[stackStart + 1]);
                         }
 
                         // When the calling fiber resumes, we'll store the result of the run call
@@ -393,46 +393,46 @@ namespace Wren.Core.Library
                         return PrimitiveResult.RunFiber;
                     }
 
-                    args[0] = Obj.MakeString("Fiber has already been called.");
+                    args[stackStart + 0] = Obj.MakeString("Fiber has already been called.");
                     return PrimitiveResult.Error;
                 }
-                args[0] = Obj.MakeString("Cannot call a finished fiber.");
+                args[stackStart + 0] = Obj.MakeString("Cannot call a finished fiber.");
                 return PrimitiveResult.Error;
             }
 
-            args[0] = Obj.MakeString("Trying to call a non-fiber");
+            args[stackStart + 0] = Obj.MakeString("Trying to call a non-fiber");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_fiber_current(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_fiber_current(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = vm.Fiber;
+            args[stackStart + 0] = vm.Fiber;
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_fiber_suspend(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_fiber_suspend(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = new Obj(ObjType.Null);
+            args[stackStart + 0] = new Obj(ObjType.Null);
             return PrimitiveResult.RunFiber;
         }
 
-        static PrimitiveResult prim_fiber_error(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_fiber_error(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjFiber runFiber = (ObjFiber)args[0];
-            args[0] = runFiber.Error ?? new Obj(ObjType.Null);
+            ObjFiber runFiber = (ObjFiber)args[stackStart + 0];
+            args[stackStart + 0] = runFiber.Error ?? new Obj(ObjType.Null);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_fiber_isDone(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_fiber_isDone(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjFiber runFiber = (ObjFiber)args[0];
-            args[0] = new Obj(runFiber.NumFrames == 0 || runFiber.Error != null);
+            ObjFiber runFiber = (ObjFiber)args[stackStart + 0];
+            args[stackStart + 0] = new Obj(runFiber.NumFrames == 0 || runFiber.Error != null);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_fiber_transfer(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_fiber_transfer(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjFiber runFiber = (ObjFiber)args[0];
+            ObjFiber runFiber = (ObjFiber)args[stackStart + 0];
 
             if (runFiber.NumFrames != 0)
             {
@@ -452,19 +452,19 @@ namespace Wren.Core.Library
             }
 
             // If the fiber was yielded, make the yield call return null.
-            args[0] = Obj.MakeString("Cannot run a finished fiber.");
+            args[stackStart + 0] = Obj.MakeString("Cannot run a finished fiber.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_fiber_transfer1(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_fiber_transfer1(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjFiber runFiber = (ObjFiber)args[0];
+            ObjFiber runFiber = (ObjFiber)args[stackStart + 0];
 
             if (runFiber.NumFrames != 0)
             {
                 if (runFiber.Caller == null && runFiber.StackTop > 0)
                 {
-                    runFiber.StoreValue(-1, args[1]);
+                    runFiber.StoreValue(-1, args[stackStart + 1]);
                 }
 
                 // Unlike run, this does not remember the calling fiber. Instead, it
@@ -479,13 +479,13 @@ namespace Wren.Core.Library
 
             // If the fiber was yielded, make the yield call return the value passed to
             // run.
-            args[0] = Obj.MakeString("Cannot run a finished fiber.");
+            args[stackStart + 0] = Obj.MakeString("Cannot run a finished fiber.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_fiber_try(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_fiber_try(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjFiber runFiber = (ObjFiber)args[0];
+            ObjFiber runFiber = (ObjFiber)args[stackStart + 0];
 
             if (runFiber.NumFrames != 0)
             {
@@ -504,14 +504,14 @@ namespace Wren.Core.Library
                 }
 
                 // Remember who ran it.
-                args[0] = Obj.MakeString("Fiber has already been called.");
+                args[stackStart + 0] = Obj.MakeString("Fiber has already been called.");
                 return PrimitiveResult.Error;
             }
-            args[0] = Obj.MakeString("Cannot try a finished fiber.");
+            args[stackStart + 0] = Obj.MakeString("Cannot try a finished fiber.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_fiber_yield(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_fiber_yield(WrenVM vm, Obj[] args, int stackStart)
         {
             // Unhook this fiber from the one that called it.
             ObjFiber caller = vm.Fiber.Caller;
@@ -522,7 +522,7 @@ namespace Wren.Core.Library
             // interpreter.
             if (caller == null)
             {
-                args[0] = new Obj(ObjType.Null);
+                args[stackStart + 0] = new Obj(ObjType.Null);
             }
             else
             {
@@ -530,13 +530,13 @@ namespace Wren.Core.Library
                 caller.StoreValue(-1, new Obj(ObjType.Null));
 
                 // Return the fiber to resume.
-                args[0] = caller;
+                args[stackStart + 0] = caller;
             }
 
             return PrimitiveResult.RunFiber;
         }
 
-        static PrimitiveResult prim_fiber_yield1(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_fiber_yield1(WrenVM vm, Obj[] args, int stackStart)
         {
             // Unhook this fiber from the one that called it.
             ObjFiber caller = vm.Fiber.Caller;
@@ -547,12 +547,12 @@ namespace Wren.Core.Library
             // interpreter.
             if (caller == null)
             {
-                args[0] = new Obj(ObjType.Null);
+                args[stackStart + 0] = new Obj(ObjType.Null);
             }
             else
             {
                 // Make the caller's run method return the argument passed to yield.
-                caller.StoreValue(-1, args[1]);
+                caller.StoreValue(-1, args[stackStart + 1]);
 
                 // When the yielding fiber resumes, we'll store the result of the yield call
                 // in its stack. Since Fiber.yield(value) has two arguments (the Fiber class
@@ -561,37 +561,37 @@ namespace Wren.Core.Library
                 vm.Fiber.StackTop--;
 
                 // Return the fiber to resume.
-                args[0] = caller;
+                args[stackStart + 0] = caller;
             }
 
             return PrimitiveResult.RunFiber;
         }
 
-        static PrimitiveResult prim_fn_new(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_fn_new(WrenVM vm, Obj[] args, int stackStart)
         {
-            Obj v = args[1];
+            Obj v = args[stackStart + 1];
             if (v != null && (v is ObjFn || v is ObjClosure))
             {
-                args[0] = args[1];
+                args[stackStart + 0] = args[stackStart + 1];
                 return PrimitiveResult.Value;
             }
 
             // The block argument is already a function, so just return it.
-            args[0] = Obj.MakeString("Argument must be a function.");
+            args[stackStart + 0] = Obj.MakeString("Argument must be a function.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_fn_arity(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_fn_arity(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjFn fn = args[0] as ObjFn;
-            args[0] = fn != null ? new Obj(fn.Arity) : new Obj(0.0);
+            ObjFn fn = args[stackStart + 0] as ObjFn;
+            args[stackStart + 0] = fn != null ? new Obj(fn.Arity) : new Obj(0.0);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult CallFn(Obj[] args, int numArgs)
+        static PrimitiveResult CallFn(Obj[] args, int numArgs, int stackStart)
         {
-            ObjFn fn = args[0] as ObjFn;
-            ObjClosure c = args[0] as ObjClosure;
+            ObjFn fn = args[stackStart + 0] as ObjFn;
+            ObjClosure c = args[stackStart + 0] as ObjClosure;
             if (c != null)
             {
                 fn = c.Function;
@@ -604,220 +604,220 @@ namespace Wren.Core.Library
                     return PrimitiveResult.Call;
                 }
 
-                args[0] = Obj.MakeString("Function expects more arguments.");
+                args[stackStart + 0] = Obj.MakeString("Function expects more arguments.");
                 return PrimitiveResult.Error;
             }
 
-            args[0] = Obj.MakeString("Object should be a function or closure");
+            args[stackStart + 0] = Obj.MakeString("Object should be a function or closure");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_fn_call0(WrenVM vm, Obj[] args) { return CallFn(args, 0); }
-        static PrimitiveResult prim_fn_call1(WrenVM vm, Obj[] args) { return CallFn(args, 1); }
-        static PrimitiveResult prim_fn_call2(WrenVM vm, Obj[] args) { return CallFn(args, 2); }
-        static PrimitiveResult prim_fn_call3(WrenVM vm, Obj[] args) { return CallFn(args, 3); }
-        static PrimitiveResult prim_fn_call4(WrenVM vm, Obj[] args) { return CallFn(args, 4); }
-        static PrimitiveResult prim_fn_call5(WrenVM vm, Obj[] args) { return CallFn(args, 5); }
-        static PrimitiveResult prim_fn_call6(WrenVM vm, Obj[] args) { return CallFn(args, 6); }
-        static PrimitiveResult prim_fn_call7(WrenVM vm, Obj[] args) { return CallFn(args, 7); }
-        static PrimitiveResult prim_fn_call8(WrenVM vm, Obj[] args) { return CallFn(args, 8); }
-        static PrimitiveResult prim_fn_call9(WrenVM vm, Obj[] args) { return CallFn(args, 9); }
-        static PrimitiveResult prim_fn_call10(WrenVM vm, Obj[] args) { return CallFn(args, 10); }
-        static PrimitiveResult prim_fn_call11(WrenVM vm, Obj[] args) { return CallFn(args, 11); }
-        static PrimitiveResult prim_fn_call12(WrenVM vm, Obj[] args) { return CallFn(args, 12); }
-        static PrimitiveResult prim_fn_call13(WrenVM vm, Obj[] args) { return CallFn(args, 13); }
-        static PrimitiveResult prim_fn_call14(WrenVM vm, Obj[] args) { return CallFn(args, 14); }
-        static PrimitiveResult prim_fn_call15(WrenVM vm, Obj[] args) { return CallFn(args, 15); }
-        static PrimitiveResult prim_fn_call16(WrenVM vm, Obj[] args) { return CallFn(args, 16); }
+        static PrimitiveResult prim_fn_call0(WrenVM vm, Obj[] args, int stackStart) { return CallFn(args, 0, stackStart); }
+        static PrimitiveResult prim_fn_call1(WrenVM vm, Obj[] args, int stackStart) { return CallFn(args, 1, stackStart); }
+        static PrimitiveResult prim_fn_call2(WrenVM vm, Obj[] args, int stackStart) { return CallFn(args, 2, stackStart); }
+        static PrimitiveResult prim_fn_call3(WrenVM vm, Obj[] args, int stackStart) { return CallFn(args, 3, stackStart); }
+        static PrimitiveResult prim_fn_call4(WrenVM vm, Obj[] args, int stackStart) { return CallFn(args, 4, stackStart); }
+        static PrimitiveResult prim_fn_call5(WrenVM vm, Obj[] args, int stackStart) { return CallFn(args, 5, stackStart); }
+        static PrimitiveResult prim_fn_call6(WrenVM vm, Obj[] args, int stackStart) { return CallFn(args, 6, stackStart); }
+        static PrimitiveResult prim_fn_call7(WrenVM vm, Obj[] args, int stackStart) { return CallFn(args, 7, stackStart); }
+        static PrimitiveResult prim_fn_call8(WrenVM vm, Obj[] args, int stackStart) { return CallFn(args, 8, stackStart); }
+        static PrimitiveResult prim_fn_call9(WrenVM vm, Obj[] args, int stackStart) { return CallFn(args, 9, stackStart); }
+        static PrimitiveResult prim_fn_call10(WrenVM vm, Obj[] args, int stackStart) { return CallFn(args, 10, stackStart); }
+        static PrimitiveResult prim_fn_call11(WrenVM vm, Obj[] args, int stackStart) { return CallFn(args, 11, stackStart); }
+        static PrimitiveResult prim_fn_call12(WrenVM vm, Obj[] args, int stackStart) { return CallFn(args, 12, stackStart); }
+        static PrimitiveResult prim_fn_call13(WrenVM vm, Obj[] args, int stackStart) { return CallFn(args, 13, stackStart); }
+        static PrimitiveResult prim_fn_call14(WrenVM vm, Obj[] args, int stackStart) { return CallFn(args, 14, stackStart); }
+        static PrimitiveResult prim_fn_call15(WrenVM vm, Obj[] args, int stackStart) { return CallFn(args, 15, stackStart); }
+        static PrimitiveResult prim_fn_call16(WrenVM vm, Obj[] args, int stackStart) { return CallFn(args, 16, stackStart); }
 
-        static PrimitiveResult prim_fn_toString(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_fn_toString(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = Obj.MakeString("<fn>");
+            args[stackStart + 0] = Obj.MakeString("<fn>");
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_list_instantiate(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_list_instantiate(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = new ObjList(16);
+            args[stackStart + 0] = new ObjList(16);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_list_add(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_list_add(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjList list = args[0] as ObjList;
+            ObjList list = args[stackStart + 0] as ObjList;
             if (list == null)
             {
-                args[0] = Obj.MakeString("Trying to add to a non-list");
+                args[stackStart + 0] = Obj.MakeString("Trying to add to a non-list");
                 return PrimitiveResult.Error;
             }
-            list.Add(args[1]);
-            args[0] = args[1];
+            list.Add(args[stackStart + 1]);
+            args[stackStart + 0] = args[stackStart + 1];
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_list_clear(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_list_clear(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjList list = args[0] as ObjList;
+            ObjList list = args[stackStart + 0] as ObjList;
             if (list == null)
             {
-                args[0] = Obj.MakeString("Trying to clear a non-list");
+                args[stackStart + 0] = Obj.MakeString("Trying to clear a non-list");
                 return PrimitiveResult.Error;
             }
             list.Clear();
 
-            args[0] = new Obj(ObjType.Null);
+            args[stackStart + 0] = new Obj(ObjType.Null);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_list_count(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_list_count(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjList list = args[0] as ObjList;
+            ObjList list = args[stackStart + 0] as ObjList;
             if (list != null)
             {
-                args[0] = new Obj(list.Count());
+                args[stackStart + 0] = new Obj(list.Count());
                 return PrimitiveResult.Value;
             }
 
-            args[0] = Obj.MakeString("Trying to clear a non-list");
+            args[stackStart + 0] = Obj.MakeString("Trying to clear a non-list");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_list_insert(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_list_insert(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjList list = (ObjList)args[0];
+            ObjList list = (ObjList)args[stackStart + 0];
 
-            if (args[1].Type == ObjType.Num)
+            if (args[stackStart + 1].Type == ObjType.Num)
             {
-                int index = (int)args[1].Num;
-                if (args[1].Num == index)
+                int index = (int)args[stackStart + 1].Num;
+                if (args[stackStart + 1].Num == index)
                 {
                     if (index < 0)
                         index += list.Count() + 1;
                     if (index >= 0 && index <= list.Count())
                     {
-                        list.Insert(args[2], index);
-                        args[0] = args[2];
+                        list.Insert(args[stackStart + 2], index);
+                        args[stackStart + 0] = args[stackStart + 2];
                         return PrimitiveResult.Value;
                     }
-                    args[0] = Obj.MakeString("Index out of bounds.");
+                    args[stackStart + 0] = Obj.MakeString("Index out of bounds.");
                     return PrimitiveResult.Error;
                 }
 
                 // count + 1 here so you can "insert" at the very end.
-                args[0] = Obj.MakeString("Index must be an integer.");
+                args[stackStart + 0] = Obj.MakeString("Index must be an integer.");
                 return PrimitiveResult.Error;
             }
 
-            args[0] = Obj.MakeString("Index must be a number.");
+            args[stackStart + 0] = Obj.MakeString("Index must be a number.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_list_iterate(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_list_iterate(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjList list = (ObjList)args[0];
+            ObjList list = (ObjList)args[stackStart + 0];
 
             // If we're starting the iteration, return the first index.
-            if (args[1].Type == ObjType.Null)
+            if (args[stackStart + 1].Type == ObjType.Null)
             {
                 if (list.Count() != 0)
                 {
-                    args[0] = new Obj(0.0);
+                    args[stackStart + 0] = new Obj(0.0);
                     return PrimitiveResult.Value;
                 }
 
-                args[0] = new Obj(false);
+                args[stackStart + 0] = new Obj(false);
                 return PrimitiveResult.Value;
             }
 
-            if (args[1].Type == ObjType.Num)
+            if (args[stackStart + 1].Type == ObjType.Num)
             {
-                int index = (int)args[1].Num;
-                if (args[1].Num == index)
+                int index = (int)args[stackStart + 1].Num;
+                if (args[stackStart + 1].Num == index)
                 {
                     if (!(index < 0) && !(index >= list.Count() - 1))
                     {
                         // Move to the next index.
-                        args[0] = new Obj(index + 1);
+                        args[stackStart + 0] = new Obj(index + 1);
                         return PrimitiveResult.Value;
                     }
 
                     // Stop if we're out of bounds.
-                    args[0] = new Obj(false);
+                    args[stackStart + 0] = new Obj(false);
                     return PrimitiveResult.Value;
                 }
 
-                args[0] = Obj.MakeString("Iterator must be an integer.");
+                args[stackStart + 0] = Obj.MakeString("Iterator must be an integer.");
                 return PrimitiveResult.Error;
             }
 
-            args[0] = Obj.MakeString("Iterator must be a number.");
+            args[stackStart + 0] = Obj.MakeString("Iterator must be a number.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_list_iteratorValue(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_list_iteratorValue(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjList list = (ObjList)args[0];
+            ObjList list = (ObjList)args[stackStart + 0];
 
-            if (args[1].Type == ObjType.Num)
+            if (args[stackStart + 1].Type == ObjType.Num)
             {
-                int index = (int)args[1].Num;
-                if (args[1].Num == index)
+                int index = (int)args[stackStart + 1].Num;
+                if (args[stackStart + 1].Num == index)
                 {
                     if (index >= 0 && index < list.Count())
                     {
-                        args[0] = list.Get(index);
+                        args[stackStart + 0] = list.Get(index);
                         return PrimitiveResult.Value;
                     }
 
-                    args[0] = Obj.MakeString("Iterator out of bounds.");
+                    args[stackStart + 0] = Obj.MakeString("Iterator out of bounds.");
                     return PrimitiveResult.Error;
                 }
 
-                args[0] = Obj.MakeString("Iterator must be an integer.");
+                args[stackStart + 0] = Obj.MakeString("Iterator must be an integer.");
                 return PrimitiveResult.Error;
             }
 
-            args[0] = Obj.MakeString("Iterator must be a number.");
+            args[stackStart + 0] = Obj.MakeString("Iterator must be a number.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_list_removeAt(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_list_removeAt(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjList list = (ObjList)args[0];
+            ObjList list = (ObjList)args[stackStart + 0];
 
-            if (args[1].Type == ObjType.Num)
+            if (args[stackStart + 1].Type == ObjType.Num)
             {
-                int index = (int)args[1].Num;
-                if (args[1].Num == index)
+                int index = (int)args[stackStart + 1].Num;
+                if (args[stackStart + 1].Num == index)
                 {
                     if (index < 0)
                         index += list.Count();
                     if (index >= 0 && index < list.Count())
                     {
-                        args[0] = list.RemoveAt(index);
+                        args[stackStart + 0] = list.RemoveAt(index);
                         return PrimitiveResult.Value;
                     }
 
-                    args[0] = Obj.MakeString("Index out of bounds.");
+                    args[stackStart + 0] = Obj.MakeString("Index out of bounds.");
                     return PrimitiveResult.Error;
                 }
 
-                args[0] = Obj.MakeString("Index must be an integer.");
+                args[stackStart + 0] = Obj.MakeString("Index must be an integer.");
                 return PrimitiveResult.Error;
             }
 
-            args[0] = Obj.MakeString("Index must be a number.");
+            args[stackStart + 0] = Obj.MakeString("Index must be a number.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_list_subscript(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_list_subscript(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjList list = (ObjList)args[0];
+            ObjList list = (ObjList)args[stackStart + 0];
 
-            if (args[1].Type == ObjType.Num)
+            if (args[stackStart + 1].Type == ObjType.Num)
             {
-                int index = (int)args[1].Num;
-                if (index == args[1].Num)
+                int index = (int)args[stackStart + 1].Num;
+                if (index == args[stackStart + 1].Num)
                 {
                     if (index < 0)
                     {
@@ -825,22 +825,22 @@ namespace Wren.Core.Library
                     }
                     if (index >= 0 && index < list.Count())
                     {
-                        args[0] = list.Get(index);
+                        args[stackStart + 0] = list.Get(index);
                         return PrimitiveResult.Value;
                     }
 
-                    args[0] = Obj.MakeString("Subscript out of bounds.");
+                    args[stackStart + 0] = Obj.MakeString("Subscript out of bounds.");
                     return PrimitiveResult.Error;
                 }
-                args[0] = Obj.MakeString("Subscript must be an integer.");
+                args[stackStart + 0] = Obj.MakeString("Subscript must be an integer.");
                 return PrimitiveResult.Error;
             }
 
-            ObjRange r = args[1] as ObjRange;
+            ObjRange r = args[stackStart + 1] as ObjRange;
 
             if (r == null)
             {
-                args[0] = Obj.MakeString("Subscript must be a number or a range.");
+                args[stackStart + 0] = Obj.MakeString("Subscript must be a number or a range.");
                 return PrimitiveResult.Error;
             }
 
@@ -848,13 +848,13 @@ namespace Wren.Core.Library
             int from = (int)r.From;
             if (from != r.From)
             {
-                args[0] = Obj.MakeString("Range start must be an integer.");
+                args[stackStart + 0] = Obj.MakeString("Range start must be an integer.");
                 return PrimitiveResult.Error;
             }
             int to = (int)r.To;
             if (to != r.To)
             {
-                args[0] = Obj.MakeString("Range end must be an integer.");
+                args[stackStart + 0] = Obj.MakeString("Range end must be an integer.");
                 return PrimitiveResult.Error;
             }
 
@@ -881,12 +881,12 @@ namespace Wren.Core.Library
 
             if (to < 0 || from + (count * step) > list.Count())
             {
-                args[0] = Obj.MakeString("Range end out of bounds.");
+                args[stackStart + 0] = Obj.MakeString("Range end out of bounds.");
                 return PrimitiveResult.Error;
             }
             if (from < 0 || (from >= list.Count() && from > 0))
             {
-                args[0] = Obj.MakeString("Range start out of bounds.");
+                args[stackStart + 0] = Obj.MakeString("Range start out of bounds.");
                 return PrimitiveResult.Error;
             }
 
@@ -896,18 +896,18 @@ namespace Wren.Core.Library
                 result.Add(list.Get(from + (i * step)));
             }
 
-            args[0] = result;
+            args[stackStart + 0] = result;
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_list_subscriptSetter(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_list_subscriptSetter(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjList list = (ObjList)args[0];
-            if (args[1].Type == ObjType.Num)
+            ObjList list = (ObjList)args[stackStart + 0];
+            if (args[stackStart + 1].Type == ObjType.Num)
             {
-                int index = (int)args[1].Num;
+                int index = (int)args[stackStart + 1].Num;
 
-                if (index == args[1].Num)
+                if (index == args[stackStart + 1].Num)
                 {
                     if (index < 0)
                     {
@@ -916,227 +916,227 @@ namespace Wren.Core.Library
 
                     if (list != null && index >= 0 && index < list.Count())
                     {
-                        list.Set(args[2], index);
-                        args[0] = args[2];
+                        list.Set(args[stackStart + 2], index);
+                        args[stackStart + 0] = args[stackStart + 2];
                         return PrimitiveResult.Value;
                     }
 
-                    args[0] = Obj.MakeString("Subscript out of bounds.");
+                    args[stackStart + 0] = Obj.MakeString("Subscript out of bounds.");
                     return PrimitiveResult.Error;
                 }
 
-                args[0] = Obj.MakeString("Subscript must be an integer.");
+                args[stackStart + 0] = Obj.MakeString("Subscript must be an integer.");
                 return PrimitiveResult.Error;
             }
-            args[0] = Obj.MakeString("Subscript must be a number.");
+            args[stackStart + 0] = Obj.MakeString("Subscript must be a number.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_map_instantiate(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_map_instantiate(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = new ObjMap();
+            args[stackStart + 0] = new ObjMap();
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_map_subscript(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_map_subscript(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjMap map = args[0] as ObjMap;
+            ObjMap map = args[stackStart + 0] as ObjMap;
 
-            if (ValidateKey(args[1]))
+            if (ValidateKey(args[stackStart + 1]))
             {
                 if (map != null)
                 {
-                    args[0] = map.Get(args[1]);
-                    if (args[0].Type == ObjType.Undefined)
+                    args[stackStart + 0] = map.Get(args[stackStart + 1]);
+                    if (args[stackStart + 0].Type == ObjType.Undefined)
                     {
-                        args[0] = new Obj(ObjType.Null);
+                        args[stackStart + 0] = new Obj(ObjType.Null);
                     }
                 }
                 else
                 {
-                    args[0] = new Obj(ObjType.Null);
+                    args[stackStart + 0] = new Obj(ObjType.Null);
                 }
                 return PrimitiveResult.Value;
             }
 
-            args[0] = Obj.MakeString("Key must be a value type or fiber.");
+            args[stackStart + 0] = Obj.MakeString("Key must be a value type or fiber.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_map_subscriptSetter(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_map_subscriptSetter(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjMap map = args[0] as ObjMap;
+            ObjMap map = args[stackStart + 0] as ObjMap;
 
-            if (ValidateKey(args[1]))
+            if (ValidateKey(args[stackStart + 1]))
             {
                 if (map != null)
                 {
-                    map.Set(args[1], args[2]);
+                    map.Set(args[stackStart + 1], args[stackStart + 2]);
                 }
-                args[0] = args[2];
+                args[stackStart + 0] = args[stackStart + 2];
                 return PrimitiveResult.Value;
             }
 
-            args[0] = Obj.MakeString("Key must be a value type or fiber.");
+            args[stackStart + 0] = Obj.MakeString("Key must be a value type or fiber.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_map_clear(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_map_clear(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjMap m = args[0] as ObjMap;
+            ObjMap m = args[stackStart + 0] as ObjMap;
             if (m != null)
                 m.Clear();
-            args[0] = new Obj(ObjType.Null);
+            args[stackStart + 0] = new Obj(ObjType.Null);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_map_containsKey(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_map_containsKey(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjMap map = (ObjMap)args[0];
+            ObjMap map = (ObjMap)args[stackStart + 0];
 
-            if (ValidateKey(args[1]))
+            if (ValidateKey(args[stackStart + 1]))
             {
-                Obj v = map.Get(args[1]);
+                Obj v = map.Get(args[stackStart + 1]);
 
-                args[0] = new Obj(v.Type != ObjType.Undefined);
+                args[stackStart + 0] = new Obj(v.Type != ObjType.Undefined);
                 return PrimitiveResult.Value;
             }
 
-            args[0] = Obj.MakeString("Key must be a value type or fiber.");
+            args[stackStart + 0] = Obj.MakeString("Key must be a value type or fiber.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_map_count(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_map_count(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjMap m = (ObjMap)args[0];
-            args[0] = new Obj(m.Count());
+            ObjMap m = (ObjMap)args[stackStart + 0];
+            args[stackStart + 0] = new Obj(m.Count());
             return PrimitiveResult.Value;
         }
 
-        private static PrimitiveResult prim_map_iterate(WrenVM vm, Obj[] args)
+        private static PrimitiveResult prim_map_iterate(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjMap map = (ObjMap)args[0];
+            ObjMap map = (ObjMap)args[stackStart + 0];
 
             if (map.Count() == 0)
             {
-                args[0] = new Obj(false);
+                args[stackStart + 0] = new Obj(false);
                 return PrimitiveResult.Value;
             }
 
             // Start one past the last entry we stopped at.
-            if (args[1].Type == ObjType.Num)
+            if (args[stackStart + 1].Type == ObjType.Num)
             {
-                if (args[1].Num < 0)
+                if (args[stackStart + 1].Num < 0)
                 {
-                    args[0] = new Obj(false);
+                    args[stackStart + 0] = new Obj(false);
                     return PrimitiveResult.Value;
                 }
-                int index = (int)args[1].Num;
+                int index = (int)args[stackStart + 1].Num;
 
-                if (index == args[1].Num)
+                if (index == args[stackStart + 1].Num)
                 {
-                    args[0] = index > map.Count() || map.Get(index).Type == ObjType.Undefined ? new Obj(false) : new Obj(index + 1);
+                    args[stackStart + 0] = index > map.Count() || map.Get(index).Type == ObjType.Undefined ? new Obj(false) : new Obj(index + 1);
                     return PrimitiveResult.Value;
                 }
 
-                args[0] = Obj.MakeString("Iterator must be an integer.");
+                args[stackStart + 0] = Obj.MakeString("Iterator must be an integer.");
                 return PrimitiveResult.Error;
             }
 
             // If we're starting the iteration, start at the first used entry.
-            if (args[1].Type == ObjType.Null)
+            if (args[stackStart + 1].Type == ObjType.Null)
             {
-                args[0] = new Obj(1);
+                args[stackStart + 0] = new Obj(1);
                 return PrimitiveResult.Value;
             }
 
-            args[0] = Obj.MakeString("Iterator must be a number.");
+            args[stackStart + 0] = Obj.MakeString("Iterator must be a number.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_map_remove(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_map_remove(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjMap map = (ObjMap)args[0];
+            ObjMap map = (ObjMap)args[stackStart + 0];
 
-            if (ValidateKey(args[1]))
+            if (ValidateKey(args[stackStart + 1]))
             {
-                args[0] = map != null ? map.Remove(args[1]) : new Obj(ObjType.Null);
+                args[stackStart + 0] = map != null ? map.Remove(args[stackStart + 1]) : new Obj(ObjType.Null);
                 return PrimitiveResult.Value;
             }
 
-            args[0] = Obj.MakeString("Key must be a value type or fiber.");
+            args[stackStart + 0] = Obj.MakeString("Key must be a value type or fiber.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_map_keyIteratorValue(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_map_keyIteratorValue(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjMap map = (ObjMap)args[0];
+            ObjMap map = (ObjMap)args[stackStart + 0];
 
-            if (args[1].Type == ObjType.Num)
+            if (args[stackStart + 1].Type == ObjType.Num)
             {
-                int index = (int)args[1].Num;
+                int index = (int)args[stackStart + 1].Num;
 
-                if (index == args[1].Num)
+                if (index == args[stackStart + 1].Num)
                 {
                     if (map != null && index >= 0)
                     {
-                        args[0] = map.GetKey(index - 1);
+                        args[stackStart + 0] = map.GetKey(index - 1);
                         return PrimitiveResult.Value;
                     }
-                    args[0] = Obj.MakeString("Error in prim_map_keyIteratorValue.");
+                    args[stackStart + 0] = Obj.MakeString("Error in prim_map_keyIteratorValue.");
                     return PrimitiveResult.Error;
                 }
 
-                args[0] = Obj.MakeString("Iterator must be an integer.");
+                args[stackStart + 0] = Obj.MakeString("Iterator must be an integer.");
                 return PrimitiveResult.Error;
             }
 
-            args[0] = Obj.MakeString("Iterator must be a number.");
+            args[stackStart + 0] = Obj.MakeString("Iterator must be a number.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_map_valueIteratorValue(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_map_valueIteratorValue(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjMap map = (ObjMap)args[0];
+            ObjMap map = (ObjMap)args[stackStart + 0];
 
-            if (args[1].Type == ObjType.Num)
+            if (args[stackStart + 1].Type == ObjType.Num)
             {
-                int index = (int)args[1].Num;
+                int index = (int)args[stackStart + 1].Num;
 
-                if (index == args[1].Num)
+                if (index == args[stackStart + 1].Num)
                 {
                     if (map != null && index >= 0 && index < map.Count())
                     {
-                        args[0] = map.Get(index - 1);
+                        args[stackStart + 0] = map.Get(index - 1);
                         return PrimitiveResult.Value;
                     }
-                    args[0] = Obj.MakeString("Error in prim_map_valueIteratorValue.");
+                    args[stackStart + 0] = Obj.MakeString("Error in prim_map_valueIteratorValue.");
                     return PrimitiveResult.Error;
                 }
 
-                args[0] = Obj.MakeString("Iterator must be an integer.");
+                args[stackStart + 0] = Obj.MakeString("Iterator must be an integer.");
                 return PrimitiveResult.Error;
             }
 
-            args[0] = Obj.MakeString("Iterator must be a number.");
+            args[stackStart + 0] = Obj.MakeString("Iterator must be a number.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_null_not(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_null_not(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = new Obj(true);
+            args[stackStart + 0] = new Obj(true);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_null_toString(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_null_toString(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = Obj.MakeString("null");
+            args[stackStart + 0] = Obj.MakeString("null");
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_num_fromString(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_num_fromString(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjString s = args[1] as ObjString;
+            ObjString s = args[stackStart + 1] as ObjString;
 
             if (s != null)
             {
@@ -1146,278 +1146,278 @@ namespace Wren.Core.Library
 
                     if (double.TryParse(s.Str, out n))
                     {
-                        args[0] = new Obj(n);
+                        args[stackStart + 0] = new Obj(n);
                         return PrimitiveResult.Value;
                     }
 
                     if (CheckDouble.IsMatch(s.Str))
                     {
-                        args[0] = Obj.MakeString("Number literal is too large.");
+                        args[stackStart + 0] = Obj.MakeString("Number literal is too large.");
                         return PrimitiveResult.Error;
                     }
                 }
 
-                args[0] = new Obj(ObjType.Null);
+                args[stackStart + 0] = new Obj(ObjType.Null);
                 return PrimitiveResult.Value;
             }
 
             // Corner case: Can't parse an empty string.
-            args[0] = Obj.MakeString("Argument must be a string.");
+            args[stackStart + 0] = Obj.MakeString("Argument must be a string.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_num_pi(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_num_pi(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = new Obj(Math.PI);
+            args[stackStart + 0] = new Obj(Math.PI);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_num_minus(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_num_minus(WrenVM vm, Obj[] args, int stackStart)
         {
-            if (args[1].Type == ObjType.Num)
+            if (args[stackStart + 1].Type == ObjType.Num)
             {
-                args[0] = new Obj(args[0].Num - args[1].Num);
+                args[stackStart + 0] = new Obj(args[stackStart + 0].Num - args[stackStart + 1].Num);
                 return PrimitiveResult.Value;
             }
-            args[0] = Obj.MakeString("Right operand must be a number.");
+            args[stackStart + 0] = Obj.MakeString("Right operand must be a number.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_num_plus(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_num_plus(WrenVM vm, Obj[] args, int stackStart)
         {
-            if (args[1].Type == ObjType.Num)
+            if (args[stackStart + 1].Type == ObjType.Num)
             {
-                args[0] = new Obj(args[0].Num + args[1].Num);
+                args[stackStart + 0] = new Obj(args[stackStart + 0].Num + args[stackStart + 1].Num);
                 return PrimitiveResult.Value;
             }
-            args[0] = Obj.MakeString("Right operand must be a number.");
+            args[stackStart + 0] = Obj.MakeString("Right operand must be a number.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_num_multiply(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_num_multiply(WrenVM vm, Obj[] args, int stackStart)
         {
-            if (args[1].Type == ObjType.Num)
+            if (args[stackStart + 1].Type == ObjType.Num)
             {
-                args[0] = new Obj(args[0].Num * args[1].Num);
+                args[stackStart + 0] = new Obj(args[stackStart + 0].Num * args[stackStart + 1].Num);
                 return PrimitiveResult.Value;
             }
-            args[0] = Obj.MakeString("Right operand must be a number.");
+            args[stackStart + 0] = Obj.MakeString("Right operand must be a number.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_num_divide(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_num_divide(WrenVM vm, Obj[] args, int stackStart)
         {
-            if (args[1].Type == ObjType.Num)
+            if (args[stackStart + 1].Type == ObjType.Num)
             {
-                args[0] = new Obj(args[0].Num / args[1].Num);
+                args[stackStart + 0] = new Obj(args[stackStart + 0].Num / args[stackStart + 1].Num);
                 return PrimitiveResult.Value;
             }
-            args[0] = Obj.MakeString("Right operand must be a number.");
+            args[stackStart + 0] = Obj.MakeString("Right operand must be a number.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_num_lt(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_num_lt(WrenVM vm, Obj[] args, int stackStart)
         {
-            if (args[1].Type == ObjType.Num)
+            if (args[stackStart + 1].Type == ObjType.Num)
             {
-                args[0] = new Obj(args[0].Num < args[1].Num);
+                args[stackStart + 0] = new Obj(args[stackStart + 0].Num < args[stackStart + 1].Num);
                 return PrimitiveResult.Value;
             }
-            args[0] = Obj.MakeString("Right operand must be a number.");
+            args[stackStart + 0] = Obj.MakeString("Right operand must be a number.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_num_gt(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_num_gt(WrenVM vm, Obj[] args, int stackStart)
         {
-            if (args[1].Type == ObjType.Num)
+            if (args[stackStart + 1].Type == ObjType.Num)
             {
-                args[0] = new Obj(args[0].Num > args[1].Num);
+                args[stackStart + 0] = new Obj(args[stackStart + 0].Num > args[stackStart + 1].Num);
                 return PrimitiveResult.Value;
             }
-            args[0] = Obj.MakeString("Right operand must be a number.");
+            args[stackStart + 0] = Obj.MakeString("Right operand must be a number.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_num_lte(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_num_lte(WrenVM vm, Obj[] args, int stackStart)
         {
-            if (args[1].Type == ObjType.Num)
+            if (args[stackStart + 1].Type == ObjType.Num)
             {
-                args[0] = new Obj(args[0].Num <= args[1].Num);
+                args[stackStart + 0] = new Obj(args[stackStart + 0].Num <= args[stackStart + 1].Num);
                 return PrimitiveResult.Value;
             }
-            args[0] = Obj.MakeString("Right operand must be a number.");
+            args[stackStart + 0] = Obj.MakeString("Right operand must be a number.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_num_gte(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_num_gte(WrenVM vm, Obj[] args, int stackStart)
         {
-            if (args[1].Type == ObjType.Num)
+            if (args[stackStart + 1].Type == ObjType.Num)
             {
-                args[0] = new Obj(args[0].Num >= args[1].Num);
+                args[stackStart + 0] = new Obj(args[stackStart + 0].Num >= args[stackStart + 1].Num);
                 return PrimitiveResult.Value;
             }
-            args[0] = Obj.MakeString("Right operand must be a number.");
+            args[stackStart + 0] = Obj.MakeString("Right operand must be a number.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_num_And(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_num_And(WrenVM vm, Obj[] args, int stackStart)
         {
-            if (args[1].Type == ObjType.Num)
+            if (args[stackStart + 1].Type == ObjType.Num)
             {
-                args[0] = new Obj((Int64)args[0].Num & (Int64)args[1].Num);
+                args[stackStart + 0] = new Obj((Int64)args[stackStart + 0].Num & (Int64)args[stackStart + 1].Num);
                 return PrimitiveResult.Value;
             }
-            args[0] = Obj.MakeString("Right operand must be a number.");
+            args[stackStart + 0] = Obj.MakeString("Right operand must be a number.");
             return PrimitiveResult.Error;
         }
-        static PrimitiveResult prim_num_Or(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_num_Or(WrenVM vm, Obj[] args, int stackStart)
         {
-            if (args[1].Type == ObjType.Num)
+            if (args[stackStart + 1].Type == ObjType.Num)
             {
-                args[0] = new Obj((Int64)args[0].Num | (Int64)args[1].Num);
+                args[stackStart + 0] = new Obj((Int64)args[stackStart + 0].Num | (Int64)args[stackStart + 1].Num);
                 return PrimitiveResult.Value;
             }
-            args[0] = Obj.MakeString("Right operand must be a number.");
-            return PrimitiveResult.Error;
-        }
-
-        static PrimitiveResult prim_num_Xor(WrenVM vm, Obj[] args)
-        {
-            if (args[1].Type == ObjType.Num)
-            {
-                args[0] = new Obj((Int64)args[0].Num ^ (Int64)args[1].Num);
-                return PrimitiveResult.Value;
-            }
-            args[0] = Obj.MakeString("Right operand must be a number.");
-            return PrimitiveResult.Error;
-        }
-        static PrimitiveResult prim_num_LeftShift(WrenVM vm, Obj[] args)
-        {
-            if (args[1].Type == ObjType.Num)
-            {
-                args[0] = new Obj((Int64)args[0].Num << (int)args[1].Num);
-                return PrimitiveResult.Value;
-            }
-            args[0] = Obj.MakeString("Right operand must be a number.");
-            return PrimitiveResult.Error;
-        }
-        static PrimitiveResult prim_num_RightShift(WrenVM vm, Obj[] args)
-        {
-            if (args[1].Type == ObjType.Num)
-            {
-                args[0] = new Obj((Int64)args[0].Num >> (int)args[1].Num);
-                return PrimitiveResult.Value;
-            }
-            args[0] = Obj.MakeString("Right operand must be a number.");
+            args[stackStart + 0] = Obj.MakeString("Right operand must be a number.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_num_abs(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_num_Xor(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = new Obj(Math.Abs(args[0].Num));
+            if (args[stackStart + 1].Type == ObjType.Num)
+            {
+                args[stackStart + 0] = new Obj((Int64)args[stackStart + 0].Num ^ (Int64)args[stackStart + 1].Num);
+                return PrimitiveResult.Value;
+            }
+            args[stackStart + 0] = Obj.MakeString("Right operand must be a number.");
+            return PrimitiveResult.Error;
+        }
+        static PrimitiveResult prim_num_LeftShift(WrenVM vm, Obj[] args, int stackStart)
+        {
+            if (args[stackStart + 1].Type == ObjType.Num)
+            {
+                args[stackStart + 0] = new Obj((Int64)args[stackStart + 0].Num << (int)args[stackStart + 1].Num);
+                return PrimitiveResult.Value;
+            }
+            args[stackStart + 0] = Obj.MakeString("Right operand must be a number.");
+            return PrimitiveResult.Error;
+        }
+        static PrimitiveResult prim_num_RightShift(WrenVM vm, Obj[] args, int stackStart)
+        {
+            if (args[stackStart + 1].Type == ObjType.Num)
+            {
+                args[stackStart + 0] = new Obj((Int64)args[stackStart + 0].Num >> (int)args[stackStart + 1].Num);
+                return PrimitiveResult.Value;
+            }
+            args[stackStart + 0] = Obj.MakeString("Right operand must be a number.");
+            return PrimitiveResult.Error;
+        }
+
+        static PrimitiveResult prim_num_abs(WrenVM vm, Obj[] args, int stackStart)
+        {
+            args[stackStart + 0] = new Obj(Math.Abs(args[stackStart + 0].Num));
             return PrimitiveResult.Value;
         }
-        static PrimitiveResult prim_num_acos(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_num_acos(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = new Obj(Math.Acos(args[0].Num));
+            args[stackStart + 0] = new Obj(Math.Acos(args[stackStart + 0].Num));
             return PrimitiveResult.Value;
         }
-        static PrimitiveResult prim_num_asin(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_num_asin(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = new Obj(Math.Asin(args[0].Num));
+            args[stackStart + 0] = new Obj(Math.Asin(args[stackStart + 0].Num));
             return PrimitiveResult.Value;
         }
-        static PrimitiveResult prim_num_atan(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_num_atan(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = new Obj(Math.Atan(args[0].Num));
+            args[stackStart + 0] = new Obj(Math.Atan(args[stackStart + 0].Num));
             return PrimitiveResult.Value;
         }
-        static PrimitiveResult prim_num_ceil(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_num_ceil(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = new Obj(Math.Ceiling(args[0].Num));
+            args[stackStart + 0] = new Obj(Math.Ceiling(args[stackStart + 0].Num));
             return PrimitiveResult.Value;
         }
-        static PrimitiveResult prim_num_cos(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_num_cos(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = new Obj(Math.Cos(args[0].Num));
+            args[stackStart + 0] = new Obj(Math.Cos(args[stackStart + 0].Num));
             return PrimitiveResult.Value;
         }
-        static PrimitiveResult prim_num_floor(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_num_floor(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = new Obj(Math.Floor(args[0].Num));
+            args[stackStart + 0] = new Obj(Math.Floor(args[stackStart + 0].Num));
             return PrimitiveResult.Value;
         }
-        static PrimitiveResult prim_num_negate(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_num_negate(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = new Obj(-args[0].Num);
+            args[stackStart + 0] = new Obj(-args[stackStart + 0].Num);
             return PrimitiveResult.Value;
         }
-        static PrimitiveResult prim_num_sin(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_num_sin(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = new Obj(Math.Sin(args[0].Num));
+            args[stackStart + 0] = new Obj(Math.Sin(args[stackStart + 0].Num));
             return PrimitiveResult.Value;
         }
-        static PrimitiveResult prim_num_sqrt(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_num_sqrt(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = new Obj(Math.Sqrt(args[0].Num));
+            args[stackStart + 0] = new Obj(Math.Sqrt(args[stackStart + 0].Num));
             return PrimitiveResult.Value;
         }
-        static PrimitiveResult prim_num_tan(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_num_tan(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = new Obj(Math.Tan(args[0].Num));
-            return PrimitiveResult.Value;
-        }
-
-        static PrimitiveResult prim_num_mod(WrenVM vm, Obj[] args)
-        {
-            if (args[1].Type == ObjType.Num)
-            {
-                args[0] = new Obj(args[0].Num % args[1].Num);
-                return PrimitiveResult.Value;
-            }
-            args[0] = Obj.MakeString("Right operand must be a number.");
-            return PrimitiveResult.Error;
-        }
-
-        static PrimitiveResult prim_num_eqeq(WrenVM vm, Obj[] args)
-        {
-            if (args[1].Type == ObjType.Num)
-            {
-                args[0] = new Obj(args[0].Num == args[1].Num);
-                return PrimitiveResult.Value;
-            }
-
-            args[0] = new Obj(false);
+            args[stackStart + 0] = new Obj(Math.Tan(args[stackStart + 0].Num));
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_num_bangeq(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_num_mod(WrenVM vm, Obj[] args, int stackStart)
         {
-            if (args[1].Type == ObjType.Num)
+            if (args[stackStart + 1].Type == ObjType.Num)
             {
-                args[0] = new Obj(args[0].Num != args[1].Num);
+                args[stackStart + 0] = new Obj(args[stackStart + 0].Num % args[stackStart + 1].Num);
+                return PrimitiveResult.Value;
+            }
+            args[stackStart + 0] = Obj.MakeString("Right operand must be a number.");
+            return PrimitiveResult.Error;
+        }
+
+        static PrimitiveResult prim_num_eqeq(WrenVM vm, Obj[] args, int stackStart)
+        {
+            if (args[stackStart + 1].Type == ObjType.Num)
+            {
+                args[stackStart + 0] = new Obj(args[stackStart + 0].Num == args[stackStart + 1].Num);
                 return PrimitiveResult.Value;
             }
 
-            args[0] = new Obj(true);
+            args[stackStart + 0] = new Obj(false);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_num_bitwiseNot(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_num_bangeq(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = new Obj(~(Int64)args[0].Num);
+            if (args[stackStart + 1].Type == ObjType.Num)
+            {
+                args[stackStart + 0] = new Obj(args[stackStart + 0].Num != args[stackStart + 1].Num);
+                return PrimitiveResult.Value;
+            }
+
+            args[stackStart + 0] = new Obj(true);
+            return PrimitiveResult.Value;
+        }
+
+        static PrimitiveResult prim_num_bitwiseNot(WrenVM vm, Obj[] args, int stackStart)
+        {
+            args[stackStart + 0] = new Obj(~(Int64)args[stackStart + 0].Num);
             // Bitwise operators always work on 64-bit signed ints.
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_num_dotDot(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_num_dotDot(WrenVM vm, Obj[] args, int stackStart)
         {
-            return range_from_numbers(args[0], args[1], true, out args[0]);
+            return range_from_numbers(args[stackStart + 0], args[stackStart + 1], true, out args[stackStart + 0]);
         }
 
-        static PrimitiveResult prim_num_dotDotDot(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_num_dotDotDot(WrenVM vm, Obj[] args, int stackStart)
         {
-            return range_from_numbers(args[0], args[1], false, out args[0]);
+            return range_from_numbers(args[stackStart + 0], args[stackStart + 1], false, out args[stackStart + 0]);
         }
 
         static PrimitiveResult range_from_numbers(Obj start, Obj end, bool inclusive, out Obj range)
@@ -1434,180 +1434,180 @@ namespace Wren.Core.Library
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_num_atan2(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_num_atan2(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = new Obj(Math.Atan2(args[0].Num, args[1].Num));
+            args[stackStart + 0] = new Obj(Math.Atan2(args[stackStart + 0].Num, args[stackStart + 1].Num));
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_num_fraction(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_num_fraction(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = new Obj(args[0].Num - Math.Truncate(args[0].Num));
+            args[stackStart + 0] = new Obj(args[stackStart + 0].Num - Math.Truncate(args[stackStart + 0].Num));
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_num_isNan(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_num_isNan(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = new Obj(double.IsNaN(args[0].Num));
+            args[stackStart + 0] = new Obj(double.IsNaN(args[stackStart + 0].Num));
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_num_isInfinity(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_num_isInfinity(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = new Obj(double.IsInfinity(args[0].Num));
+            args[stackStart + 0] = new Obj(double.IsInfinity(args[stackStart + 0].Num));
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_num_isInteger(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_num_isInteger(WrenVM vm, Obj[] args, int stackStart)
         {
-            double v = args[0].Num;
-            args[0] = new Obj(!double.IsNaN(v) && !double.IsInfinity(v) && v == Math.Truncate(v));
+            double v = args[stackStart + 0].Num;
+            args[stackStart + 0] = new Obj(!double.IsNaN(v) && !double.IsInfinity(v) && v == Math.Truncate(v));
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_num_sign(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_num_sign(WrenVM vm, Obj[] args, int stackStart)
         {
-            double value = args[0].Num;
-            args[0] = new Obj(Math.Sign(value));
+            double value = args[stackStart + 0].Num;
+            args[stackStart + 0] = new Obj(Math.Sign(value));
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_num_toString(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_num_toString(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = Obj.MakeString(args[0].Num.ToString(CultureInfo.InvariantCulture));
+            args[stackStart + 0] = Obj.MakeString(args[stackStart + 0].Num.ToString(CultureInfo.InvariantCulture));
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_num_truncate(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_num_truncate(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = new Obj(Math.Truncate(args[0].Num));
+            args[stackStart + 0] = new Obj(Math.Truncate(args[stackStart + 0].Num));
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_object_same(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_object_same(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = new Obj(Obj.Equals(args[1], args[2]));
+            args[stackStart + 0] = new Obj(Obj.Equals(args[stackStart + 1], args[stackStart + 2]));
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_object_not(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_object_not(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = new Obj(false);
+            args[stackStart + 0] = new Obj(false);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_object_eqeq(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_object_eqeq(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = new Obj(Obj.Equals(args[0], args[1]));
+            args[stackStart + 0] = new Obj(Obj.Equals(args[stackStart + 0], args[stackStart + 1]));
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_object_bangeq(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_object_bangeq(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = new Obj(!Obj.Equals(args[0], args[1]));
+            args[stackStart + 0] = new Obj(!Obj.Equals(args[stackStart + 0], args[stackStart + 1]));
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_object_is(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_object_is(WrenVM vm, Obj[] args, int stackStart)
         {
-            if (args[1] as ObjClass != null)
+            if (args[stackStart + 1] as ObjClass != null)
             {
-                ObjClass classObj = args[0].GetClass();
-                ObjClass baseClassObj = args[1] as ObjClass;
+                ObjClass classObj = args[stackStart + 0].GetClass();
+                ObjClass baseClassObj = args[stackStart + 1] as ObjClass;
 
                 // Walk the superclass chain looking for the class.
                 do
                 {
                     if (baseClassObj == classObj)
                     {
-                        args[0] = new Obj(true);
+                        args[stackStart + 0] = new Obj(true);
                         return PrimitiveResult.Value;
                     }
 
                     classObj = classObj.Superclass;
                 } while (classObj != null);
 
-                args[0] = new Obj(false);
+                args[stackStart + 0] = new Obj(false);
                 return PrimitiveResult.Value;
             }
 
-            args[0] = Obj.MakeString("Right operand must be a class.");
+            args[stackStart + 0] = Obj.MakeString("Right operand must be a class.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_object_toString(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_object_toString(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjClass cClass = args[0] as ObjClass;
-            ObjInstance instance = args[0] as ObjInstance;
+            ObjClass cClass = args[stackStart + 0] as ObjClass;
+            ObjInstance instance = args[stackStart + 0] as ObjInstance;
             if (cClass != null)
             {
-                args[0] = cClass.Name;
+                args[stackStart + 0] = cClass.Name;
             }
             else if (instance != null)
             {
                 ObjString name = instance.ClassObj.Name;
-                args[0] = Obj.MakeString(string.Format("instance of {0}", name));
+                args[stackStart + 0] = Obj.MakeString(string.Format("instance of {0}", name));
             }
             else
             {
-                args[0] = Obj.MakeString("<object>");
+                args[stackStart + 0] = Obj.MakeString("<object>");
             }
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_object_type(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_object_type(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = args[0].GetClass();
+            args[stackStart + 0] = args[stackStart + 0].GetClass();
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_range_from(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_range_from(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = new Obj(((ObjRange)args[0]).From);
+            args[stackStart + 0] = new Obj(((ObjRange)args[stackStart + 0]).From);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_range_to(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_range_to(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = new Obj(((ObjRange)args[0]).To);
+            args[stackStart + 0] = new Obj(((ObjRange)args[stackStart + 0]).To);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_range_min(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_range_min(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjRange range = (ObjRange)args[0];
-            args[0] = range.From < range.To ? new Obj(range.From) : new Obj(range.To);
+            ObjRange range = (ObjRange)args[stackStart + 0];
+            args[stackStart + 0] = range.From < range.To ? new Obj(range.From) : new Obj(range.To);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_range_max(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_range_max(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjRange range = (ObjRange)args[0];
-            args[0] = range.From > range.To ? new Obj(range.From) : new Obj(range.To);
+            ObjRange range = (ObjRange)args[stackStart + 0];
+            args[stackStart + 0] = range.From > range.To ? new Obj(range.From) : new Obj(range.To);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_range_isInclusive(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_range_isInclusive(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = new Obj(((ObjRange)args[0]).IsInclusive);
+            args[stackStart + 0] = new Obj(((ObjRange)args[stackStart + 0]).IsInclusive);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_range_iterate(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_range_iterate(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjRange range = (ObjRange)args[0];
+            ObjRange range = (ObjRange)args[stackStart + 0];
 
             // Special case: empty range.
             if (range.From == range.To && !range.IsInclusive)
             {
-                args[0] = new Obj(false);
+                args[stackStart + 0] = new Obj(false);
                 return PrimitiveResult.Value;
             }
 
             // Start the iteration.
-            if (args[1].Type == ObjType.Num)
+            if (args[stackStart + 1].Type == ObjType.Num)
             {
-                double iterator = args[1].Num;
+                double iterator = args[stackStart + 1].Num;
 
                 // Iterate towards [to] from [from].
                 if (range.From < range.To)
@@ -1615,7 +1615,7 @@ namespace Wren.Core.Library
                     iterator++;
                     if (iterator > range.To)
                     {
-                        args[0] = new Obj(false);
+                        args[stackStart + 0] = new Obj(false);
                         return PrimitiveResult.Value;
                     }
                 }
@@ -1624,366 +1624,366 @@ namespace Wren.Core.Library
                     iterator--;
                     if (iterator < range.To)
                     {
-                        args[0] = new Obj(false);
+                        args[stackStart + 0] = new Obj(false);
                         return PrimitiveResult.Value;
                     }
                 }
 
                 if (!range.IsInclusive && iterator == range.To)
                 {
-                    args[0] = new Obj(false);
+                    args[stackStart + 0] = new Obj(false);
                     return PrimitiveResult.Value;
                 }
 
-                args[0] = new Obj(iterator);
+                args[stackStart + 0] = new Obj(iterator);
                 return PrimitiveResult.Value;
             }
-            if (args[1].Type == ObjType.Null)
+            if (args[stackStart + 1].Type == ObjType.Null)
             {
-                args[0] = new Obj(range.From);
+                args[stackStart + 0] = new Obj(range.From);
                 return PrimitiveResult.Value;
             }
 
-            args[0] = Obj.MakeString("Iterator must be a number.");
+            args[stackStart + 0] = Obj.MakeString("Iterator must be a number.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_range_iteratorValue(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_range_iteratorValue(WrenVM vm, Obj[] args, int stackStart)
         {
             // Assume the iterator is a number so that is the value of the range.
-            args[0] = args[1];
+            args[stackStart + 0] = args[stackStart + 1];
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_range_toString(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_range_toString(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjRange range = args[0] as ObjRange;
+            ObjRange range = args[stackStart + 0] as ObjRange;
 
             if (range != null)
-                args[0] = Obj.MakeString(string.Format("{0}{1}{2}", range.From, range.IsInclusive ? ".." : "...", range.To));
+                args[stackStart + 0] = Obj.MakeString(string.Format("{0}{1}{2}", range.From, range.IsInclusive ? ".." : "...", range.To));
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_string_eqeq(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_string_eqeq(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjString aString = (ObjString)args[0];
-            ObjString bString = args[1] as ObjString;
-            args[0] = new Obj(aString != null && bString != null && aString.Str == bString.Str);
+            ObjString aString = (ObjString)args[stackStart + 0];
+            ObjString bString = args[stackStart + 1] as ObjString;
+            args[stackStart + 0] = new Obj(aString != null && bString != null && aString.Str == bString.Str);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_string_bangeq(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_string_bangeq(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjString aString = (ObjString)args[0];
-            ObjString bString = args[1] as ObjString;
-            args[0] = new Obj(aString == null || bString == null || aString.Str != bString.Str);
+            ObjString aString = (ObjString)args[stackStart + 0];
+            ObjString bString = args[stackStart + 1] as ObjString;
+            args[stackStart + 0] = new Obj(aString == null || bString == null || aString.Str != bString.Str);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_string_fromCodePoint(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_string_fromCodePoint(WrenVM vm, Obj[] args, int stackStart)
         {
-            if (args[1].Type == ObjType.Num)
+            if (args[stackStart + 1].Type == ObjType.Num)
             {
-                int codePoint = (int)args[1].Num;
+                int codePoint = (int)args[stackStart + 1].Num;
 
-                if (codePoint == args[1].Num)
+                if (codePoint == args[stackStart + 1].Num)
                 {
                     if (codePoint >= 0)
                     {
                         if (codePoint <= 0x10ffff)
                         {
-                            args[0] = ObjString.FromCodePoint(codePoint);
+                            args[stackStart + 0] = ObjString.FromCodePoint(codePoint);
                             return PrimitiveResult.Value;
                         }
 
-                        args[0] = Obj.MakeString("Code point cannot be greater than 0x10ffff.");
+                        args[stackStart + 0] = Obj.MakeString("Code point cannot be greater than 0x10ffff.");
                         return PrimitiveResult.Error;
                     }
-                    args[0] = Obj.MakeString("Code point cannot be negative.");
+                    args[stackStart + 0] = Obj.MakeString("Code point cannot be negative.");
                     return PrimitiveResult.Error;
                 }
 
-                args[0] = Obj.MakeString("Code point must be an integer.");
+                args[stackStart + 0] = Obj.MakeString("Code point must be an integer.");
                 return PrimitiveResult.Error;
             }
 
-            args[0] = Obj.MakeString("Code point must be a number.");
+            args[stackStart + 0] = Obj.MakeString("Code point must be a number.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_string_byteAt(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_string_byteAt(WrenVM vm, Obj[] args, int stackStart)
         {
-            Byte[] s = ((ObjString)args[0]).GetBytes();
+            Byte[] s = ((ObjString)args[stackStart + 0]).GetBytes();
 
-            if (args[1].Type == ObjType.Num)
+            if (args[stackStart + 1].Type == ObjType.Num)
             {
-                int index = (int)args[1].Num;
+                int index = (int)args[stackStart + 1].Num;
 
-                if (index == args[1].Num)
+                if (index == args[stackStart + 1].Num)
                 {
                     if (index >= 0 && index < s.Length)
                     {
-                        args[0] = new Obj(s[index]);
+                        args[stackStart + 0] = new Obj(s[index]);
                         return PrimitiveResult.Value;
                     }
 
-                    args[0] = Obj.MakeString("Index out of bounds.");
+                    args[stackStart + 0] = Obj.MakeString("Index out of bounds.");
                     return PrimitiveResult.Error;
                 }
 
-                args[0] = Obj.MakeString("Index must be an integer.");
+                args[stackStart + 0] = Obj.MakeString("Index must be an integer.");
                 return PrimitiveResult.Error;
             }
 
-            args[0] = Obj.MakeString("Index must be a number.");
+            args[stackStart + 0] = Obj.MakeString("Index must be a number.");
             return PrimitiveResult.Error;
         }
 
-        private static PrimitiveResult prim_string_byteCount(WrenVM vm, Obj[] args)
+        private static PrimitiveResult prim_string_byteCount(WrenVM vm, Obj[] args, int stackStart)
         {
-            Byte[] s = ((ObjString)args[0]).GetBytes();
-            args[0] = new Obj(s.Length);
+            Byte[] s = ((ObjString)args[stackStart + 0]).GetBytes();
+            args[stackStart + 0] = new Obj(s.Length);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_string_codePointAt(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_string_codePointAt(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjString s = args[0] as ObjString;
+            ObjString s = args[stackStart + 0] as ObjString;
 
             if (s == null)
             {
                 return PrimitiveResult.Error;
             }
 
-            if (args[1].Type != ObjType.Num)
+            if (args[stackStart + 1].Type != ObjType.Num)
             {
-                args[0] = Obj.MakeString("Index must be a number.");
+                args[stackStart + 0] = Obj.MakeString("Index must be a number.");
                 return PrimitiveResult.Error;
             }
 
-            int index = (int)args[1].Num;
+            int index = (int)args[stackStart + 1].Num;
 
-            if (index != args[1].Num)
+            if (index != args[stackStart + 1].Num)
             {
-                args[0] = Obj.MakeString("Index must be an integer.");
+                args[stackStart + 0] = Obj.MakeString("Index must be an integer.");
                 return PrimitiveResult.Error;
             }
 
             if (index < 0 || index >= s.Str.Length)
             {
-                args[0] = Obj.MakeString("Index out of bounds.");
+                args[stackStart + 0] = Obj.MakeString("Index out of bounds.");
                 return PrimitiveResult.Error;
             }
 
-            args[0] = new Obj(s.Str[index]);
+            args[stackStart + 0] = new Obj(s.Str[index]);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_string_contains(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_string_contains(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjString s = (ObjString)args[0];
-            ObjString search = args[1] as ObjString;
+            ObjString s = (ObjString)args[stackStart + 0];
+            ObjString search = args[stackStart + 1] as ObjString;
 
             if (search == null)
             {
-                args[0] = Obj.MakeString("Argument must be a string.");
+                args[stackStart + 0] = Obj.MakeString("Argument must be a string.");
                 return PrimitiveResult.Error;
             }
 
-            args[0] = new Obj(s.Str.Contains(search.Str));
+            args[stackStart + 0] = new Obj(s.Str.Contains(search.Str));
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_string_count(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_string_count(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = new Obj(args[0].ToString().Length);
+            args[stackStart + 0] = new Obj(args[stackStart + 0].ToString().Length);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_string_endsWith(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_string_endsWith(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjString s = (ObjString)args[0];
-            ObjString search = args[1] as ObjString;
+            ObjString s = (ObjString)args[stackStart + 0];
+            ObjString search = args[stackStart + 1] as ObjString;
 
             if (search == null)
             {
-                args[0] = Obj.MakeString("Argument must be a string.");
+                args[stackStart + 0] = Obj.MakeString("Argument must be a string.");
                 return PrimitiveResult.Error;
             }
 
-            args[0] = new Obj(s.Str.EndsWith(search.Str));
+            args[stackStart + 0] = new Obj(s.Str.EndsWith(search.Str));
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_string_indexOf(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_string_indexOf(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjString s = (ObjString)args[0];
-            ObjString search = args[1] as ObjString;
+            ObjString s = (ObjString)args[stackStart + 0];
+            ObjString search = args[stackStart + 1] as ObjString;
 
             if (search != null)
             {
                 int index = s.Str.IndexOf(search.Str, StringComparison.Ordinal);
-                args[0] = new Obj(index);
+                args[stackStart + 0] = new Obj(index);
                 return PrimitiveResult.Value;
             }
 
-            args[0] = Obj.MakeString("Argument must be a string.");
+            args[stackStart + 0] = Obj.MakeString("Argument must be a string.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_string_iterate(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_string_iterate(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjString s = (ObjString)args[0];
+            ObjString s = (ObjString)args[stackStart + 0];
 
             // If we're starting the iteration, return the first index.
-            if (args[1].Type == ObjType.Null)
+            if (args[stackStart + 1].Type == ObjType.Null)
             {
                 if (s.Str.Length != 0)
                 {
-                    args[0] = new Obj(0.0);
+                    args[stackStart + 0] = new Obj(0.0);
                     return PrimitiveResult.Value;
                 }
-                args[0] = new Obj(false);
+                args[stackStart + 0] = new Obj(false);
                 return PrimitiveResult.Value;
             }
 
-            if (args[1].Type == ObjType.Num)
+            if (args[stackStart + 1].Type == ObjType.Num)
             {
-                if (args[1].Num < 0)
+                if (args[stackStart + 1].Num < 0)
                 {
-                    args[0] = new Obj(false);
+                    args[stackStart + 0] = new Obj(false);
                     return PrimitiveResult.Value;
                 }
-                int index = (int)args[1].Num;
+                int index = (int)args[stackStart + 1].Num;
 
-                if (index == args[1].Num)
+                if (index == args[stackStart + 1].Num)
                 {
                     index++;
                     if (index >= s.Str.Length)
                     {
-                        args[0] = new Obj(false);
+                        args[stackStart + 0] = new Obj(false);
                         return PrimitiveResult.Value;
                     }
 
-                    args[0] = new Obj(index);
+                    args[stackStart + 0] = new Obj(index);
                     return PrimitiveResult.Value;
                 }
 
                 // Advance to the beginning of the next UTF-8 sequence.
-                args[0] = Obj.MakeString("Iterator must be an integer.");
+                args[stackStart + 0] = Obj.MakeString("Iterator must be an integer.");
                 return PrimitiveResult.Error;
             }
 
-            args[0] = Obj.MakeString("Iterator must be a number.");
+            args[stackStart + 0] = Obj.MakeString("Iterator must be a number.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_string_iterateByte(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_string_iterateByte(WrenVM vm, Obj[] args, int stackStart)
         {
-            Byte[] s = ((ObjString)args[0]).GetBytes();
+            Byte[] s = ((ObjString)args[stackStart + 0]).GetBytes();
 
             // If we're starting the iteration, return the first index.
-            if (args[1].Type == ObjType.Null)
+            if (args[stackStart + 1].Type == ObjType.Null)
             {
                 if (s.Length == 0)
                 {
-                    args[0] = new Obj(false);
+                    args[stackStart + 0] = new Obj(false);
                     return PrimitiveResult.Value;
                 }
-                args[0] = new Obj(0.0);
+                args[stackStart + 0] = new Obj(0.0);
                 return PrimitiveResult.Value;
             }
 
-            if (args[1].Type != ObjType.Num) return PrimitiveResult.Error;
+            if (args[stackStart + 1].Type != ObjType.Num) return PrimitiveResult.Error;
 
-            if (args[1].Num < 0)
+            if (args[stackStart + 1].Num < 0)
             {
-                args[0] = new Obj(false);
+                args[stackStart + 0] = new Obj(false);
                 return PrimitiveResult.Value;
             }
-            int index = (int)args[1].Num;
+            int index = (int)args[stackStart + 1].Num;
 
             // Advance to the next byte.
             index++;
             if (index >= s.Length)
             {
-                args[0] = new Obj(false);
+                args[stackStart + 0] = new Obj(false);
                 return PrimitiveResult.Value;
             }
 
-            args[0] = new Obj(index);
+            args[stackStart + 0] = new Obj(index);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_string_iteratorValue(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_string_iteratorValue(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjString s = (ObjString)args[0];
+            ObjString s = (ObjString)args[stackStart + 0];
 
-            if (args[1].Type == ObjType.Num)
+            if (args[stackStart + 1].Type == ObjType.Num)
             {
-                int index = (int)args[1].Num;
+                int index = (int)args[stackStart + 1].Num;
 
-                if (index == args[1].Num)
+                if (index == args[stackStart + 1].Num)
                 {
                     if (index < s.Str.Length && index >= 0)
                     {
-                        args[0] = Obj.MakeString("" + s.Str[index]);
+                        args[stackStart + 0] = Obj.MakeString("" + s.Str[index]);
                         return PrimitiveResult.Value;
                     }
 
-                    args[0] = Obj.MakeString("Iterator out of bounds.");
+                    args[stackStart + 0] = Obj.MakeString("Iterator out of bounds.");
                     return PrimitiveResult.Error;
                 }
 
-                args[0] = Obj.MakeString("Iterator must be an integer.");
+                args[stackStart + 0] = Obj.MakeString("Iterator must be an integer.");
                 return PrimitiveResult.Error;
             }
-            args[0] = Obj.MakeString("Iterator must be a number.");
+            args[stackStart + 0] = Obj.MakeString("Iterator must be a number.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_string_startsWith(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_string_startsWith(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjString s = (ObjString)args[0];
-            ObjString search = args[1] as ObjString;
+            ObjString s = (ObjString)args[stackStart + 0];
+            ObjString search = args[stackStart + 1] as ObjString;
 
             if (search != null)
             {
-                args[0] = new Obj(s.Str.StartsWith(search.Str));
+                args[stackStart + 0] = new Obj(s.Str.StartsWith(search.Str));
                 return PrimitiveResult.Value;
             }
 
-            args[0] = Obj.MakeString("Argument must be a string.");
+            args[stackStart + 0] = Obj.MakeString("Argument must be a string.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_string_toString(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_string_toString(WrenVM vm, Obj[] args, int stackStart)
         {
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult prim_string_plus(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_string_plus(WrenVM vm, Obj[] args, int stackStart)
         {
-            ObjString s1 = args[1] as ObjString;
+            ObjString s1 = args[stackStart + 1] as ObjString;
             if (s1 != null)
             {
-                args[0] = Obj.MakeString(((ObjString)args[0]).Str + s1.Str);
+                args[stackStart + 0] = Obj.MakeString(((ObjString)args[stackStart + 0]).Str + s1.Str);
                 return PrimitiveResult.Value;
             }
 
-            args[0] = Obj.MakeString("Right operand must be a string.");
+            args[stackStart + 0] = Obj.MakeString("Right operand must be a string.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult prim_string_subscript(WrenVM vm, Obj[] args)
+        static PrimitiveResult prim_string_subscript(WrenVM vm, Obj[] args, int stackStart)
         {
-            string s = ((ObjString)args[0]).Str;
+            string s = ((ObjString)args[stackStart + 0]).Str;
 
-            if (args[1].Type == ObjType.Num)
+            if (args[stackStart + 1].Type == ObjType.Num)
             {
-                int index = (int)args[1].Num;
+                int index = (int)args[stackStart + 1].Num;
 
-                if (index == args[1].Num)
+                if (index == args[stackStart + 1].Num)
                 {
                     if (index < 0)
                     {
@@ -1992,33 +1992,33 @@ namespace Wren.Core.Library
 
                     if (index >= 0 && index < s.Length)
                     {
-                        args[0] = ObjString.FromCodePoint(s[index]);
+                        args[stackStart + 0] = ObjString.FromCodePoint(s[index]);
                         return PrimitiveResult.Value;
                     }
 
-                    args[0] = Obj.MakeString("Subscript out of bounds.");
+                    args[stackStart + 0] = Obj.MakeString("Subscript out of bounds.");
                     return PrimitiveResult.Error;
                 }
 
-                args[0] = Obj.MakeString("Subscript must be an integer.");
+                args[stackStart + 0] = Obj.MakeString("Subscript must be an integer.");
                 return PrimitiveResult.Error;
             }
 
-            if (args[1] as ObjRange != null)
+            if (args[stackStart + 1] as ObjRange != null)
             {
-                ObjRange r = args[1] as ObjRange;
+                ObjRange r = args[stackStart + 1] as ObjRange;
 
                 // TODO: This is seriously broken and needs a rewrite
                 int from = (int)r.From;
                 if (from != r.From)
                 {
-                    args[0] = Obj.MakeString("Range start must be an integer.");
+                    args[stackStart + 0] = Obj.MakeString("Range start must be an integer.");
                     return PrimitiveResult.Error;
                 }
                 int to = (int)r.To;
                 if (to != r.To)
                 {
-                    args[0] = Obj.MakeString("Range end must be an integer.");
+                    args[stackStart + 0] = Obj.MakeString("Range end must be an integer.");
                     return PrimitiveResult.Error;
                 }
 
@@ -2045,12 +2045,12 @@ namespace Wren.Core.Library
 
                 if (to < 0 || from + (count * step) > s.Length)
                 {
-                    args[0] = Obj.MakeString("Range end out of bounds.");
+                    args[stackStart + 0] = Obj.MakeString("Range end out of bounds.");
                     return PrimitiveResult.Error;
                 }
                 if (from < 0 || (from >= s.Length && from > 0))
                 {
-                    args[0] = Obj.MakeString("Range start out of bounds.");
+                    args[stackStart + 0] = Obj.MakeString("Range start out of bounds.");
                     return PrimitiveResult.Error;
                 }
 
@@ -2060,28 +2060,28 @@ namespace Wren.Core.Library
                     result += s[from + (i * step)];
                 }
 
-                args[0] = Obj.MakeString(result);
+                args[stackStart + 0] = Obj.MakeString(result);
                 return PrimitiveResult.Value;
             }
 
-            args[0] = Obj.MakeString("Subscript must be a number or a range.");
+            args[stackStart + 0] = Obj.MakeString("Subscript must be a number or a range.");
             return PrimitiveResult.Error;
         }
 
-        static PrimitiveResult WriteString(WrenVM vm, Obj[] args)
+        static PrimitiveResult WriteString(WrenVM vm, Obj[] args, int stackStart)
         {
-            if (args[1] != null && args[1].Type == ObjType.Obj)
+            if (args[stackStart + 1] != null && args[stackStart + 1].Type == ObjType.Obj)
             {
-                string s = args[1].ToString();
+                string s = args[stackStart + 1].ToString();
                 Console.Write(s);
             }
-            args[0] = new Obj(ObjType.Null);
+            args[stackStart + 0] = new Obj(ObjType.Null);
             return PrimitiveResult.Value;
         }
 
-        static PrimitiveResult Clock(WrenVM vm, Obj[] args)
+        static PrimitiveResult Clock(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[0] = new Obj((double)DateTime.Now.Ticks / 10000000);
+            args[stackStart + 0] = new Obj((double)DateTime.Now.Ticks / 10000000);
             return PrimitiveResult.Value;
         }
 

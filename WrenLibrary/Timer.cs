@@ -27,7 +27,7 @@ namespace WrenLibrary
             vm.Primitive(timer.ClassObj, "startTimer_(_,_)", StartTimer);
         }
 
-        private static PrimitiveResult StartTimer(WrenVM vm, Obj[] args)
+        private static PrimitiveResult StartTimer(WrenVM vm, Obj[] args, int stackStart)
         {
             return PrimitiveResult.Value;
         }

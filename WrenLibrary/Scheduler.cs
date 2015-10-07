@@ -42,7 +42,7 @@ namespace WrenLibrary
             vm.Interpret("scheduler", "scheduler", "Scheduler.captureMethods_()");
         }
 
-        private static PrimitiveResult CaptureMethods(WrenVM vm, Obj[] args)
+        private static PrimitiveResult CaptureMethods(WrenVM vm, Obj[] args, int stackStart)
         {
             return PrimitiveResult.Value;
         }

@@ -8,7 +8,7 @@ namespace Wren.Core.VM
 {
     public delegate string WrenLoadModuleFn(string name);
 
-    public delegate PrimitiveResult Primitive(WrenVM vm, Obj[] args);
+    public delegate PrimitiveResult Primitive(WrenVM vm, Obj[] args, int stackStart);
 
     public enum MethodType
     {
@@ -276,7 +276,6 @@ namespace Wren.Core.VM
             int ip = frame.Ip;
             int stackStart = frame.StackStart;
             Obj[] stack = Fiber.Stack;
-            Obj[] args = new Obj[17];
 
             ObjFn fn = frame.Fn as ObjFn ?? ((ObjClosure)frame.Fn).Function;
             byte[] bytecode = fn.Bytecode;
@@ -444,22 +443,12 @@ namespace Wren.Core.VM
                                 {
                                     if (method.MType == MethodType.Primitive)
                                     {
-                                        for (int i = 0; i < numArgs; i++)
-                                            args[i] = stack[argStart + i];
                                         // After calling this, the result will be in the first arg slot.
-                                        PrimitiveResult result = method.Primitive(this, args);
+                                        PrimitiveResult result = method.Primitive(this, stack, argStart);
 
                                         if (result == PrimitiveResult.Value)
                                         {
                                             Fiber.StackTop = argStart + 1;
-                                            stack[argStart] = args[0];
-                                            instruction = (Instruction)bytecode[ip];
-                                            if (instruction == Instruction.STORE_LOCAL)
-                                            {
-                                                index = stackStart + bytecode[ip + 1];
-                                                stack[index] = args[0];
-                                                ip += 2;
-                                            }
                                             break;
                                         }
 
@@ -470,9 +459,9 @@ namespace Wren.Core.VM
                                             case PrimitiveResult.RunFiber:
 
                                                 // If we don't have a fiber to switch to, stop interpreting.
-                                                if (args[0].Type == ObjType.Null) return true;
+                                                if (stack[argStart].Type == ObjType.Null) return true;
 
-                                                Fiber = args[0] as ObjFiber;
+                                                Fiber = stack[argStart] as ObjFiber;
                                                 /* Load Frame */
                                                 frame = Fiber.Frames[Fiber.NumFrames - 1];
                                                 ip = frame.Ip;
@@ -494,7 +483,7 @@ namespace Wren.Core.VM
                                                 break;
 
                                             case PrimitiveResult.Error:
-                                                RUNTIME_ERROR(Fiber, args[0]);
+                                                RUNTIME_ERROR(Fiber, stack[argStart]);
                                                 if (Fiber == null)
                                                     return false;
                                                 frame = Fiber.Frames[Fiber.NumFrames - 1];

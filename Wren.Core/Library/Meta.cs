@@ -8,9 +8,9 @@ namespace Wren.Core.Library
     {
         const string MetaLibSource = "class Meta {}\n";
 
-        static PrimitiveResult Eval(WrenVM vm, Obj[] args)
+        static PrimitiveResult Eval(WrenVM vm, Obj[] args, int stackStart)
         {
-            if (args[1] is ObjString)
+            if (args[stackStart + 1] is ObjString)
             {
 
                 // Eval the code in the module where the calling function was defined.
@@ -24,7 +24,7 @@ namespace Wren.Core.Library
 
                 if (fn == null)
                 {
-                    args[0] = Obj.MakeString("Could not compile source code.");
+                    args[stackStart + 0] = Obj.MakeString("Could not compile source code.");
                     return PrimitiveResult.Error;
                 }
 
@@ -34,7 +34,7 @@ namespace Wren.Core.Library
                 ObjFiber evalFiber = new ObjFiber(fn) { Caller = vm.Fiber };
 
                 // Switch to the fiber.
-                args[0] = evalFiber;
+                args[stackStart + 0] = evalFiber;
 
                 return PrimitiveResult.RunFiber;
             }
