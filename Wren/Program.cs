@@ -39,6 +39,11 @@ namespace Wren
             return 66; // File Not Found
         }
 
+        private static int OpenBrackets(string s)
+        {
+            return s.Replace("}", "").Length - s.Replace("{", "").Length;
+        }
+
         static void RunRepl()
         {
             WrenVM vm = new WrenVM();
@@ -48,13 +53,17 @@ namespace Wren
 
             string line = "";
 
-            for (; line != "/exit"; )
+            for (; ; )
             {
                 Console.Write("> ");
-                line = Console.ReadLine();
+                line += Console.ReadLine() + "\n";
+
+                if(OpenBrackets(line) > 0)
+                    continue;
 
                 // TODO: Handle failure.
                 vm.Interpret("Prompt","Prompt", line);
+                line = "";
             }
         }
 
