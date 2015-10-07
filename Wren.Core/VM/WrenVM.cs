@@ -8,7 +8,7 @@ namespace Wren.Core.VM
 {
     public delegate string WrenLoadModuleFn(string name);
 
-    public delegate PrimitiveResult Primitive(WrenVM vm, Obj[] args, int stackStart);
+    public delegate bool Primitive(WrenVM vm, Obj[] args, int stackStart);
 
     public enum MethodType
     {
@@ -23,23 +23,10 @@ namespace Wren.Core.VM
         None,
 
         // Static method
-        Static
-    };
+        Static,
 
-    public enum PrimitiveResult
-    {
-        // A normal value has been returned.
-        Value,
-
-        // A runtime error occurred.
-        Error,
-
-        // A new callframe has been pushed.
-        Call,
-
-        // A fiber is being switched to.
-        RunFiber
-
+        // Special Call Method
+        Call
     };
 
     public class Method
@@ -129,9 +116,9 @@ namespace Wren.Core.VM
 
         // Creates a string containing an appropriate method not found error for a
         // method with [symbol] on [classObj].
-        static Obj MethodNotFound(WrenVM vm, ObjClass classObj, int symbol)
+        static void MethodNotFound(WrenVM vm, ObjClass classObj, int symbol)
         {
-            return Obj.MakeString(string.Format("{0} does not implement '{1}'.", classObj.Name, vm.MethodNames[symbol]));
+            vm.Fiber.Error = Obj.MakeString(string.Format("{0} does not implement '{1}'.", classObj.Name, vm.MethodNames[symbol]));
         }
 
         // Looks up the previously loaded module with [name].
@@ -144,7 +131,7 @@ namespace Wren.Core.VM
 
         private ObjModule GetModuleByName(string name)
         {
-            for (int i = 1; i < _modules.Count();i++)
+            for (int i = 1; i < _modules.Count(); i++)
             {
                 Obj v = _modules.GetKey(i);
                 if (v as ObjString != null && (v as ObjString).Str == name)
@@ -444,77 +431,81 @@ namespace Wren.Core.VM
                                     if (method.MType == MethodType.Primitive)
                                     {
                                         // After calling this, the result will be in the first arg slot.
-                                        PrimitiveResult result = method.Primitive(this, stack, argStart);
-
-                                        if (result == PrimitiveResult.Value)
+                                        if (method.Primitive(this, stack, argStart))
                                         {
                                             Fiber.StackTop = argStart + 1;
-                                            break;
                                         }
-
-                                        frame.Ip = ip;
-
-                                        switch (result)
+                                        else
                                         {
-                                            case PrimitiveResult.RunFiber:
+                                            frame.Ip = ip;
 
+                                            if (Fiber.Error != null && Fiber.Error.Type != ObjType.Null)
+                                            {
+                                                RUNTIME_ERROR(Fiber);
+                                            }
+                                            else
+                                            {
                                                 // If we don't have a fiber to switch to, stop interpreting.
-                                                if (stack[argStart].Type == ObjType.Null) return true;
-
+                                                if (stack[argStart].Type == ObjType.Null)
+                                                    return true;
                                                 Fiber = stack[argStart] as ObjFiber;
-                                                /* Load Frame */
-                                                frame = Fiber.Frames[Fiber.NumFrames - 1];
-                                                ip = frame.Ip;
-                                                stackStart = frame.StackStart;
-                                                stack = Fiber.Stack;
-                                                fn = (frame.Fn as ObjFn) ?? (frame.Fn as ObjClosure).Function;
-                                                bytecode = fn.Bytecode;
-                                                break;
+                                            }
 
-                                            case PrimitiveResult.Call:
-                                                Fiber.Frames.Add(frame = new CallFrame { Fn = receiver, StackStart = argStart, Ip = 0 });
-                                                Fiber.NumFrames++;
+                                            if (Fiber == null)
+                                                return false;
 
-                                                /* Load Frame */
-                                                ip = 0;
-                                                stackStart = argStart;
-                                                fn = (frame.Fn as ObjFn) ?? (frame.Fn as ObjClosure).Function;
-                                                bytecode = fn.Bytecode;
-                                                break;
-
-                                            case PrimitiveResult.Error:
-                                                RUNTIME_ERROR(Fiber, stack[argStart]);
-                                                if (Fiber == null)
-                                                    return false;
-                                                frame = Fiber.Frames[Fiber.NumFrames - 1];
-                                                ip = frame.Ip;
-                                                stackStart = frame.StackStart;
-                                                stack = Fiber.Stack;
-                                                fn = (frame.Fn as ObjFn) ?? (frame.Fn as ObjClosure).Function;
-                                                bytecode = fn.Bytecode;
-                                                break;
+                                            /* Load Frame */
+                                            frame = Fiber.Frames[Fiber.NumFrames - 1];
+                                            ip = frame.Ip;
+                                            stackStart = frame.StackStart;
+                                            stack = Fiber.Stack;
+                                            fn = (frame.Fn as ObjFn) ?? (frame.Fn as ObjClosure).Function;
+                                            bytecode = fn.Bytecode;
                                         }
                                         break;
                                     }
+
+                                    Obj f = stack[argStart];
+
                                     if (method.MType == MethodType.Block)
                                     {
-                                        Obj mObj = method.Obj;
-                                        frame.Ip = ip;
-                                        Fiber.Frames.Add(frame = new CallFrame { Fn = mObj, StackStart = argStart, Ip = 0 });
-                                        Fiber.NumFrames++;
-                                        /* Load Frame */
-                                        ip = 0;
-                                        stackStart = argStart;
-                                        fn = (mObj as ObjFn) ?? (mObj as ObjClosure).Function;
-                                        bytecode = fn.Bytecode;
-                                        break;
+                                        f = method.Obj;
                                     }
+                                    else if (method.MType == MethodType.Call)
+                                    {
+                                        if (!CheckArity(stack, numArgs, argStart))
+                                        {
+                                            frame.Ip = ip;
+                                            RUNTIME_ERROR(Fiber);
+                                            if (Fiber == null)
+                                                return false;
+                                            frame = Fiber.Frames[Fiber.NumFrames - 1];
+                                            ip = frame.Ip;
+                                            stackStart = frame.StackStart;
+                                            stack = Fiber.Stack;
+                                            fn = (frame.Fn as ObjFn) ?? (frame.Fn as ObjClosure).Function;
+                                            bytecode = fn.Bytecode;
+                                            break;
+                                        }
+                                    }
+
+                                    frame.Ip = ip;
+                                    Fiber.Frames.Add(frame = new CallFrame { Fn = f, StackStart = argStart, Ip = 0 });
+                                    Fiber.NumFrames++;
+                                    /* Load Frame */
+                                    ip = 0;
+                                    stackStart = argStart;
+                                    fn = (f as ObjFn) ?? (f as ObjClosure).Function;
+                                    bytecode = fn.Bytecode;
+                                    break;
+
                                 }
                             }
 
                             /* Method not found */
                             frame.Ip = ip;
-                            RUNTIME_ERROR(Fiber, MethodNotFound(this, classObj, symbol));
+                            MethodNotFound(this, classObj, symbol);
+                            RUNTIME_ERROR(Fiber);
                             if (Fiber == null)
                                 return false;
                             frame = Fiber.Frames[Fiber.NumFrames - 1];
@@ -737,8 +728,9 @@ namespace Wren.Core.VM
                             Obj error = ValidateSuperclass(name, stack[Fiber.StackTop - 1]);
                             if (error != null)
                             {
+                                Fiber.Error = error;
                                 frame.Ip = ip;
-                                RUNTIME_ERROR(Fiber, error);
+                                RUNTIME_ERROR(Fiber);
                                 if (Fiber == null)
                                     return false;
                                 /* Load Frame */
@@ -763,7 +755,8 @@ namespace Wren.Core.VM
                             if (superclass.NumFields + numFields > Compiler.MaxFields)
                             {
                                 frame.Ip = ip;
-                                RUNTIME_ERROR(Fiber, Obj.MakeString(string.Format("Class '{0}' may not have more than 255 fields, including inherited ones.", name)));
+                                Fiber.Error = Obj.MakeString(string.Format("Class '{0}' may not have more than 255 fields, including inherited ones.", name));
+                                RUNTIME_ERROR(Fiber);
                                 if (Fiber == null)
                                     return false;
                                 /* Load Frame */
@@ -794,7 +787,8 @@ namespace Wren.Core.VM
                             if ((error is ObjString))
                             {
                                 frame.Ip = ip;
-                                RUNTIME_ERROR(Fiber, error);
+                                Fiber.Error = error;
+                                RUNTIME_ERROR(Fiber);
                                 if (Fiber == null)
                                     return false;
                                 /* Load Frame */
@@ -820,7 +814,8 @@ namespace Wren.Core.VM
                             if ((result is ObjString))
                             {
                                 frame.Ip = ip;
-                                RUNTIME_ERROR(Fiber, result);
+                                Fiber.Error = result;
+                                RUNTIME_ERROR(Fiber);
                                 if (Fiber == null)
                                     return false;
                                 /* Load Frame */
@@ -876,7 +871,8 @@ namespace Wren.Core.VM
                             else
                             {
                                 frame.Ip = ip;
-                                RUNTIME_ERROR(Fiber, result);
+                                Fiber.Error = result;
+                                RUNTIME_ERROR(Fiber);
                                 if (Fiber == null)
                                     return false;
                                 /* Load Frame */
@@ -896,7 +892,8 @@ namespace Wren.Core.VM
                             ObjClass v = stack[stackPosition] as ObjClass;
                             if (v == null)
                             {
-                                RUNTIME_ERROR(Fiber, Obj.MakeString("'this' should be a class."));
+                                Fiber.Error = Obj.MakeString("'this' should be a class.");
+                                RUNTIME_ERROR(Fiber);
                                 if (Fiber == null)
                                     return false;
                                 /* Load Frame */
@@ -974,7 +971,7 @@ namespace Wren.Core.VM
         public Obj FindVariable(string moduleName, string name)
         {
             ObjModule m = GetModuleByName(moduleName);
-            if(m == null)
+            if (m == null)
                 return new Obj();
             int symbol = m.Variables.FindIndex(v => v.Name == name);
             return m.Variables[symbol].Container;
@@ -1018,33 +1015,24 @@ namespace Wren.Core.VM
         }
 
         /* Dirty Hack */
-        private void RUNTIME_ERROR(ObjFiber f, Obj v)
+        private void RUNTIME_ERROR(ObjFiber f)
         {
-            if (f.Error != null)
-            {
-                Console.Error.WriteLine("Can only fail once.");
-                return;
-            }
-
             if (f.CallerIsTrying)
             {
-                f.Caller.SetReturnValue(v);
+                f.Caller.SetReturnValue(f.Error);
                 Fiber = f.Caller;
-                f.Error = v as ObjString;
                 return;
             }
             Fiber = null;
 
             // TODO: Fix this so that there is no dependancy on the console
-            if (!(v is ObjString))
+            if (!(f.Error is ObjString))
             {
-                v = Obj.MakeString("Error message must be a string.");
+                f.Error = Obj.MakeString("Error message must be a string.");
             }
-            f.Error = v as ObjString;
-            Console.Error.WriteLine(v as ObjString);
+            Console.Error.WriteLine(f.Error as ObjString);
         }
 
-        /* Anotehr Dirty Hack */
         public void Primitive(ObjClass objClass, string s, Primitive func)
         {
             if (!MethodNames.Contains(s))
@@ -1053,8 +1041,43 @@ namespace Wren.Core.VM
             }
             int symbol = MethodNames.IndexOf(s);
 
-            Method m = new Method { Primitive = func, MType = MethodType.Primitive };
-            objClass.BindMethod(symbol, m);
+            objClass.BindMethod(symbol, new Method { Primitive = func, MType = MethodType.Primitive });
+        }
+
+        public void Call(ObjClass objClass, string s)
+        {
+            if (!MethodNames.Contains(s))
+            {
+                MethodNames.Add(s);
+            }
+            int symbol = MethodNames.IndexOf(s);
+
+            objClass.BindMethod(symbol, new Method { MType = MethodType.Call });
+        }
+
+        bool CheckArity(Obj[] args, int numArgs, int stackStart)
+        {
+            ObjFn fn = args[stackStart] as ObjFn;
+            ObjClosure c = args[stackStart] as ObjClosure;
+
+            if (c != null)
+            {
+                fn = c.Function;
+            }
+
+            if (fn == null)
+            {
+                Fiber.Error = Obj.MakeString("Receiver must be a function or closure.");
+                return false;
+            }
+
+            if (numArgs - 1 < fn.Arity)
+            {
+                Fiber.Error = Obj.MakeString("Function expects more arguments.");
+                return false;
+            }
+
+            return true;
         }
 
     }

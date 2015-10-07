@@ -26,7 +26,7 @@ namespace Wren.Core.Objects
 
         // If the fiber failed because of a runtime error, this will contain the
         // error message. Otherwise, it will be null.
-        public ObjString Error;
+        public Obj Error;
 
         // This will be true if the caller that called this fiber did so using "try".
         // In that case, if this fiber fails with an error, the error will be given

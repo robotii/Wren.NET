@@ -89,34 +89,34 @@ namespace WrenLibrary
             vm.Primitive(file, "size_(_)", Size);
         }
 
-        private static PrimitiveResult Open(WrenVM vm, Obj[] args, int stackStart)
+        private static bool Open(WrenVM vm, Obj[] args, int stackStart)
         {
-            return PrimitiveResult.Value;
+            return true;
         }
 
-        private static PrimitiveResult SizePath(WrenVM vm, Obj[] args, int stackStart)
+        private static bool SizePath(WrenVM vm, Obj[] args, int stackStart)
         {
-            return PrimitiveResult.Value;
+            return true;
         }
 
-        private static PrimitiveResult Close(WrenVM vm, Obj[] args, int stackStart)
+        private static bool Close(WrenVM vm, Obj[] args, int stackStart)
         {
-            return PrimitiveResult.Value;
+            return true;
         }
 
-        private static PrimitiveResult Descriptor(WrenVM vm, Obj[] args, int stackStart)
+        private static bool Descriptor(WrenVM vm, Obj[] args, int stackStart)
         {
-            return PrimitiveResult.Value;
+            return true;
         }
 
-        private static PrimitiveResult ReadBytes(WrenVM vm, Obj[] args, int stackStart)
+        private static bool ReadBytes(WrenVM vm, Obj[] args, int stackStart)
         {
-            return PrimitiveResult.Value;
+            return true;
         }
 
-        private static PrimitiveResult Size(WrenVM vm, Obj[] args, int stackStart)
+        private static bool Size(WrenVM vm, Obj[] args, int stackStart)
         {
-            return PrimitiveResult.Value;
+            return true;
         }
     }
 }

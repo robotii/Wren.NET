@@ -8,7 +8,7 @@ namespace Wren.Core.Library
     {
         const string MetaLibSource = "class Meta {}\n";
 
-        static PrimitiveResult Eval(WrenVM vm, Obj[] args, int stackStart)
+        static bool Eval(WrenVM vm, Obj[] args, int stackStart)
         {
             if (args[stackStart + 1] is ObjString)
             {
@@ -24,8 +24,8 @@ namespace Wren.Core.Library
 
                 if (fn == null)
                 {
-                    args[stackStart] = Obj.MakeString("Could not compile source code.");
-                    return PrimitiveResult.Error;
+                    vm.Fiber.Error = Obj.MakeString("Could not compile source code.");
+                    return false;
                 }
 
                 // TODO: Include the compile errors in the runtime error message.
@@ -36,11 +36,11 @@ namespace Wren.Core.Library
                 // Switch to the fiber.
                 args[stackStart] = evalFiber;
 
-                return PrimitiveResult.RunFiber;
+                return false;
             }
 
-            args[stackStart] = Obj.MakeString("Source code must be a string.");
-            return PrimitiveResult.Error;
+            vm.Fiber.Error = Obj.MakeString("Source code must be a string.");
+            return false;
         }
 
         public static void LoadLibrary(WrenVM vm)

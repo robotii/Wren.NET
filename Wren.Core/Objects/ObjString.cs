@@ -10,6 +10,9 @@ namespace Wren.Core.Objects
         private static readonly List<ObjString> Strings = new List<ObjString>();
         private static bool _initCompleted;
 
+        public static ObjString True;
+        public static ObjString False;
+
         public static void InitClass()
         {
             foreach (ObjString s in Strings)
@@ -18,6 +21,8 @@ namespace Wren.Core.Objects
             }
             _initCompleted = true;
             Strings.Clear();
+            True = new ObjString("true");
+            False = new ObjString("false");
         }
 
         public ObjString(string s)
