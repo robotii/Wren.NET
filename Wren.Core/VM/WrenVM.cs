@@ -76,7 +76,7 @@ namespace Wren.Core.VM
             ObjModule coreModule = new ObjModule(name);
 
             _modules = new ObjMap();
-            _modules.Set(new Obj(ObjType.Null), coreModule);
+            _modules.Set(Obj.Null, coreModule);
 
             CoreLibrary core = new CoreLibrary(this);
             core.InitializeCore();
@@ -96,7 +96,7 @@ namespace Wren.Core.VM
         {
             // If we are binding a foreign method, just return, as this will be handled later
             if (methodContainer is ObjString)
-                return new Obj(ObjType.Null);
+                return Obj.Null;
 
             ObjFn methodFn = methodContainer as ObjFn ?? ((ObjClosure)methodContainer).Function;
 
@@ -111,7 +111,7 @@ namespace Wren.Core.VM
             Compiler.BindMethodCode(classObj, methodFn);
 
             classObj.BindMethod(symbol, method);
-            return new Obj(ObjType.Null);
+            return Obj.Null;
         }
 
         // Creates a string containing an appropriate method not found error for a
@@ -143,7 +143,7 @@ namespace Wren.Core.VM
         // Looks up the core module in the module map.
         private ObjModule GetCoreModule()
         {
-            return GetModule(new Obj(ObjType.Null));
+            return GetModule(Obj.Null);
         }
 
         private ObjFiber LoadModule(Obj name, string source)
@@ -183,7 +183,7 @@ namespace Wren.Core.VM
         private Obj ImportModule(Obj name)
         {
             // If the module is already loaded, we don't need to do anything.
-            if (_modules.Get(name).Type != ObjType.Undefined) return new Obj(ObjType.Null);
+            if (_modules.Get(name).Type != ObjType.Undefined) return Obj.Null;
 
             // Load the module's source code from the embedder.
             string source = LoadModuleFn(name.ToString());
@@ -328,7 +328,7 @@ namespace Wren.Core.VM
                         {
                             if (Fiber.StackTop >= Fiber.Capacity)
                                 stack = Fiber.IncreaseStack();
-                            stack[Fiber.StackTop++] = new Obj(ObjType.Null);
+                            stack[Fiber.StackTop++] = Obj.Null;
                             break;
                         }
 
@@ -336,7 +336,7 @@ namespace Wren.Core.VM
                         {
                             if (Fiber.StackTop >= Fiber.Capacity)
                                 stack = Fiber.IncreaseStack();
-                            stack[Fiber.StackTop++] = new Obj(ObjType.False);
+                            stack[Fiber.StackTop++] = Obj.False;
                             break;
                         }
 
@@ -344,7 +344,7 @@ namespace Wren.Core.VM
                         {
                             if (Fiber.StackTop >= Fiber.Capacity)
                                 stack = Fiber.IncreaseStack();
-                            stack[Fiber.StackTop++] = new Obj(ObjType.True);
+                            stack[Fiber.StackTop++] = Obj.True;
                             break;
                         }
 
@@ -439,14 +439,14 @@ namespace Wren.Core.VM
                                         {
                                             frame.Ip = ip;
 
-                                            if (Fiber.Error != null && Fiber.Error.Type != ObjType.Null)
+                                            if (Fiber.Error != null && Fiber.Error != Obj.Null)
                                             {
                                                 RUNTIME_ERROR(Fiber);
                                             }
                                             else
                                             {
                                                 // If we don't have a fiber to switch to, stop interpreting.
-                                                if (stack[argStart].Type == ObjType.Null)
+                                                if (stack[argStart] == Obj.Null)
                                                     return true;
                                                 Fiber = stack[argStart] as ObjFiber;
                                             }
@@ -614,9 +614,9 @@ namespace Wren.Core.VM
                         {
                             int offset = (bytecode[ip] << 8) + bytecode[ip + 1];
                             ip += 2;
-                            ObjType condition = stack[--Fiber.StackTop].Type;
+                            Obj condition = stack[--Fiber.StackTop];
 
-                            if (condition == ObjType.False || condition == ObjType.Null) ip += offset;
+                            if (condition == Obj.False || condition == Obj.Null) ip += offset;
                             break;
                         }
 
@@ -625,9 +625,9 @@ namespace Wren.Core.VM
                         {
                             int offset = (bytecode[ip] << 8) + bytecode[ip + 1];
                             ip += 2;
-                            ObjType condition = stack[Fiber.StackTop - 1].Type;
+                            Obj condition = stack[Fiber.StackTop - 1];
 
-                            if ((condition == ObjType.Null || condition == ObjType.False) ^ instruction == Instruction.OR)
+                            if ((condition == Obj.Null || condition == Obj.False) ^ instruction == Instruction.OR)
                                 ip += offset;
                             else
                                 Fiber.StackTop--;
@@ -769,8 +769,9 @@ namespace Wren.Core.VM
                                 break;
                             }
 
-                            if (Fiber.StackTop >= Fiber.Capacity)
-                                stack = Fiber.IncreaseStack();
+                            // We know that we have enough space for the class, so we don't need the two lines below
+                            //if (Fiber.StackTop >= Fiber.Capacity)
+                            //    stack = Fiber.IncreaseStack();
                             stack[Fiber.StackTop++] = classObj;
                             break;
                         }
@@ -972,7 +973,7 @@ namespace Wren.Core.VM
         {
             ObjModule m = GetModuleByName(moduleName);
             if (m == null)
-                return new Obj();
+                return Obj.Undefined;
             int symbol = m.Variables.FindIndex(v => v.Name == name);
             return m.Variables[symbol].Container;
         }
@@ -982,7 +983,7 @@ namespace Wren.Core.VM
             if (module == null) module = GetCoreModule();
             if (module.Variables.Count == ObjModule.MaxModuleVars) return -2;
 
-            module.Variables.Add(new ModuleVariable { Name = name, Container = new Obj() });
+            module.Variables.Add(new ModuleVariable { Name = name, Container = Obj.Undefined });
             return module.Variables.Count - 1;
         }
 

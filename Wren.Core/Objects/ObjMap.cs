@@ -13,7 +13,7 @@ namespace Wren.Core.Objects
         public Obj Get(Obj key)
         {
             Obj v;
-            return _entries.TryGetValue(key, out v) ? v : new Obj();
+            return _entries.TryGetValue(key, out v) ? v : Undefined;
         }
 
         // Creates a new empty map.
@@ -32,7 +32,7 @@ namespace Wren.Core.Objects
         public Obj Get(int index)
         {
             if (index < 0 || index >= _entries.Count)
-                return new Obj();
+                return Undefined;
             Obj[] v = new Obj[_entries.Count];
             _entries.Values.CopyTo(v, 0);
             return v[index];
@@ -41,7 +41,7 @@ namespace Wren.Core.Objects
         public Obj GetKey(int index)
         {
             if (index < 0 || index >= _entries.Count)
-                return new Obj();
+                return Undefined;
             Obj[] v = new Obj[_entries.Count];
             _entries.Keys.CopyTo(v, 0);
             return v[index];
@@ -68,7 +68,7 @@ namespace Wren.Core.Objects
                 _entries.Remove(key);
                 return v;
             }
-            return new Obj (ObjType.Null);
+            return Null;
         }
     }
 }

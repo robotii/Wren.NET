@@ -1060,7 +1060,7 @@ namespace Wren.Core.Bytecode
             // Top-level module scope.
             if (_scopeDepth == -1)
             {
-                int symbol = _parser.vm.DefineVariable(_parser.Module, _parser.Source.Substring(t.Start, t.Length), new Obj(ObjType.Null));
+                int symbol = _parser.vm.DefineVariable(_parser.Module, _parser.Source.Substring(t.Start, t.Length), Obj.Null);
 
                 switch (symbol)
                 {
@@ -1620,7 +1620,7 @@ namespace Wren.Core.Bytecode
                 // superclass in a constant. So, here, we create a slot in the constant
                 // table and store null in it. When the method is bound, we'll look up the
                 // superclass then and store it in the constant slot.
-                int constant = AddConstant(new Obj(ObjType.Null));
+                int constant = AddConstant(Obj.Null);
                 EmitShort(constant);
             }
         }
@@ -2103,7 +2103,7 @@ namespace Wren.Core.Bytecode
             {
                 c.Error("Cannot use 'super' outside of a method.");
             }
-            
+
             c.LoadThis();
 
             // TODO: Super operator calls.

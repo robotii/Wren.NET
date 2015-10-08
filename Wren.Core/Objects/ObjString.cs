@@ -57,7 +57,7 @@ namespace Wren.Core.Objects
         // empty string.
         public Obj CodePointAt(int index)
         {
-            return index > Str.Length ? new Obj() : new Obj(Str[index]);
+            return index > Str.Length ? Undefined : new Obj(Str[index]);
         }
 
         public byte[] GetBytes()

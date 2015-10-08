@@ -57,7 +57,7 @@ namespace Wren.Core.Objects
                 _elements.RemoveAt(index);
                 return v;
             }
-            return new Obj(ObjType.Null);
+            return Null;
         }
 
     }

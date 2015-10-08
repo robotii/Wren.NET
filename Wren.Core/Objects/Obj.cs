@@ -20,11 +20,9 @@ namespace Wren.Core.Objects
     public class Obj
     {
         public static Obj Null = new Obj(ObjType.Null);
-
-        public Obj()
-        {
-            Type = ObjType.Undefined;
-        }
+        public static Obj False = new Obj(ObjType.False);
+        public static Obj True = new Obj(ObjType.True);
+        public static Obj Undefined = new Obj(ObjType.Undefined);
 
         public Obj(ObjType t)
         {
@@ -42,9 +40,9 @@ namespace Wren.Core.Objects
             return new ObjString(s);
         }
 
-        public Obj(bool b)
+        public static Obj Bool(bool b)
         {
-            Type = b ? ObjType.True : ObjType.False;
+            return b ? True : False;
         }
 
         public readonly ObjType Type;
