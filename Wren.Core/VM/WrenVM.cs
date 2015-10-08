@@ -464,11 +464,9 @@ namespace Wren.Core.VM
                                         break;
                                     }
 
-                                    Obj f = stack[argStart];
-
                                     if (method.MType == MethodType.Block)
                                     {
-                                        f = method.Obj;
+                                        receiver = method.Obj;
                                     }
                                     else if (method.MType == MethodType.Call)
                                     {
@@ -489,12 +487,12 @@ namespace Wren.Core.VM
                                     }
 
                                     frame.Ip = ip;
-                                    Fiber.Frames.Add(frame = new CallFrame { Fn = f, StackStart = argStart, Ip = 0 });
+                                    Fiber.Frames.Add(frame = new CallFrame { Fn = receiver, StackStart = argStart, Ip = 0 });
                                     Fiber.NumFrames++;
                                     /* Load Frame */
                                     ip = 0;
                                     stackStart = argStart;
-                                    fn = (f as ObjFn) ?? (f as ObjClosure).Function;
+                                    fn = (receiver as ObjFn) ?? (receiver as ObjClosure).Function;
                                     bytecode = fn.Bytecode;
                                     break;
 
