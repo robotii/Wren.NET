@@ -266,13 +266,13 @@ namespace Wren.Core.Library
 
         static bool prim_bool_not(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[stackStart] = Obj.Bool(args[stackStart].Type != ObjType.True);
+            args[stackStart] = Obj.Bool(args[stackStart] != Obj.True);
             return true;
         }
 
         static bool prim_bool_toString(WrenVM vm, Obj[] args, int stackStart)
         {
-            args[stackStart] = args[stackStart].Type == ObjType.True ? ObjString.True : ObjString.False;
+            args[stackStart] = args[stackStart] == Obj.True ? ObjString.TrueString : ObjString.FalseString;
             return true;
         }
 
@@ -893,7 +893,7 @@ namespace Wren.Core.Library
                 if (map != null)
                 {
                     args[stackStart] = map.Get(a);
-                    if (args[stackStart].Type == ObjType.Undefined)
+                    if (args[stackStart] == Obj.Undefined)
                     {
                         args[stackStart] = Obj.Null;
                     }
@@ -944,7 +944,7 @@ namespace Wren.Core.Library
             {
                 Obj v = map.Get(args[stackStart + 1]);
 
-                args[stackStart] = Obj.Bool(v.Type != ObjType.Undefined);
+                args[stackStart] = Obj.Bool(v != Obj.Undefined);
                 return true;
             }
 
@@ -981,7 +981,7 @@ namespace Wren.Core.Library
 
                 if (index == args[stackStart + 1].Num)
                 {
-                    args[stackStart] = index > map.Count() || map.Get(index).Type == ObjType.Undefined ? Obj.False : new Obj(index + 1);
+                    args[stackStart] = index > map.Count() || map.Get(index) == Obj.Undefined ? Obj.False : new Obj(index + 1);
                     return true;
                 }
 
@@ -1495,7 +1495,7 @@ namespace Wren.Core.Library
                 ObjString name = instance.ClassObj.Name;
                 args[stackStart] = Obj.MakeString(string.Format("instance of {0}", name));
             }
-            else if (args[stackStart].Type == ObjType.Undefined)
+            else if (args[stackStart] == Obj.Undefined)
             {
                 args[stackStart] = Obj.MakeString("undefined");
             }
@@ -2058,10 +2058,8 @@ namespace Wren.Core.Library
 
         static bool ValidateKey(Obj arg)
         {
-            return arg.Type == ObjType.False
-                   || arg.Type == ObjType.True
-                   || arg.Type == ObjType.Num
-                   || arg.Type == ObjType.Null
+            return arg == Obj.False   || arg == Obj.True
+                   || arg == Obj.Null || arg.Type == ObjType.Num
                    || arg is ObjClass || arg is ObjFiber
                    || arg is ObjRange || arg is ObjString;
         }

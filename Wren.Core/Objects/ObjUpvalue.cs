@@ -13,7 +13,6 @@
 
         // Creates a new open upvalue pointing to [value] on the stack.
         public ObjUpvalue(Obj c)
-            : base(ObjType.Obj)
         {
             Container = c;
             Next = null;

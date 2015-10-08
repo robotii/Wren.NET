@@ -24,6 +24,11 @@ namespace Wren.Core.Objects
         public static Obj True = new Obj(ObjType.True);
         public static Obj Undefined = new Obj(ObjType.Undefined);
 
+        protected Obj()
+        {
+            Type = ObjType.Obj;
+        }
+
         public Obj(ObjType t)
         {
             Type = t;

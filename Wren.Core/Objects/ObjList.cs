@@ -11,7 +11,6 @@ namespace Wren.Core.Objects
         // Creates a new list with [numElements] elements (which are left
         // uninitialized.)
         public ObjList(int numElements)
-            : base(ObjType.Obj)
         {
             _elements = new List<Obj>(numElements);
             ClassObj = WrenVM.ListClass;

@@ -3155,7 +3155,7 @@ namespace Wren.Core.Bytecode
             for (int i = 0; i < parser.Module.Variables.Count; i++)
             {
                 ModuleVariable t = parser.Module.Variables[i];
-                if (t.Container.Type == ObjType.Undefined)
+                if (t.Container == Obj.Undefined)
                 {
                     compiler.Error(string.Format("Variable '{0}' is used but not defined.", t.Name));
                 }

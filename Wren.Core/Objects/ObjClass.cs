@@ -21,7 +21,6 @@ namespace Wren.Core.Objects
 
         // Creates a new class object as well as its associated metaclass.
         public ObjClass(ObjClass superclass, int numFields, ObjString name)
-            : base(ObjType.Obj)
         {
             Methods = new Method[InitialMethodSize];
             Superclass = superclass;
@@ -45,7 +44,6 @@ namespace Wren.Core.Objects
         // This is only used for bootstrapping the initial Object and Class classes,
         // which are a little special.
         public ObjClass(int numFields, ObjString name)
-            : base(ObjType.Obj)
         {
             Methods = new Method[InitialMethodSize];
             NumFields = numFields;

@@ -126,7 +126,7 @@ namespace Wren.Core.VM
         private ObjModule GetModule(Obj name)
         {
             Obj moduleContainer = _modules.Get(name);
-            return moduleContainer.Type == ObjType.Undefined ? null : moduleContainer as ObjModule;
+            return moduleContainer == Obj.Undefined ? null : moduleContainer as ObjModule;
         }
 
         private ObjModule GetModuleByName(string name)
@@ -183,7 +183,7 @@ namespace Wren.Core.VM
         private Obj ImportModule(Obj name)
         {
             // If the module is already loaded, we don't need to do anything.
-            if (_modules.Get(name).Type != ObjType.Undefined) return Obj.Null;
+            if (_modules.Get(name) != Obj.Undefined) return Obj.Null;
 
             // Load the module's source code from the embedder.
             string source = LoadModuleFn(name.ToString());
@@ -245,7 +245,7 @@ namespace Wren.Core.VM
             // Make sure it doesn't inherit from a sealed built-in type. Primitive methods
             // on these classes assume the instance is one of the other Obj___ types and
             // will fail horribly if it's actually an ObjInstance.
-            ObjClass superclass = superclassContainer as ObjClass;
+            ObjClass superclass = (ObjClass)superclassContainer;
 
             return superclass.IsSealed ? Obj.MakeString(string.Format("Class '{0}' cannot inherit from built-in class '{1}'.", name as ObjString, (superclass.Name))) : null;
         }
@@ -301,8 +301,7 @@ namespace Wren.Core.VM
                     case Instruction.LOAD_FIELD_THIS:
                         {
                             byte field = bytecode[ip++];
-                            Obj receiver = stack[stackStart];
-                            ObjInstance instance = receiver as ObjInstance;
+                            ObjInstance instance = (ObjInstance)stack[stackStart];
                             if (Fiber.StackTop >= Fiber.Capacity)
                                 stack = Fiber.IncreaseStack();
                             stack[Fiber.StackTop++] = instance.Fields[field];
@@ -403,7 +402,7 @@ namespace Wren.Core.VM
                                 {
                                     classObj = NumClass;
                                 }
-                                else if (receiver.Type == ObjType.True || receiver.Type == ObjType.False)
+                                else if (receiver == Obj.True || receiver == Obj.False)
                                 {
                                     classObj = BoolClass;
                                 }
@@ -568,8 +567,7 @@ namespace Wren.Core.VM
                     case Instruction.STORE_FIELD_THIS:
                         {
                             byte field = bytecode[ip++];
-                            Obj receiver = stack[stackStart];
-                            ObjInstance instance = receiver as ObjInstance;
+                            ObjInstance instance = (ObjInstance)stack[stackStart];
                             instance.Fields[field] = stack[Fiber.StackTop - 1];
                             break;
                         }
@@ -577,8 +575,7 @@ namespace Wren.Core.VM
                     case Instruction.LOAD_FIELD:
                         {
                             byte field = bytecode[ip++];
-                            Obj receiver = stack[--Fiber.StackTop];
-                            ObjInstance instance = receiver as ObjInstance;
+                            ObjInstance instance = (ObjInstance)stack[--Fiber.StackTop];
                             if (Fiber.StackTop >= Fiber.Capacity)
                                 stack = Fiber.IncreaseStack();
                             stack[Fiber.StackTop++] = instance.Fields[field];
@@ -588,8 +585,7 @@ namespace Wren.Core.VM
                     case Instruction.STORE_FIELD:
                         {
                             byte field = bytecode[ip++];
-                            Obj receiver = stack[--Fiber.StackTop];
-                            ObjInstance instance = receiver as ObjInstance;
+                            ObjInstance instance = (ObjInstance)stack[--Fiber.StackTop];
                             instance.Fields[field] = stack[Fiber.StackTop - 1];
                             break;
                         }
@@ -769,9 +765,6 @@ namespace Wren.Core.VM
                                 break;
                             }
 
-                            // We know that we have enough space for the class, so we don't need the two lines below
-                            //if (Fiber.StackTop >= Fiber.Capacity)
-                            //    stack = Fiber.IncreaseStack();
                             stack[Fiber.StackTop++] = classObj;
                             break;
                         }
@@ -1001,7 +994,7 @@ namespace Wren.Core.VM
                 module.Variables.Add(new ModuleVariable { Name = name, Container = c });
                 symbol = module.Variables.Count - 1;
             }
-            else if (module.Variables[symbol].Container.Type == ObjType.Undefined)
+            else if (module.Variables[symbol].Container == Obj.Undefined)
             {
                 // Explicitly declaring an implicitly declared one. Mark it as defined.
                 module.Variables[symbol].Container = c;

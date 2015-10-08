@@ -10,8 +10,8 @@ namespace Wren.Core.Objects
         private static readonly List<ObjString> Strings = new List<ObjString>();
         private static bool _initCompleted;
 
-        public static ObjString True;
-        public static ObjString False;
+        public static ObjString TrueString;
+        public static ObjString FalseString;
 
         public static void InitClass()
         {
@@ -21,17 +21,22 @@ namespace Wren.Core.Objects
             }
             _initCompleted = true;
             Strings.Clear();
-            True = new ObjString("true");
-            False = new ObjString("false");
+            TrueString = new ObjString("true");
+            FalseString = new ObjString("false");
         }
 
         public ObjString(string s)
-            : base(ObjType.Obj)
         {
             Str = s;
-            ClassObj = WrenVM.StringClass;
+
             if (!_initCompleted)
+            {
                 Strings.Add(this);
+            }
+            else
+            {
+                ClassObj = WrenVM.StringClass;
+            }
         }
 
         public readonly string Str;

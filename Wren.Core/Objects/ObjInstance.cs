@@ -4,7 +4,6 @@
     {
         // Creates a new instance of the given [classObj].
         public ObjInstance(ObjClass classObj)
-            : base(ObjType.Obj)
         {
             Fields = new Obj[classObj.NumFields];
 

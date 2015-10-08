@@ -12,7 +12,6 @@ namespace Wren.Core.Objects
 
         // Creates a new range from [from] to [to].
         public ObjRange(double from, double to, bool isInclusive)
-            : base(ObjType.Obj)
         {
             From = from;
             To = to;
