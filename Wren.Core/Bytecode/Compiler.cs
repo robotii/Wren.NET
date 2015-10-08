@@ -1382,15 +1382,15 @@ namespace Wren.Core.Bytecode
             public readonly GrammarFn Infix;
             public readonly SignatureFn Method;
             public readonly Precedence Precedence;
-            public readonly string Name;
+            public readonly string Function;
 
-            public GrammarRule(GrammarFn prefix, GrammarFn infix, SignatureFn method, Precedence precedence, string name)
+            public GrammarRule(GrammarFn prefix, GrammarFn infix, SignatureFn method, Precedence precedence, string function)
             {
                 Prefix = prefix;
                 Infix = infix;
                 Method = method;
                 Precedence = precedence;
-                Name = name;
+                Function = function;
             }
         };
 
@@ -1839,7 +1839,7 @@ namespace Wren.Core.Bytecode
             c.ParsePrecedence(false, Precedence.Unary + 1);
 
             // Call the operator method on the left-hand side.
-            c.CallMethod(0, rule.Name);
+            c.CallMethod(0, rule.Function);
         }
 
         private static void Boolean(Compiler c, bool allowAssignment)
@@ -2222,7 +2222,7 @@ namespace Wren.Core.Bytecode
             c.ParsePrecedence(false, rule.Precedence + 1);
 
             // Call the operator method on the left-hand side.
-            Signature signature = new Signature { Type = SignatureType.Method, Arity = 1, Name = rule.Name, Length = rule.Name.Length };
+            Signature signature = new Signature { Type = SignatureType.Method, Arity = 1, Name = rule.Function, Length = rule.Function.Length };
             c.CallSignature(Instruction.CALL_0, signature);
         }
 
@@ -2498,28 +2498,6 @@ namespace Wren.Core.Bytecode
             Instruction instruction = (Instruction)bytecode[ip];
             switch (instruction)
             {
-                case Instruction.NULL:
-                case Instruction.FALSE:
-                case Instruction.TRUE:
-                case Instruction.POP:
-                case Instruction.DUP:
-                case Instruction.CLOSE_UPVALUE:
-                case Instruction.RETURN:
-                case Instruction.END:
-                case Instruction.LOAD_LOCAL_0:
-                case Instruction.LOAD_LOCAL_1:
-                case Instruction.LOAD_LOCAL_2:
-                case Instruction.LOAD_LOCAL_3:
-                case Instruction.LOAD_LOCAL_4:
-                case Instruction.LOAD_LOCAL_5:
-                case Instruction.LOAD_LOCAL_6:
-                case Instruction.LOAD_LOCAL_7:
-                case Instruction.LOAD_LOCAL_8:
-                case Instruction.CONSTRUCT:
-                case Instruction.FOREIGN_CONSTRUCT:
-                case Instruction.FOREIGN_CLASS:
-                    return 0;
-
                 case Instruction.LOAD_LOCAL:
                 case Instruction.STORE_LOCAL:
                 case Instruction.LOAD_UPVALUE:
@@ -2589,7 +2567,27 @@ namespace Wren.Core.Bytecode
                         // There are two bytes for the constant, then two for each upvalue.
                         return 2 + (loadedFn.NumUpvalues * 2);
                     }
-
+/*
+                case Instruction.NULL:
+                case Instruction.FALSE:
+                case Instruction.TRUE:
+                case Instruction.POP:
+                case Instruction.DUP:
+                case Instruction.CLOSE_UPVALUE:
+                case Instruction.RETURN:
+                case Instruction.END:
+                case Instruction.LOAD_LOCAL_0:
+                case Instruction.LOAD_LOCAL_1:
+                case Instruction.LOAD_LOCAL_2:
+                case Instruction.LOAD_LOCAL_3:
+                case Instruction.LOAD_LOCAL_4:
+                case Instruction.LOAD_LOCAL_5:
+                case Instruction.LOAD_LOCAL_6:
+                case Instruction.LOAD_LOCAL_7:
+                case Instruction.LOAD_LOCAL_8:
+                case Instruction.CONSTRUCT:
+                case Instruction.FOREIGN_CONSTRUCT:
+                case Instruction.FOREIGN_CLASS:*/
                 default:
                     return 0;
             }

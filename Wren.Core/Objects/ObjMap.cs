@@ -62,12 +62,11 @@ namespace Wren.Core.Objects
         public Obj Remove(Obj key)
         {
             Obj v;
-            if (_entries.TryGetValue(key, out v))
-            {
-                _entries.Remove(key);
-                return v;
-            }
-            return Null;
+            if (!_entries.TryGetValue(key, out v)) 
+                return Null;
+
+            _entries.Remove(key);
+            return v;
         }
     }
 }

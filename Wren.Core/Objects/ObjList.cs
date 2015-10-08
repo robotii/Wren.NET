@@ -50,13 +50,12 @@ namespace Wren.Core.Objects
         // Removes and returns the item at [index] from [list].
         public Obj RemoveAt(int index)
         {
-            if (_elements.Count > index)
-            {
-                Obj v = _elements[index];
-                _elements.RemoveAt(index);
-                return v;
-            }
-            return Null;
+            if (_elements.Count <= index) 
+                return Null;
+
+            Obj v = _elements[index];
+            _elements.RemoveAt(index);
+            return v;
         }
 
     }

@@ -28,15 +28,14 @@ namespace Wren
 
         static int RunFile(string path)
         {
-            if (File.Exists(path))
-            {
-                _loadedFile = path;
-                string source = File.ReadAllText(path);
-                WrenVM vm = new WrenVM { LoadModuleFn = LoadModule };
-                LibraryLoader.LoadLibraries(vm);
-                return (int)vm.Interpret("main", path, source);
-            }
-            return 66; // File Not Found
+            if (!File.Exists(path)) 
+                return 66; // File Not Found
+
+            _loadedFile = path;
+            string source = File.ReadAllText(path);
+            WrenVM vm = new WrenVM { LoadModuleFn = LoadModule };
+            LibraryLoader.LoadLibraries(vm);
+            return (int)vm.Interpret("main", path, source);
         }
 
         private static int OpenBrackets(string s)
@@ -70,23 +69,23 @@ namespace Wren
         static string LoadModule(string name)
         {
             int lastPathSeparator = _loadedFile.LastIndexOf("\\", StringComparison.Ordinal);
+
             if (lastPathSeparator < 0)
                 lastPathSeparator = _loadedFile.LastIndexOf("/", StringComparison.Ordinal);
+
             string rootDir = _loadedFile.Substring(0, lastPathSeparator + 1);
             string path = rootDir + name + ".wren";
+
             if (File.Exists(path))
             {
                 return File.ReadAllText(path);
             }
-            if (Directory.Exists(path.Substring(0, path.Length - 5)))
-            {
-                path = path.Substring(0, path.Length - 5) + "\\" + "module.wren";
-                if (File.Exists(path))
-                {
-                    return File.ReadAllText(path);
-                }
-            }
-            return null;
+
+            if (!Directory.Exists(path.Substring(0, path.Length - 5))) 
+                return null;
+
+            path = path.Substring(0, path.Length - 5) + "\\" + "module.wren";
+            return File.Exists(path) ? File.ReadAllText(path) : null;
         }
     }
 }
