@@ -267,7 +267,7 @@ def run_api_test(path):
 def run_example(path):
   run_script(WREN_APP, path, "example")
 
-walk(join(WREN_DIR, 'test'), run_test, ignored=['benchmark'])
+walk(join(WREN_DIR, 'test'), run_test, ignored=['api', 'benchmark'])
 
 print_line()
 if failed == 0:
