@@ -87,12 +87,12 @@ namespace Wren.Core.Objects
         // ensure that multiple closures closing over the same variable actually see
         // the same variable.) Otherwise, it will create a new open upvalue and add it
         // the fiber's list of upvalues.
-        public ObjUpvalue CaptureUpvalue(Obj local)
+        public ObjUpvalue CaptureUpvalue(int index)
         {
             // If there are no open upvalues at all, we must need a new one.
             if (OpenUpvalues == null)
             {
-                OpenUpvalues = new ObjUpvalue(local);
+                OpenUpvalues = new ObjUpvalue(Stack[index], index);
                 return OpenUpvalues;
             }
 
@@ -101,19 +101,19 @@ namespace Wren.Core.Objects
 
             // Walk towards the bottom of the stack until we find a previously existing
             // upvalue or pass where it should be.
-            while (upvalue != null && upvalue.Container != local)
+            while (upvalue != null && upvalue.Index != index)
             {
                 prevUpvalue = upvalue;
                 upvalue = upvalue.Next;
             }
 
             // Found an existing upvalue for this local.
-            if (upvalue != null && upvalue.Container == local) return upvalue;
+            if (upvalue != null && upvalue.Index == index) return upvalue;
 
             // We've walked past this local on the stack, so there must not be an
             // upvalue for it already. Make a new one and link it in in the right
             // place to keep the list sorted.
-            ObjUpvalue createdUpvalue = new ObjUpvalue(local);
+            ObjUpvalue createdUpvalue = new ObjUpvalue(Stack[index], index);
             if (prevUpvalue == null)
             {
                 // The new one is the first one in the list.
@@ -132,6 +132,9 @@ namespace Wren.Core.Objects
         {
             if (OpenUpvalues == null)
                 return;
+
+            // Push the value back into the stack
+            Stack[OpenUpvalues.Index] = OpenUpvalues.Container;
 
             // Remove it from the open upvalue list.
             OpenUpvalues = OpenUpvalues.Next;

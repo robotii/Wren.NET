@@ -12,13 +12,15 @@
         // next upvalue in that list.
 
         // Creates a new open upvalue pointing to [value] on the stack.
-        public ObjUpvalue(Obj c)
+        public ObjUpvalue(Obj c, int index)
         {
             Container = c;
             Next = null;
+            Index = index;
         }
 
         public Obj Container;
         public ObjUpvalue Next;
+        public int Index;
     }
 }

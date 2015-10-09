@@ -674,7 +674,7 @@ namespace Wren.Core.VM
                                 if (isLocal > 0)
                                 {
                                     // Make an new upvalue to close over the parent's local variable.
-                                    closure.Upvalues[i] = Fiber.CaptureUpvalue(stack[stackStart + index]);
+                                    closure.Upvalues[i] = Fiber.CaptureUpvalue(stackStart + index);
                                 }
                                 else
                                 {
