@@ -507,6 +507,10 @@ namespace Wren.Core.Bytecode
             {
                 LexError(parser, "Number too big");
             }
+            catch (FormatException)
+            {
+                LexError(parser, "Number was not in correct format");
+            }
             MakeToken(parser, TokenType.Number);
         }
 
