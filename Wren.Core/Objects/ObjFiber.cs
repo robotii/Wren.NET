@@ -133,13 +133,8 @@ namespace Wren.Core.Objects
             if (OpenUpvalues == null)
                 return;
 
-            ObjUpvalue upvalue = OpenUpvalues;
-
-            // Move the value into the upvalue itself and point the upvalue to it.
-            //upvalue.Container = upvalue.Container;
-
             // Remove it from the open upvalue list.
-            OpenUpvalues = upvalue.Next;
+            OpenUpvalues = OpenUpvalues.Next;
         }
 
         // Puts [fiber] into a runtime failed state because of [error].

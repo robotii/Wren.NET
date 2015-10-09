@@ -3348,7 +3348,7 @@ namespace Wren.Core.Bytecode
 
                     case Instruction.CLOSURE:
                         {
-                            int constant = (bytecode[ip + 1] << 8) | bytecode[ip + 2];
+                            int constant = (bytecode[ip] << 8) | bytecode[ip + 1];
                             ObjFn loadedFn = (ObjFn)fn.Constants[constant];
 
                             // There are two bytes for the constant, then two for each upvalue.
