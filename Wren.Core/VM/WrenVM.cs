@@ -614,12 +614,10 @@ namespace Wren.Core.VM
                             // Close any upvalues still in scope.
                             if (Fiber.StackTop > stackStart)
                             {
-                                Obj first = stack[stackStart];
-                                while (Fiber.OpenUpvalues != null && Fiber.OpenUpvalues.Container != first)
+                                while (Fiber.OpenUpvalues != null && Fiber.OpenUpvalues.Index >= stackStart)
                                 {
                                     Fiber.CloseUpvalue();
                                 }
-                                Fiber.CloseUpvalue();
                             }
 
                             // If the fiber is complete, end it.
@@ -717,23 +715,24 @@ namespace Wren.Core.VM
                             Fiber.StackTop -= 2;
 
                             // Now that we know the total number of fields, make sure we don't overflow.
-                            if (superclass.NumFields + numFields > Compiler.MaxFields)
+                            if (superclass.NumFields + numFields <= Compiler.MaxFields)
                             {
-                                frame.Ip = ip;
-                                Fiber.Error = Obj.MakeString(string.Format("Class '{0}' may not have more than 255 fields, including inherited ones.", name));
-                                if (!HandleRuntimeError())
-                                    return false;
-                                /* Load Frame */
-                                frame = Fiber.Frames[Fiber.NumFrames - 1];
-                                ip = frame.Ip;
-                                stackStart = frame.StackStart;
-                                stack = Fiber.Stack;
-                                fn = (frame.Fn as ObjFn) ?? (frame.Fn as ObjClosure).Function;
-                                bytecode = fn.Bytecode;
+                                stack[Fiber.StackTop++] = classObj;
                                 break;
                             }
 
-                            stack[Fiber.StackTop++] = classObj;
+                            // Overflow handling
+                            frame.Ip = ip;
+                            Fiber.Error = Obj.MakeString(string.Format("Class '{0}' may not have more than 255 fields, including inherited ones.", name));
+                            if (!HandleRuntimeError())
+                                return false;
+                            /* Load Frame */
+                            frame = Fiber.Frames[Fiber.NumFrames - 1];
+                            ip = frame.Ip;
+                            stackStart = frame.StackStart;
+                            stack = Fiber.Stack;
+                            fn = (frame.Fn as ObjFn) ?? (frame.Fn as ObjClosure).Function;
+                            bytecode = fn.Bytecode;
                             break;
                         }
 

@@ -101,7 +101,7 @@ namespace Wren.Core.Objects
 
             // Walk towards the bottom of the stack until we find a previously existing
             // upvalue or pass where it should be.
-            while (upvalue != null && upvalue.Index != index)
+            while (upvalue != null && upvalue.Index > index)
             {
                 prevUpvalue = upvalue;
                 upvalue = upvalue.Next;
