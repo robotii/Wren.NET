@@ -1209,8 +1209,12 @@ namespace Wren.Core.Bytecode
         // not close over local variables.
         private int FindUpvalue(string name, int length)
         {
-            // If we are at a method boundary or the top level, we didn't find it.
-            if (_parent == null || _enclosingClass != null) return -1;
+            // If we are at the top level, we didn't find it.
+            if (_parent == null) return -1;
+
+            // If we hit the method boundary (and the name isn't a static field), then
+            // stop looking for it. We'll instead treat it as a self send.
+            if (name[0] != '_' && _parent._enclosingClass != null) return -1;
 
             // See if it's a local variable in the immediately enclosing function.
             int local = _parent.ResolveLocal(name, length);
@@ -2567,27 +2571,27 @@ namespace Wren.Core.Bytecode
                         // There are two bytes for the constant, then two for each upvalue.
                         return 2 + (loadedFn.NumUpvalues * 2);
                     }
-/*
-                case Instruction.NULL:
-                case Instruction.FALSE:
-                case Instruction.TRUE:
-                case Instruction.POP:
-                case Instruction.DUP:
-                case Instruction.CLOSE_UPVALUE:
-                case Instruction.RETURN:
-                case Instruction.END:
-                case Instruction.LOAD_LOCAL_0:
-                case Instruction.LOAD_LOCAL_1:
-                case Instruction.LOAD_LOCAL_2:
-                case Instruction.LOAD_LOCAL_3:
-                case Instruction.LOAD_LOCAL_4:
-                case Instruction.LOAD_LOCAL_5:
-                case Instruction.LOAD_LOCAL_6:
-                case Instruction.LOAD_LOCAL_7:
-                case Instruction.LOAD_LOCAL_8:
-                case Instruction.CONSTRUCT:
-                case Instruction.FOREIGN_CONSTRUCT:
-                case Instruction.FOREIGN_CLASS:*/
+                /*
+                                case Instruction.NULL:
+                                case Instruction.FALSE:
+                                case Instruction.TRUE:
+                                case Instruction.POP:
+                                case Instruction.DUP:
+                                case Instruction.CLOSE_UPVALUE:
+                                case Instruction.RETURN:
+                                case Instruction.END:
+                                case Instruction.LOAD_LOCAL_0:
+                                case Instruction.LOAD_LOCAL_1:
+                                case Instruction.LOAD_LOCAL_2:
+                                case Instruction.LOAD_LOCAL_3:
+                                case Instruction.LOAD_LOCAL_4:
+                                case Instruction.LOAD_LOCAL_5:
+                                case Instruction.LOAD_LOCAL_6:
+                                case Instruction.LOAD_LOCAL_7:
+                                case Instruction.LOAD_LOCAL_8:
+                                case Instruction.CONSTRUCT:
+                                case Instruction.FOREIGN_CONSTRUCT:
+                                case Instruction.FOREIGN_CLASS:*/
                 default:
                     return 0;
             }
