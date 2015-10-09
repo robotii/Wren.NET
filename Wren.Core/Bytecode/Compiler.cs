@@ -1820,10 +1820,10 @@ namespace Wren.Core.Bytecode
                     // The key.
                     c.ParsePrecedence(false, Precedence.Primary);
                     c.Consume(TokenType.Colon, "Expect ':' after map key.");
+                    c.IgnoreNewlines();
 
                     // The value.
                     c.Expression();
-
                     c.CallMethod(2, "[_]=(_)");
 
                     // Discard the result of the setter call.
