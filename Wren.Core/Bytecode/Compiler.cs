@@ -670,10 +670,10 @@ namespace Wren.Core.Bytecode
         }
 
         // Reads a four hex digit Unicode escape sequence in a string literal.
-        void ReadUnicodeEscape()
+        void ReadUnicodeEscape(int length)
         {
             // Read the next four characters and parse them into a unicode value (char)
-            int i = ReadHexEscape(4, "unicode");
+            int i = ReadHexEscape(length, "unicode");
             AddStringChar(_parser, Convert.ToChar(i));
         }
 
@@ -708,8 +708,8 @@ namespace Wren.Core.Bytecode
                         case 'n': AddStringChar(_parser, '\n'); break;
                         case 'r': AddStringChar(_parser, '\r'); break;
                         case 't': AddStringChar(_parser, '\t'); break;
-                        case 'u': ReadUnicodeEscape(); break;
-                        // TODO: 'U' for 8 octet Unicode escapes.
+                        case 'u': ReadUnicodeEscape(4); break;
+                        case 'U': ReadUnicodeEscape(8); break;
                         case 'v': AddStringChar(_parser, '\v'); break;
                         case 'x':
                             AddStringChar(_parser, (char)(0xFF & ReadHexEscape(2, "byte")));
